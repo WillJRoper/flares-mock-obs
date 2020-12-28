@@ -142,9 +142,6 @@ reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1, IMF='Chabrier_300',
                      extinction=extinction, orientation=orientation,
                      masslim=masslim)
 
-poss = reg_dict["coords"] * 10 ** 3 * arcsec_per_kpc_proper
-smls = reg_dict["smls"] * 10 ** 3 * arcsec_per_kpc_proper
-
 for f in filters:
 
     hlr_app_dict[tag].setdefault(f, {})
