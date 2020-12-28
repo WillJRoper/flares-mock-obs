@@ -102,7 +102,7 @@ kernel.normalize()
 ini_width = 20
 
 # Define arc_second resolution
-if int(filters[0].split()[-1][1:4]) < 2.3:
+if int(filters[0].split(".")[-1][1:4]) < 2.3:
     arc_res = 0.031
 else:
     arc_res = 0.063
