@@ -189,9 +189,9 @@ for f in filters:
 
         # img[img < 10**21] = 0
 
-        # threshold = phut.detect_threshold(img, nsigma=5)
+        threshold = phut.detect_threshold(img, nsigma=5)
         print("Threshold:", np.median(img))
-        threshold = np.median(img)
+        # threshold = np.median(img)
 
         segm = phut.detect_sources(img, threshold, npixels=10,
                                    filter_kernel=kernel)
@@ -213,15 +213,16 @@ for f in filters:
                 continue
             print(np.sum(img[segm.data == i]))
             for r in radii_fracs:
-                img_segm = np.zeros_like(img)
-                img_segm[segm.data == i] = img[segm.data == i]
-                hlr_pix_dict[tag][f][r].append(
-                    util.get_pixel_hlr(img_segm, single_pixel_area,
-                                       radii_frac=r))
-                hlr_app_dict[tag][f][r].append(
-                    util.get_img_hlr(img, apertures, app_radii, res,
-                                     arc_res / arcsec_per_kpc_proper, r))
-            lumin_dict[tag][f].append(np.sum(img[segm.data == i]))
+                try:
+                    img_segm = np.zeros_like(img)
+                    img_segm[segm.data == i] = img[segm.data == i]
+                    hlr_pix_dict[tag][f][r].append(
+                        util.get_pixel_hlr(img_segm, single_pixel_area,
+                                           radii_frac=r))
+                    # hlr_app_dict[tag][f][r].append(
+                    #     util.get_img_hlr(img, apertures, app_radii, res,
+                    #                      arc_res / arcsec_per_kpc_proper, r))
+                lumin_dict[tag][f].append(np.sum(img[segm.data == i]))
 
         img_dict[tag][f].append(img)
         segm_dict[tag][f].append(segm)
