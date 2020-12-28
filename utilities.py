@@ -11,6 +11,7 @@ from scipy.interpolate import interp1d
 import schwimmbad
 from functools import partial
 import time
+from scipy.spatial import cKDTree
 
 os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
@@ -90,25 +91,36 @@ def get_Z_LOS(s_cood, g_cood, g_mass, g_Z, g_sml, dimens, lkernel, kbins):
     # Fixing the observer direction as z-axis. Use make_faceon() for changing the
     # particle orientation to face-on
     xdir, ydir, zdir = dimens
+
+    rs = g_cood[:, (xdir, ydir)] / g_sml
+
+    tree = cKDTree(rs)
+
     for ii in range(n):
         thisspos = s_cood[ii]
-        ok = np.where(g_cood[:, zdir] > thisspos[zdir])[0]
+
+        ok = tree.query_ball_radius(thisspos, r=1)
         thisgpos = g_cood[ok]
         thisgsml = g_sml[ok]
         thisgZ = g_Z[ok]
         thisgmass = g_mass[ok]
+
+        ok = np.where(thisgpos[:, zdir] > thisspos[zdir])[0]
+        thisgpos = thisgpos[ok]
+        thisgsml = thisgsml[ok]
+        thisgZ = thisgZ[ok]
+        thisgmass = thisgmass[ok]
         x = thisgpos[:, xdir] - thisspos[xdir]
         y = thisgpos[:, ydir] - thisspos[ydir]
 
         b = np.sqrt(x * x + y * y)
         boverh = b / thisgsml
 
-        ok = np.where(boverh <= 1.)[0]
-        kernel_vals = np.array([lkernel[int(kbins * ll)] for ll in boverh[ok]])
+        kernel_vals = np.array([lkernel[int(kbins * ll)] for ll in boverh])
 
-        Z_los_SD[ii] = np.sum((thisgmass[ok] * thisgZ[ok] / (
-                    thisgsml[ok] * thisgsml[
-                ok])) * kernel_vals) * conv  # in units of Msun/pc^2
+        Z_los_SD[ii] = np.sum((thisgmass * thisgZ /
+                               (thisgsml * thisgsml)) * kernel_vals)\
+                       * conv  # in units of Msun/pc^2
 
     return Z_los_SD
 
