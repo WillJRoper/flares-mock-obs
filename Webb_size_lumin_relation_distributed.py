@@ -189,20 +189,20 @@ for f in filters:
 
         # img[img < 10**21] = 0
 
-        threshold = phut.detect_threshold(img, nsigma=5)
-        print("Threshold:", threshold)
-        # threshold = 10 ** 20
+        # threshold = phut.detect_threshold(img, nsigma=5)
+        print("Threshold:", np.median(img))
+        threshold = np.median(img)
 
         segm = phut.detect_sources(img, threshold, npixels=10,
                                    filter_kernel=kernel)
         segm = phut.deblend_sources(img, segm, npixels=10,
                                     filter_kernel=kernel,
-                                    nlevels=8, contrast=0.1)
+                                    nlevels=832, contrast=0.001)
 
 
         for i in range(np.max(segm.data + 1)):
-            # if np.sum(img[segm.data == i]) < 10 ** 27:
-            #     continue
+            if np.sum(img[segm.data == i]) < np.median(img):
+                continue
             print(np.sum(img[segm.data == i]))
             for r in radii_fracs:
                 img_segm = np.zeros_like(img)
