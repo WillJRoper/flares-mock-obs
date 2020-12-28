@@ -38,13 +38,9 @@ def DTM_fit(Z, Age):
 
 
 def get_data(reg, snap, masslim):
+
     z_str = snap.split('z')[1].split('p')
     z = float(z_str[0] + '.' + z_str[1])
-
-    if reg < 10:
-        reg = '0' + str(reg)
-    else:
-        reg = str(reg)
 
     path = '/cosma/home/dp004/dc-rope1/FLARES/FLARES-1/G-EAGLE_' + reg + '/data'
 

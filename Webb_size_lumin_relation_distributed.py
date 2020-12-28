@@ -98,8 +98,10 @@ kernel_sigma = 8 / (2.0 * np.sqrt(2.0 * np.log(2.0)))  # FWHM = 3
 kernel = Gaussian2DKernel(kernel_sigma)
 kernel.normalize()
 
+arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
+
 # Define width
-ini_width = 20
+ini_width = 100 * arcsec_per_kpc_proper
 
 # Define arc_second resolution
 if int(filters[0].split(".")[-1][1:4]) < 2.3:
@@ -113,8 +115,6 @@ res = int(np.ceil(ini_res))
 
 # Compute the new width
 width = arc_res * res
-
-arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 print("Image width and resolution (in arcseconds):", width, arc_res)
 print("Image width and resolution (in arcseconds):",
