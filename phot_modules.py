@@ -311,37 +311,15 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     # --- create new Fnu grid for each filter. In units of nJy/M_sol
     model.create_Fnu_grid(F, z, cosmo)
 
+    star_tree = cKDTree(S_coords)
+    gas_tree = cKDTree(G_coords)
+
     for ind, cop in enumerate(cops):
 
         Fnus[ind] = {f: {} for f in filters}
 
-        okinds = np.logical_and(S_coords[:, 0] > (cop[0] - 50),
-                                np.logical_and(S_coords[:, 0] < (cop[0] + 50),
-                                               np.logical_and(
-                                                   S_coords[:, 1] < (
-                                                           cop[1] + 50),
-                                                   np.logical_and(
-                                                       S_coords[:, 1] < (cop[
-                                                                             1] + 50),
-                                                       np.logical_and(
-                                                           S_coords[:, 2] < (
-                                                                   cop[
-                                                                       2] + 50),
-                                                           S_coords[:, 2] < (
-                                                                   cop[
-                                                                       2] + 50))))))
-        g_okinds = np.logical_and(G_coords[:, 0] > (cop[0] - 50),
-                                  np.logical_and(
-                                      G_coords[:, 0] < (cop[0] + 50),
-                                      np.logical_and(
-                                          G_coords[:, 1] < (cop[1] + 50),
-                                          np.logical_and(
-                                              G_coords[:, 1] < (cop[1] + 50),
-                                              np.logical_and(G_coords[:, 2] < (
-                                                      cop[2] + 50),
-                                                             G_coords[:, 2] < (
-                                                                     cop[
-                                                                         2] + 50))))))
+        okinds = star_tree.query_ball_point(cop, r=50)
+        g_okinds = gas_tree.query_ball_point(cop, r=50)
 
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]

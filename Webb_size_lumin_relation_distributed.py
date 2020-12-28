@@ -199,8 +199,16 @@ for f in filters:
                                     filter_kernel=kernel,
                                     nlevels=832, contrast=0.001)
 
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
+        ax1.grid(False)
+        ax2.grid(False)
+        ax1.imshow(np.log10(img), extent=imgextent, cmap="Greys_r")
+        ax2.imshow(segm.data, extent=imgextent)
+        fig.savefig("plots/gal_img_log_" + f + "_%.1f.png"
+                    % np.log10(np.sum(img)))
+        plt.close(fig)
 
-        for i in range(np.max(segm.data + 1)):
+        for i in range(1, np.max(segm.data) + 1):
             if np.sum(img[segm.data == i]) < np.median(img):
                 continue
             print(np.sum(img[segm.data == i]))
