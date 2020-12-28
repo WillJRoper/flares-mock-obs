@@ -19,6 +19,7 @@ import FLARE.filters
 from FLARE.photom import lum_to_M
 import utilities as util
 import eagle_IO.eagle_IO as E
+from scipy.spatial import cKDTree
 
 
 def DTM_fit(Z, Age):
@@ -145,35 +146,13 @@ def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
     model.create_Lnu_grid(
         F)  # --- create new L grid for each filter. In units of erg/s/Hz
 
+    star_tree = cKDTree(S_coords)
+    gas_tree = cKDTree(G_coords)
+
     for ind, cop in enumerate(cops):
 
-        okinds = np.logical_and(S_coords[:, 0] > (cop[0] - 50),
-                                np.logical_and(S_coords[:, 0] < (cop[0] + 50),
-                                               np.logical_and(
-                                                   S_coords[:, 1] < (
-                                                               cop[1] + 50),
-                                                   np.logical_and(
-                                                       S_coords[:, 1] < (cop[
-                                                                             1] + 50),
-                                                       np.logical_and(
-                                                           S_coords[:, 2] < (
-                                                                       cop[
-                                                                           2] + 50),
-                                                           S_coords[:, 2] < (
-                                                                       cop[
-                                                                           2] + 50))))))
-        g_okinds = np.logical_and(G_coords[:, 0] > (cop[0] - 50),
-                                  np.logical_and(
-                                      G_coords[:, 0] < (cop[0] + 50),
-                                      np.logical_and(
-                                          G_coords[:, 1] < (cop[1] + 50),
-                                          np.logical_and(
-                                              G_coords[:, 1] < (cop[1] + 50),
-                                              np.logical_and(G_coords[:, 2] < (
-                                                          cop[2] + 50),
-                                                             G_coords[:, 2] < (
-                                                                         cop[
-                                                                             2] + 50))))))
+        okinds = star_tree.query_ball_radius(cop, r=50)
+        g_okinds = gas_tree.query_ball_radius(cop, r=50)
 
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
