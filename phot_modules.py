@@ -151,8 +151,8 @@ def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
 
     for ind, cop in enumerate(cops):
 
-        okinds = star_tree.query_ball_radius(cop, r=50)
-        g_okinds = gas_tree.query_ball_radius(cop, r=50)
+        okinds = star_tree.query_ball_point(cop, r=50)
+        g_okinds = gas_tree.query_ball_point(cop, r=50)
 
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
