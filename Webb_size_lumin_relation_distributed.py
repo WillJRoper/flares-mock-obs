@@ -104,7 +104,7 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 ini_width = 100 * arcsec_per_kpc_proper
 
 # Define arc_second resolution
-if int(filters[0].split(".")[-1][1:4]) < 2.3:
+if int(filters[0].split(".")[-1][1:4]) < 230:
     arc_res = 0.031
 else:
     arc_res = 0.063
@@ -117,7 +117,7 @@ res = int(np.ceil(ini_res))
 width = arc_res * res
 
 print("Image width and resolution (in arcseconds):", width, arc_res)
-print("Image width and resolution (in arcseconds):",
+print("Image width and resolution (in pkpc):",
       width / arcsec_per_kpc_proper,
       arc_res / arcsec_per_kpc_proper)
 print("Image width (in pixels):", res)

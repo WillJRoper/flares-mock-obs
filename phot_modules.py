@@ -386,7 +386,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
                                                  gasSML, (0, 1, 2),
                                                  lkernel, kbins)
 
-            Fnus[ind]["coords"] = starCoords - cops
+            Fnus[ind]["coords"] = starCoords - cop
 
         # elif orientation == "face-on":
         #
