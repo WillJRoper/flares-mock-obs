@@ -101,7 +101,7 @@ def get_Z_LOS(s_cood, g_cood, g_mass, g_Z, g_sml, dimens, lkernel, kbins):
     for ii in range(n):
         thisspos = s_cood[ii]
 
-        ok = tree.query_ball_point(thisspos, r=1)
+        ok = tree.query_ball_point(thisspos[(xdir, ydir)], r=1)
         thisgpos = g_cood[ok]
         thisgsml = g_sml[ok]
         thisgZ = g_Z[ok]
