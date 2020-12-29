@@ -190,14 +190,14 @@ for f in filters:
         # img[img < 10**21] = 0
 
         # threshold = phut.detect_threshold(img, nsigma=5)
-        print("Threshold:", np.median(img))
-        threshold = np.median(img)
+        print("Threshold:", np.median(img) + np.std(img))
+        threshold = np.median(img) + np.std(img)
 
         segm = phut.detect_sources(img, threshold, npixels=10,
                                    filter_kernel=kernel)
         segm = phut.deblend_sources(img, segm, npixels=10,
                                     filter_kernel=kernel,
-                                    nlevels=832, contrast=0.1)
+                                    nlevels=8, contrast=0.1)
 
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
         ax1.grid(False)
