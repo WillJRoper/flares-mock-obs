@@ -197,7 +197,7 @@ for f in filters:
                                    filter_kernel=kernel)
         segm = phut.deblend_sources(img, segm, npixels=10,
                                     filter_kernel=kernel,
-                                    nlevels=832, contrast=0.001)
+                                    nlevels=832, contrast=0.1)
 
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
         ax1.grid(False)
