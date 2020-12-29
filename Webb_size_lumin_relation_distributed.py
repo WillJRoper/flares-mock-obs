@@ -189,9 +189,9 @@ for f in filters:
 
         # img[img < 10**21] = 0
 
-        threshold = phut.detect_threshold(img, nsigma=5)
+        # threshold = phut.detect_threshold(img, nsigma=5)
         print("Threshold:", np.median(img))
-        # threshold = np.median(img)
+        threshold = np.median(img)
 
         segm = phut.detect_sources(img, threshold, npixels=10,
                                    filter_kernel=kernel)
