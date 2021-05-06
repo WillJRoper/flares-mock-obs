@@ -51,8 +51,11 @@ def get_data(reg, snap, masslim):
     gal_cops = E.read_array('SUBFIND', path, snap, 'FOF/GroupCentreOfPotential',
                             noH=True,
                             physicalUnits=True, numThreads=8)
-    # all_gal_ns = E.read_array('SUBFIND', path, snap, 'Subhalo/SubLengthType',
-    #                           numThreads=8)
+    all_gal_ns = E.read_array('SUBFIND', path, snap, 'FOF/NumOfSubhalos',
+                              numThreads=8)
+    
+    okinds = all_gal_ns > 1
+    gal_cops = gal_cops[okinds]
 
     # Load data for luminosities
     S_coords = E.read_array('PARTDATA', path, snap,
