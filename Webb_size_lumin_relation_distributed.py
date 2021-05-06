@@ -142,6 +142,9 @@ reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1, IMF='Chabrier_300',
                      extinction=extinction, orientation=orientation,
                      masslim=masslim)
 
+print("Got the dictionary for the region's groups:",
+      len(reg_dict), "groups to  test")
+
 for f in filters:
 
     hlr_app_dict[tag].setdefault(f, {})
@@ -156,7 +159,7 @@ for f in filters:
     segm_dict[tag].setdefault(f, [])
 
     for ind in reg_dict:
-        
+
         print(ind)
 
         this_pos = reg_dict[ind]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
