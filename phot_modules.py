@@ -46,18 +46,13 @@ def get_data(reg, snap, masslim):
     path = '/cosma/home/dp004/dc-rope1/FLARES/FLARES-1/G-EAGLE_' + reg + '/data'
 
     # Load all necessary arrays
-    subfind_subgrp_ids = E.read_array('SUBFIND', path, snap,
-                                      'Subhalo/SubGroupNumber', numThreads=8)
-    gal_cops = E.read_array('SUBFIND', path, snap, 'Subhalo/CentreOfPotential',
+    # subfind_subgrp_ids = E.read_array('SUBFIND', path, snap,
+    #                                   'FOF/GroupNumber', numThreads=8)
+    gal_cops = E.read_array('SUBFIND', path, snap, 'FOF/GroupCentreOfPotential',
                             noH=True,
                             physicalUnits=True, numThreads=8)
-    all_gal_ns = E.read_array('SUBFIND', path, snap, 'Subhalo/SubLengthType',
-                              numThreads=8)
-
-    # Remove particles not in a subgroup
-    okinds = np.logical_and(subfind_subgrp_ids != 1073741824,
-                            (all_gal_ns[:, 4] + all_gal_ns[:, 0]) >= masslim)
-    cops = gal_cops[okinds]
+    # all_gal_ns = E.read_array('SUBFIND', path, snap, 'Subhalo/SubLengthType',
+    #                           numThreads=8)
 
     # Load data for luminosities
     S_coords = E.read_array('PARTDATA', path, snap,
@@ -96,7 +91,7 @@ def get_data(reg, snap, masslim):
     S_age = util.calc_ages(z, a_born)
 
     return S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-           G_coords, S_mass, cops
+           G_coords, S_mass, gal_cops
 
 
 def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
@@ -273,9 +268,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     header = kinp['header']
     kbins = header.item()['bins']
 
-    if masslim == None:
-        masslim = 100
-
     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
     G_coords, S_mass, cops = get_data(sim, tag, masslim)
 
@@ -317,9 +309,11 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     for ind, cop in enumerate(cops):
 
         Fnus[ind] = {f: {} for f in filters}
+        print(cop)
+        print(S_coords.max(), S_coords.min(), G_coords.max(), G_coords.min())
 
-        okinds = star_tree.query_ball_point(cop, r=50)
-        g_okinds = gas_tree.query_ball_point(cop, r=50)
+        okinds = star_tree.query_ball_point(cop, r=1)
+        g_okinds = gas_tree.query_ball_point(cop, r=1)
 
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]

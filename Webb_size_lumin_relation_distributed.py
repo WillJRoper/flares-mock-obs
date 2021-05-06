@@ -93,7 +93,7 @@ if z <= 2.8:
 else:
     csoft = 0.001802390 / (0.6777 * (1 + z)) * 1e3
     
-# Define smoothign kernel for deblending
+# Define smoothing kernel for deblending
 kernel_sigma = 8 / (2.0 * np.sqrt(2.0 * np.log(2.0)))  # FWHM = 3
 kernel = Gaussian2DKernel(kernel_sigma)
 kernel.normalize()
@@ -101,7 +101,7 @@ kernel.normalize()
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
-ini_width = 60 * arcsec_per_kpc_proper
+ini_width = 2000 * arcsec_per_kpc_proper
 
 # Define arc_second resolution
 if int(filters[0].split(".")[-1][1:4]) < 230:
@@ -197,7 +197,7 @@ for f in filters:
                                    filter_kernel=kernel)
         segm = phut.deblend_sources(img, segm, npixels=10,
                                     filter_kernel=kernel,
-                                    nlevels=8, contrast=0.1)
+                                    nlevels=32, contrast=0.001)
 
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
         ax1.grid(False)
@@ -224,23 +224,8 @@ for f in filters:
             lumin_dict[tag][f].append(np.sum(img[segm.data == i]))
 
         img_dict[tag][f].append(img)
-        segm_dict[tag][f].append(segm)
+        segm_dict[tag][f].append(segm.data)
 
-        # fig = plt.figure()
-        # ax = fig.add_subplot(111)
-        # ax.imshow(np.log10(img), extent=imgextent)
-        # ax.grid(False)
-        # circle1 = plt.Circle((0, 0), 30, color='r', fill=False)
-        # ax.add_artist(circle1)
-        # circle1 = plt.Circle((0, 0), hlr_app_dict[tag][f][-1],
-        #                      color='g', linestyle="--", fill=False)
-        # ax.add_artist(circle1)
-        # circle1 = plt.Circle((0, 0), hlr_dict[tag][f][-1],
-        #                      color='b', linestyle="--", fill=False)
-        # ax.add_artist(circle1)
-        # fig.savefig("plots/gal_img_log_%.1f.png"
-        #             % np.log10(np.sum(this_lumin)))
-        # plt.close(fig)
 
 try:
     hdf = h5py.File("mock_data/"
