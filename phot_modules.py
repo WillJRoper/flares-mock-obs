@@ -53,7 +53,7 @@ def get_data(reg, snap, masslim):
                             physicalUnits=True, numThreads=8)
     all_gal_ns = E.read_array('SUBFIND', path, snap, 'FOF/NumOfSubhalos',
                               numThreads=8)
-    
+
     okinds = all_gal_ns > 1
     gal_cops = gal_cops[okinds]
 
@@ -324,6 +324,9 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         g_okinds = gas_tree.query_ball_point(cop, r=1)
 
         print(ind, len(okinds), len(g_okinds), end="\r")
+
+        if len(okinds) < 10000:
+            continue
 
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
