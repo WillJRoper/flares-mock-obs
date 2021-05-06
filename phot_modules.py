@@ -304,7 +304,12 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     model.create_Fnu_grid(F, z, cosmo)
 
     star_tree = cKDTree(S_coords)
+
+    print("Built stellar KD-Tree")
+
     gas_tree = cKDTree(G_coords)
+
+    print("Built gas KD-Tree")
 
     for ind, cop in enumerate(cops):
 
