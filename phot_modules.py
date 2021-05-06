@@ -311,16 +311,16 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     print("Built gas KD-Tree")
 
-    for ind, cop in enumerate(cops):
+    print("There are", len(cops), "groups")
 
-        print(ind, end="r")
+    for ind, cop in enumerate(cops):
 
         Fnus[ind] = {f: {} for f in filters}
 
         okinds = star_tree.query_ball_point(cop, r=1)
         g_okinds = gas_tree.query_ball_point(cop, r=1)
 
-        print(ind, len(okinds), len(g_okinds), end="r")
+        print(ind, len(okinds), len(g_okinds), end="\r")
 
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
