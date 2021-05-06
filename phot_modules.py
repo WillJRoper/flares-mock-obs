@@ -309,8 +309,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     for ind, cop in enumerate(cops):
 
         Fnus[ind] = {f: {} for f in filters}
-        print(cop)
-        print(S_coords.max(), S_coords.min(), G_coords.max(), G_coords.min())
 
         okinds = star_tree.query_ball_point(cop, r=1)
         g_okinds = gas_tree.query_ball_point(cop, r=1)
