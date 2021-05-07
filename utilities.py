@@ -359,14 +359,16 @@ def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=100, numThread
     gsmooth_img = np.zeros((Ndim, Ndim))
 
     # Get the image pixel coordinates along each axis
-    ax_coords = np.linspace(imgrange[0][0], imgrange[0][1], Ndim)
+    ax_xcoords = np.linspace(imgrange[0][0], imgrange[0][1], Ndim)
+    ax_ycoords = np.linspace(imgrange[1][0], imgrange[1][1], Ndim)
 
     # Loop over each star computing the smoothed gaussian
     # distribution for this particle
     for x, y, l, sml in zip(pos[:, i], pos[:, j], ls, smooth):
 
         # Get this star's position within the image
-        x_img, y_img = (np.abs(ax_coords - x)).argmin(), (np.abs(ax_coords - y)).argmin()
+        x_img, y_img = (np.abs(ax_xcoords - x)).argmin(), \
+                       (np.abs(ax_ycoords - y)).argmin()
 
         print(x_img, y_img)
 
