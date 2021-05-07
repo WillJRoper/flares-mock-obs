@@ -214,7 +214,7 @@ for f in filters:
         ax1.imshow(np.log10(img), extent=imgextent, cmap="Greys_r")
         ax2.imshow(segm.data, extent=imgextent)
         fig.savefig("plots/gal_img_log_" + f + "_%.1f.png"
-                    % np.log10(np.sum(img)))
+                    % np.log10(np.sum(img)), dpi=300)
         plt.close(fig)
 
         for i in range(1, np.max(segm.data) + 1):
