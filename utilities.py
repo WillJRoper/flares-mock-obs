@@ -370,8 +370,6 @@ def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=100, numThread
         x_img, y_img = (np.abs(ax_xcoords - x)).argmin(), \
                        (np.abs(ax_ycoords - y)).argmin()
 
-        print(x_img, y_img)
-
         # Define sub image over which to compute the smooothing for this star (1/4 of the images size)
         # NOTE: this drastically speeds up image creation
         sub_xlow, sub_xhigh = x_img - int(Ndim/sub_size), \
@@ -380,8 +378,10 @@ def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=100, numThread
                               y_img + int(Ndim/sub_size) + 1
 
         # Compute the image
+        print(x, y, sml)
         g = np.exp(-(((Gx[sub_xlow: sub_xhigh] - x) ** 2 + (Gy[sub_ylow: sub_yhigh] - y) ** 2) / (2.0 * sml ** 2)))
         print(g.shape)
+        print(sub_xlow, sub_xhigh, sub_ylow, sub_yhigh)
 
         # Get the sum of the gaussian
         gsum = np.sum(g)
