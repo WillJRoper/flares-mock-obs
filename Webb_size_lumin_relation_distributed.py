@@ -197,7 +197,7 @@ for f in filters:
                                      this_smls)
 
         # img[img < 10**21] = 0
-
+        print(np.max(img))
         threshold = phut.detect_threshold(img, nsigma=5)
         print("Threshold:", np.median(img))
         # threshold = np.median(img)
@@ -211,29 +211,31 @@ for f in filters:
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
         ax1.grid(False)
         ax2.grid(False)
-        ax1.imshow(np.log10(img), extent=imgextent, cmap="Greys_r")
+        ax1.imshow(np.log10(img), extent=imgextent, cmap="plasma")
         ax2.imshow(segm.data, extent=imgextent)
         fig.savefig("plots/gal_img_log_" + f + "_%.1f.png"
                     % np.log10(np.sum(img)), dpi=300)
         plt.close(fig)
 
-        for i in range(1, np.max(segm.data) + 1):
-            if np.sum(img[segm.data == i]) < np.median(img):
-                continue
-            print(np.sum(img[segm.data == i]))
-            for r in radii_fracs:
-                img_segm = np.zeros_like(img)
-                img_segm[segm.data == i] = img[segm.data == i]
-                hlr_pix_dict[tag][f][r].append(
-                    util.get_pixel_hlr(img_segm, single_pixel_area,
-                                       radii_frac=r))
-                # hlr_app_dict[tag][f][r].append(
-                #     util.get_img_hlr(img, apertures, app_radii, res,
-                #                      arc_res / arcsec_per_kpc_proper, r))
-            lumin_dict[tag][f].append(np.sum(img[segm.data == i]))
+        print(np.max(segm.data), "sources found")
 
-        img_dict[tag][f].append(img)
-        segm_dict[tag][f].append(segm.data)
+        # for i in range(1, np.max(segm.data) + 1):
+        #     if np.sum(img[segm.data == i]) < np.median(img):
+        #         continue
+        #     print(np.sum(img[segm.data == i]))
+        #     for r in radii_fracs:
+        #         img_segm = np.zeros_like(img)
+        #         img_segm[segm.data == i] = img[segm.data == i]
+        #         hlr_pix_dict[tag][f][r].append(
+        #             util.get_pixel_hlr(img_segm, single_pixel_area,
+        #                                radii_frac=r))
+        #         # hlr_app_dict[tag][f][r].append(
+        #         #     util.get_img_hlr(img, apertures, app_radii, res,
+        #         #                      arc_res / arcsec_per_kpc_proper, r))
+        #     lumin_dict[tag][f].append(np.sum(img[segm.data == i]))
+        #
+        # img_dict[tag][f].append(img)
+        # segm_dict[tag][f].append(segm.data)
 
 
 try:
