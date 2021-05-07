@@ -314,7 +314,7 @@ def img_loop(star_tup, imgrange, Ndim):
     return img
 
 
-def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, numThreads=1):
+def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=100, numThreads=1):
 
     # if numThreads != 1:
     #     pool = schwimmbad.MultiPool(processes=numThreads)
@@ -353,15 +353,30 @@ def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, numThreads=1):
     Gx, Gy = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], Ndim),
                          np.linspace(imgrange[1][0], imgrange[1][1], Ndim))
 
+    print("Made mesh")
+
     # Initialise the image array
     gsmooth_img = np.zeros((Ndim, Ndim))
+
+    # Get the image pixel coordinates along each axis
+    ax_coords = np.linspace(imgrange[0][0], imgrange[0][1], Ndim)
 
     # Loop over each star computing the smoothed gaussian
     # distribution for this particle
     for x, y, l, sml in zip(pos[:, i], pos[:, j], ls, smooth):
 
+        # Get this star's position within the image
+        x_img, y_img = (np.abs(ax_coords - x)).argmin(), (np.abs(ax_coords - y)).argmin()
+
+        # Define sub image over which to compute the smooothing for this star (1/4 of the images size)
+        # NOTE: this drastically speeds up image creation
+        sub_xlow, sub_xhigh = x_img - int(Ndim/sub_size), \
+                              x_img + int(Ndim/sub_size) + 1
+        sub_ylow, sub_yhigh = y_img - int(Ndim/sub_size), \
+                              y_img + int(Ndim/sub_size) + 1
+
         # Compute the image
-        g = np.exp(-(((Gx - x) ** 2 + (Gy - y) ** 2) / (2.0 * sml ** 2)))
+        g = np.exp(-(((Gx[sub_xlow: sub_xhigh] - x) ** 2 + (Gy[sub_ylow: sub_yhigh] - y) ** 2) / (2.0 * sml ** 2)))
 
         # Get the sum of the gaussian
         gsum = np.sum(g)
@@ -369,7 +384,7 @@ def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, numThreads=1):
         # If there are stars within the image in this gaussian
         # add it to the image array
         if gsum > 0:
-            gsmooth_img += g * l / gsum
+            gsmooth_img[sub_xlow: sub_xhigh, sub_ylow: sub_yhigh] += g * l / gsum
 
     # gsmooth_img, xedges, yedges = np.histogram2d(pos[:, i], pos[:, j],
     #                                      bins=Ndim,

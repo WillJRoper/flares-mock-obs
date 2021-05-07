@@ -174,9 +174,13 @@ for f in filters:
 
             this_radii = util.calc_rad(this_pos, i=0, j=1)
 
+            print("Got radii")
+
             img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
                                      this_lumin,
                                      this_smls)
+
+            print("Got image")
 
         else:
 
