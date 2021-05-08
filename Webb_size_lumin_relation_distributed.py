@@ -211,7 +211,9 @@ for f in filters:
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
         ax1.grid(False)
         ax2.grid(False)
-        ax1.imshow(np.log10(img), extent=imgextent, cmap="plasma")
+        plt_img = np.zeros_like(img)
+        plt_img[img > 0] = np.log10(img[img > 0])
+        ax1.imshow(plt_img, extent=imgextent, cmap="plasma")
         ax2.imshow(segm.data, extent=imgextent)
         fig.savefig("plots/gal_img_log_" + f + "_%.1f.png"
                     % np.log10(np.sum(img)), dpi=300)
