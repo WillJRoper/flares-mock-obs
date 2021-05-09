@@ -195,7 +195,7 @@ for f in filters:
             # img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
             #                          this_lumin,
             #                          this_smls)
-            img = util.make_spline_img(this_pos, res, 0, 1, tree,
+            img = util.make_spline_img(this_pos, res, 0, 1, tree, pix_pos,
                                        this_lumin, this_smls)
 
             print("Got image")

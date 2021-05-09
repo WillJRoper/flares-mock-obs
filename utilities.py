@@ -332,7 +332,7 @@ def quartic_spline(q, size):
     return w
 
 
-def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
+def make_spline_img(pos, Ndim, i, j, tree, pix_pos, ls, smooth,
                     spline_func=quartic_spline, spline_cut_off=5/2):
 
     # Define 2D projected particle position array
@@ -355,12 +355,12 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
         print(spline_cut_off * sml)
         # Get the kernel
         w = spline_func(dist / sml, size=len(inds))
-        print(w.shape, pos.shape)
+        print(w.shape, inds.shape,  pos.shape)
         print(w)
-        print(smooth_img[np.unravel_index(inds, smooth_img.shape)].shape)
+        print(smooth_img[pix_pos[inds, :]].shape)
 
         # Place the kernel for this particle within the img
-        smooth_img[np.unravel_index(inds, smooth_img.shape)] = l * k3 * w / sml**3
+        smooth_img[pix_pos[inds, :]] = l * k3 * w / sml**3
 
         i += 1
 
