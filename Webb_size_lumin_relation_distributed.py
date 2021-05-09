@@ -219,6 +219,21 @@ for f in filters:
                     % np.log10(np.sum(img)), dpi=300)
         plt.close(fig)
 
+        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
+        ax1.grid(False)
+        ax2.grid(False)
+        plt_img = np.zeros_like(img)
+        plt_img[img > 0] = np.log10(img[img > 0])
+        max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
+        ax1.imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
+                   max_ind[1] - 100: max_ind[1] + 100],
+                   extent=imgextent, cmap="plasma")
+        ax2.imshow(segm.data[max_ind[0] - 100: max_ind[0] + 100,
+                   max_ind[1] - 100: max_ind[1] + 100], extent=imgextent)
+        fig.savefig("plots/max_gal_img_log_" + f + "_%.1f.png"
+                    % np.log10(np.sum(img)), dpi=300)
+        plt.close(fig)
+
         print(np.max(segm.data), "sources found")
 
         # for i in range(1, np.max(segm.data) + 1):
