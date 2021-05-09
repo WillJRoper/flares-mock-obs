@@ -345,6 +345,8 @@ def make_spline_img(pos, Ndim, i, j, imgrange, ls, smooth,
     # Define pixel position array for the KDTree
     pix_pos = np.vstack([X.ravel(), Y.ravel()])
 
+    print(pix_pos.shape)
+
     # Build KDTree
     tree = cKDTree(pix_pos)
 
