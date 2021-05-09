@@ -23,6 +23,7 @@ import h5py
 import photutils as phut
 from astropy.convolution import Gaussian2DKernel, convolve_fft
 import sys
+from scipy.spatial import cKDTree
 import time
 
 sns.set_context("paper")
@@ -146,6 +147,20 @@ reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1, IMF='Chabrier_300',
 print("Got the dictionary for the region's groups:",
       len(reg_dict), "groups to  test")
 
+# Define x and y positions of pixels
+X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], Ndim),
+                   np.linspace(imgrange[1][0], imgrange[1][1], Ndim))
+
+# Define pixel position array for the KDTree
+pix_pos = np.zeros((X.size, 2))
+pix_pos[:, 0] = X.ravel()
+pix_pos[:, 1] = Y.ravel()
+
+# Build KDTree
+tree = cKDTree(pix_pos)
+
+print("Pixel tree built")
+
 for f in filters:
 
     hlr_app_dict[tag].setdefault(f, {})
@@ -180,9 +195,8 @@ for f in filters:
             # img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
             #                          this_lumin,
             #                          this_smls)
-            img = util.make_spline_img(this_pos, res, 0, 1, imgrange,
-                                     this_lumin,
-                                     this_smls)
+            img = util.make_spline_img(this_pos, res, 0, 1, tree,
+                                       this_lumin, this_smls)
 
             print("Got image")
 

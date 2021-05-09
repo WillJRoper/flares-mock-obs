@@ -332,25 +332,11 @@ def quartic_spline(q):
     return w
 
 
-def make_spline_img(pos, Ndim, i, j, imgrange, ls, smooth,
+def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
                     spline_func=quartic_spline, spline_cut_off=5/2):
 
     # Define 2D projected particle position array
     part_pos = pos[:, (i, j)]
-
-    # Define x and y positions of pixels
-    X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], Ndim),
-                         np.linspace(imgrange[1][0], imgrange[1][1], Ndim))
-
-    # Define pixel position array for the KDTree
-    pix_pos = np.zeros((X.size, 2))
-    pix_pos[:, 0] = X.ravel()
-    pix_pos[:, 1] = Y.ravel()
-
-    # Build KDTree
-    tree = cKDTree(pix_pos)
-
-    print("Tree built")
 
     # Initialise the image array
     smooth_img = np.zeros((Ndim, Ndim))
