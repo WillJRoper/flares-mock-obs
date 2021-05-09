@@ -317,10 +317,10 @@ def img_loop(star_tup, imgrange, Ndim):
 
 def quartic_spline(q):
 
-    w  = np.zeros_like(q)
+    w = np.zeros_like(q)
     okinds1 = q < 1 / 2
-    okinds2 = 1 / 2 <= q < 3 / 2
-    okinds3 = 3 / 2 <= q < 5 / 2
+    okinds2 = np.logical_and(1 / 2 <= q, q < 3 / 2)
+    okinds3 = np.logical_and(3 / 2 <= q, q < 5 / 2)
 
     w[okinds1] = (5 / 2 - q[okinds1])**4 \
                  - 5 * (3 / 2 - q[okinds1])**4 \
@@ -347,10 +347,10 @@ def make_spline_img(pos, Ndim, i, j, imgrange, ls, smooth,
     pix_pos[:, 0] = X.ravel()
     pix_pos[:, 1] = Y.ravel()
 
-    print(pix_pos.shape)
-
     # Build KDTree
     tree = cKDTree(pix_pos)
+
+    print("Tree built")
 
     # Initialise the image array
     smooth_img = np.zeros((Ndim, Ndim))
