@@ -314,7 +314,7 @@ def img_loop(star_tup, imgrange, Ndim):
     return img
 
 
-def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=1000, numThreads=1):
+def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=5000, numThreads=1):
 
     # if numThreads != 1:
     #     pool = schwimmbad.MultiPool(processes=numThreads)
