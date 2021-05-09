@@ -46,7 +46,7 @@ def get_data(reg, snap, masslim):
     path = '/cosma/home/dp004/dc-rope1/FLARES/FLARES-1/G-EAGLE_' + reg + '/data'
 
     # Load all necessary arrays
-    r_200 = E.read_array('SUBFIND', path, snap, 'FOF/	Group_R_Mean500',
+    r_200 = E.read_array('SUBFIND', path, snap, 'FOF/Group_R_Mean500',
                          noH=True, physicalUnits=True, numThreads=8)
     gal_cops = E.read_array('SUBFIND', path, snap,
                             'FOF/GroupCentreOfPotential',
@@ -57,7 +57,7 @@ def get_data(reg, snap, masslim):
     okinds = all_gal_ns > 1
     gal_cops = gal_cops[okinds]
     r_200 = r_200[okinds]
-    
+
     print(r_200)
 
     # Load data for luminosities
