@@ -315,7 +315,7 @@ def img_loop(star_tup, imgrange, Ndim):
     return img
 
 
-def quartic_spline(q):
+def quartic_spline(q, size):
 
     w = np.zeros_like(q)
     okinds1 = q < 1 / 2
@@ -351,8 +351,12 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
         # Query the tree for this particle
         dist, inds = tree.query(ipos, k=pos.shape[0],
                                 distance_upper_bound=spline_cut_off * sml)
+        print(dist)
         # Get the kernel
-        w = spline_func(dist / sml)
+        w = spline_func(dist / sml, size=len(inds))
+        print(w.shape)
+        print(w)
+        print(smooth_img[inds].shape)
 
         # Place the kernel for this particle within the img
         smooth_img[inds] = l * k3 * w / sml**3
