@@ -346,7 +346,7 @@ def make_spline_img(pos, Ndim, i, j, tree, pix_pos, ls, smooth,
                        np.arange(0, Ndim, 1))
 
     # Define pixel position array for the KDTree
-    pix_pos = np.zeros((X.size, 2))
+    pix_pos = np.zeros((X.size, 2), dtype=int)
     pix_pos[:, 0] = X.ravel()
     pix_pos[:, 1] = Y.ravel()
 
@@ -368,11 +368,10 @@ def make_spline_img(pos, Ndim, i, j, tree, pix_pos, ls, smooth,
         w = spline_func(dist / sml, size=len(inds))
         print(w.shape, inds.shape,  pos.shape)
         print(np.int32(pix_pos[inds]))
-        print(smooth_img[np.int32(pix_pos[inds])].shape)
-        print(smooth_img[np.int32(pix_pos[inds])])
+        print(smooth_img[pix_pos[inds, 0], pix_pos[:, 1]].shape)
 
         # Place the kernel for this particle within the img
-        smooth_img[np.int32(pix_pos[inds])] = l * k3 * w / sml**3
+        smooth_img[pix_pos[inds, 0], pix_pos[:, 1]] = l * k3 * w / sml**3
 
         i += 1
 
