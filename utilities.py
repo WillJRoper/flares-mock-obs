@@ -341,6 +341,10 @@ def make_spline_img(pos, Ndim, i, j, tree, pix_pos, ls, smooth,
     # Initialise the image array
     smooth_img = np.zeros((Ndim, Ndim))
 
+    pix_pos = np.zeros((Ndim, 2))
+    pix_pos[:, 0] = np.arange(0, Ndim, 1)
+    pix_pos[:, 1] = np.arange(0, Ndim, 1)
+
     # Define k constant for 3 dimensions
     k3 = 7 / (478 * np.pi)
     i = 0
