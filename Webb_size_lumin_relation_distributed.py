@@ -197,7 +197,7 @@ for f in filters:
                                      this_smls)
 
         # img[img < 10**21] = 0
-        print(np.max(img))
+        print(np.max(img), img.shape)
         threshold = phut.detect_threshold(img, nsigma=5)
         print("Threshold:", np.median(img))
         # threshold = np.median(img)
