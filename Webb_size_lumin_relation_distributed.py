@@ -177,7 +177,10 @@ for f in filters:
 
             print("Got radii")
 
-            img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
+            # img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
+            #                          this_lumin,
+            #                          this_smls)
+            img = util.make_spline_img(this_pos, res, 0, 1, imgrange,
                                      this_lumin,
                                      this_smls)
 

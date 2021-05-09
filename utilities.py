@@ -8,6 +8,7 @@ import numpy as np
 from astropy.cosmology import Planck13 as cosmo
 from photutils import aperture_photometry
 from scipy.interpolate import interp1d
+from scipy.spatial import cKDTree
 import schwimmbad
 from functools import partial
 import time
@@ -312,6 +313,63 @@ def img_loop(star_tup, imgrange, Ndim):
         img = np.zeros(Gx.shape)
 
     return img
+
+
+def quartic_spline(q):
+
+    w  = np.zeros_like(q)
+    okinds1 = q < 1 / 2
+    okinds2 = 1 / 2 <= q < 3 / 2
+    okinds3 = 3 / 2 <= q < 5 / 2
+
+    w[okinds1] = (5 / 2 - q[okinds1])**4 \
+                 - 5 * (3 / 2 - q[okinds1])**4 \
+                 + 10 * (1 / 2 - q[okinds1])**4
+    w[okinds2] = (5 / 2 - q[okinds2]) ** 4 \
+                 - 5 * (3 / 2 - q[okinds2]) ** 4
+    w[okinds3] = (5 / 2 - q[okinds3]) ** 4
+
+    return w
+
+
+def make_spline_img(pos, Ndim, i, j, imgrange, ls, smooth,
+                    spline_func=quartic_spline, spline_cut_off=5/2):
+
+    # Define 2D projected particle position array
+    part_pos = pos[:, (i, j)]
+
+    # Define x and y positions of pixels
+    X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], Ndim),
+                         np.linspace(imgrange[1][0], imgrange[1][1], Ndim))
+
+    # Define pixel position array for the KDTree
+    pix_pos = np.vstack([X.ravel(), Y.ravel()])
+
+    # Build KDTree
+    tree = cKDTree(pix_pos)
+
+    # Initialise the image array
+    smooth_img = np.zeros((Ndim, Ndim))
+
+    # Define k constant for 3 dimensions
+    k3 = 7 / (478 * np.pi)
+    i = 0
+    for ipos, l, sml in zip(part_pos, ls, smooth):
+
+        print(i, end="\r")
+
+        # Query the tree for this particle
+        dist, inds = tree.query(ipos, k=pos.shape[0],
+                                distance_upper_bound=spline_cut_off * sml)
+        # Get the kernel
+        w = spline_func(dist / sml)
+
+        # Place the kernel for this particle within the img
+        smooth_img[inds] = l * k3 * w / sml**3
+
+        i += 1
+
+    return smooth_img
 
 
 def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=5000, numThreads=1):
