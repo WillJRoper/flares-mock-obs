@@ -368,7 +368,7 @@ def make_spline_img(pos, Ndim, i, j, tree, pix_pos, ls, smooth,
         w = spline_func(dist / sml, size=len(inds))
 
         # Place the kernel for this particle within the img
-        smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] = l * k3 * w / sml**3
+        smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] += l * k3 * w / sml**3
 
         i += 1
 
