@@ -323,7 +323,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         print(ind, len(okinds), len(g_okinds), end="\r")
 
-        if len(okinds) < 30000:
+        if len(okinds) < 20000:
             continue
 
         Fnus[ind] = {f: {} for f in filters}
