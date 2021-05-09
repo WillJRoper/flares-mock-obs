@@ -315,7 +315,7 @@ def img_loop(star_tup, imgrange, Ndim):
     return img
 
 
-def quartic_spline(q, size):
+def quartic_spline(q):
 
     w = np.zeros_like(q)
     okinds1 = q < 1 / 2
@@ -332,7 +332,7 @@ def quartic_spline(q, size):
     return w
 
 
-def make_spline_img(pos, Ndim, i, j, tree, pix_pos, ls, smooth,
+def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
                     spline_func=quartic_spline, spline_cut_off=5/2):
 
     # Define 2D projected particle position array
@@ -365,7 +365,7 @@ def make_spline_img(pos, Ndim, i, j, tree, pix_pos, ls, smooth,
         inds = inds[okinds]
 
         # Get the kernel
-        w = spline_func(dist / sml, size=len(inds))
+        w = spline_func(dist / sml)
 
         # Place the kernel for this particle within the img
         smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] += l * k3 * w / sml**3

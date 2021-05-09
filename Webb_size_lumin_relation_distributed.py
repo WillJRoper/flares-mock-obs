@@ -195,7 +195,7 @@ for f in filters:
             # img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
             #                          this_lumin,
             #                          this_smls)
-            img = util.make_spline_img(this_pos, res, 0, 1, tree, pix_pos,
+            img = util.make_spline_img(this_pos, res, 0, 1, tree,
                                        this_lumin, this_smls)
 
             print("Got image")
@@ -231,7 +231,7 @@ for f in filters:
         ax2.grid(False)
         plt_img = np.zeros_like(img)
         plt_img[img > 0] = np.log10(img[img > 0])
-        ax1.imshow(plt_img, extent=imgextent, cmap="plasma")
+        ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
         ax2.imshow(segm.data, extent=imgextent)
         fig.savefig("plots/gal_img_log_" + f + "_%.1f.png"
                     % np.log10(np.sum(img)), dpi=300)
@@ -245,7 +245,7 @@ for f in filters:
         max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
         ax1.imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
                    max_ind[1] - 100: max_ind[1] + 100],
-                   extent=imgextent, cmap="plasma")
+                   extent=imgextent, cmap="Greys_r")
         ax2.imshow(segm.data[max_ind[0] - 100: max_ind[0] + 100,
                    max_ind[1] - 100: max_ind[1] + 100], extent=imgextent)
         fig.savefig("plots/max_gal_img_log_" + f + "_%.1f.png"
