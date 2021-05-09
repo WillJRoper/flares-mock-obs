@@ -140,7 +140,8 @@ app_radii *= csoft
 reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1, IMF='Chabrier_300',
                      filters=filters, Type=Type, log10t_BC=7.,
                      extinction=extinction, orientation=orientation,
-                     masslim=masslim)
+                     masslim=masslim,
+                     r=width / arcsec_per_kpc_proper / 1000 / 2)
 
 print("Got the dictionary for the region's groups:",
       len(reg_dict), "groups to  test")

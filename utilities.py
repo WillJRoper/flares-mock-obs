@@ -314,7 +314,7 @@ def img_loop(star_tup, imgrange, Ndim):
     return img
 
 
-def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=1000, numThreads=1):
+def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=100, numThreads=1):
 
     # if numThreads != 1:
     #     pool = schwimmbad.MultiPool(processes=numThreads)
@@ -372,10 +372,10 @@ def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=1000, numThrea
 
         # Define sub image over which to compute the smooothing for this star (1/4 of the images size)
         # NOTE: this drastically speeds up image creation
-        sub_xlow, sub_xhigh = x_img - int(Ndim/sub_size), \
-                              x_img + int(Ndim/sub_size) + 1
-        sub_ylow, sub_yhigh = y_img - int(Ndim/sub_size), \
-                              y_img + int(Ndim/sub_size) + 1
+        sub_xlow, sub_xhigh = x_img - int(sub_size / 2), \
+                              x_img + int(sub_size / 2) + 1
+        sub_ylow, sub_yhigh = y_img - int(sub_size / 2), \
+                              y_img + int(sub_size / 2) + 1
 
         # Compute the image
         g = np.exp(-(((Gx[sub_xlow: sub_xhigh,
@@ -383,7 +383,6 @@ def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=1000, numThrea
                       + (Gy[sub_xlow: sub_xhigh,
                          sub_ylow: sub_yhigh] - y) ** 2)
                      / (2.0 * sml ** 2)))
-        print(g.shape)
 
         # Get the sum of the gaussian
         gsum = np.sum(g)

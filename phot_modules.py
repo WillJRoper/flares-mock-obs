@@ -149,8 +149,8 @@ def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
 
     for ind, cop in enumerate(cops):
 
-        okinds = star_tree.query_ball_point(cop, r=5)
-        g_okinds = gas_tree.query_ball_point(cop, r=5)
+        okinds = star_tree.query_ball_point(cop, r=1)
+        g_okinds = gas_tree.query_ball_point(cop, r=1)
 
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
@@ -266,7 +266,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         extinction='default', orientation="sim", masslim=None):
     kinp = np.load('/cosma7/data/dp004/dc-payy1/my_files/'
                    'los/kernel_sph-anarchy.npz',
-                   allow_pickle=True)
+                   allow_pickle=True, r=1)
     lkernel = kinp['kernel']
     header = kinp['header']
     kbins = header.item()['bins']
@@ -318,8 +318,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     for ind, cop in enumerate(cops):
 
-        okinds = star_tree.query_ball_point(cop, r=1)
-        g_okinds = gas_tree.query_ball_point(cop, r=1)
+        okinds = star_tree.query_ball_point(cop, r=r)
+        g_okinds = gas_tree.query_ball_point(cop, r=r)
 
         print(ind, len(okinds), len(g_okinds), end="\r")
 
