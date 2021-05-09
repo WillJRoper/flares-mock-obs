@@ -54,7 +54,7 @@ def get_data(reg, snap, masslim):
     all_gal_ns = E.read_array('SUBFIND', path, snap, 'FOF/NumOfSubhalos',
                               numThreads=8)
 
-    okinds = all_gal_ns > 1
+    okinds = all_gal_ns > 5
     gal_cops = gal_cops[okinds]
     r_200 = r_200[okinds]
 
@@ -97,7 +97,7 @@ def get_data(reg, snap, masslim):
     S_age = util.calc_ages(z, a_born)
 
     return S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-           G_coords, S_mass, gal_cops
+           G_coords, S_mass, gal_cops, r_200
 
 
 def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
@@ -275,7 +275,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     kbins = header.item()['bins']
 
     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-    G_coords, S_mass, cops = get_data(sim, tag, masslim)
+    G_coords, S_mass, cops, r_200 = get_data(sim, tag, masslim)
 
     Fnus = {}
 

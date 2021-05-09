@@ -24,6 +24,7 @@ import photutils as phut
 from astropy.convolution import Gaussian2DKernel, convolve_fft
 import sys
 from scipy.spatial import cKDTree
+from scipy.ndimage import gaussian_filter
 import time
 
 sns.set_context("paper")
@@ -198,7 +199,9 @@ for f in filters:
             img = util.make_spline_img(this_pos, res, 0, 1, tree,
                                        this_lumin, this_smls)
 
-            print("Got image")
+            print("Got image", np.min(img))
+
+            img = gaussian_filter(img, 3)
 
         else:
 
