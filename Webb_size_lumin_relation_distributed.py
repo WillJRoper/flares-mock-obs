@@ -148,8 +148,8 @@ print("Got the dictionary for the region's groups:",
       len(reg_dict), "groups to  test")
 
 # Define x and y positions of pixels
-X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], Ndim),
-                   np.linspace(imgrange[1][0], imgrange[1][1], Ndim))
+X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], res),
+                   np.linspace(imgrange[1][0], imgrange[1][1], res))
 
 # Define pixel position array for the KDTree
 pix_pos = np.zeros((X.size, 2))
