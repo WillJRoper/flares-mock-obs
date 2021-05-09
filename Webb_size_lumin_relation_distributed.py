@@ -177,7 +177,7 @@ for f in filters:
 
     for ind in reg_dict:
 
-        print(ind)
+        print(ind, reg_dict[ind]["Nsubhalos"])
 
         this_pos = reg_dict[ind]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
         this_smls = reg_dict[ind]["smls"] * 10 ** 3 * arcsec_per_kpc_proper

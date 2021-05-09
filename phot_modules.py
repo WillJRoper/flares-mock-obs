@@ -57,6 +57,7 @@ def get_data(reg, snap, masslim):
     okinds = all_gal_ns > 5
     gal_cops = gal_cops[okinds]
     r_200 = r_200[okinds]
+    all_gal_ns = all_gal_ns[okinds]
 
     print(r_200)
 
@@ -97,7 +98,7 @@ def get_data(reg, snap, masslim):
     S_age = util.calc_ages(z, a_born)
 
     return S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-           G_coords, S_mass, gal_cops, r_200
+           G_coords, S_mass, gal_cops, r_200, all_gal_ns
 
 
 def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
@@ -275,7 +276,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     kbins = header.item()['bins']
 
     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-    G_coords, S_mass, cops, r_200 = get_data(sim, tag, masslim)
+    G_coords, S_mass, cops, r_200, all_gal_ns = get_data(sim, tag, masslim)
 
     Fnus = {}
 
@@ -342,6 +343,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         Fnus[ind]["smls"] = Smls
         Fnus[ind]["masses"] = Masses
+        Fnus[ind]["Nsubhalos"] = all_gal_ns[ind]
 
         if orientation == "sim":
 
