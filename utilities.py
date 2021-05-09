@@ -351,6 +351,9 @@ def make_spline_img(pos, Ndim, i, j, tree, pix_pos, ls, smooth,
         # Query the tree for this particle
         dist, inds = tree.query(ipos, k=pos.shape[0],
                                 distance_upper_bound=spline_cut_off * sml)
+        okinds =  dist < spline_cut_off * sml
+        dist = dist[okinds]
+        inds = inds[okinds]
         print(dist)
         print(spline_cut_off * sml)
         # Get the kernel
