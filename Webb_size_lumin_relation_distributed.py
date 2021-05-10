@@ -77,6 +77,8 @@ hlr_pix_dict = {}
 lumin_dict = {}
 img_dict = {}
 segm_dict = {}
+ngal_dict = {}
+grp_dict = {}
 
 # Set mass limit
 masslim = 700
@@ -89,6 +91,8 @@ hlr_pix_dict.setdefault(tag, {})
 lumin_dict.setdefault(tag, {})
 img_dict.setdefault(tag, {})
 segm_dict.setdefault(tag, {})
+ngal_dict.setdefault(tag, {})
+grp_dict.setdefault(tag, {})
 
 if z <= 2.8:
     csoft = 0.000474390 / 0.6777 * 1e3
@@ -162,6 +166,8 @@ tree = cKDTree(pix_pos)
 
 print("Pixel tree built")
 
+snrs = [1, 5, 10, 20, 50]
+
 for f in filters:
 
     hlr_app_dict[tag].setdefault(f, {})
@@ -174,117 +180,129 @@ for f in filters:
     lumin_dict[tag].setdefault(f, [])
     img_dict[tag].setdefault(f, [])
     segm_dict[tag].setdefault(f, [])
+    ngal_dict[tag].setdefault(f, [])
+    grp_dict[tag].setdefault(f, [])
 
-    for ind in reg_dict:
+    for snr in snrs:
 
-        print(ind, reg_dict[ind]["Nsubhalos"])
+        lumin_dict[tag][f].setdefault(snr, [])
+        img_dict[tag][f].setdefault(snr, [])
+        segm_dict[tag][f].setdefault(snr, [])
+        ngal_dict[tag][f].setdefault(snr, [])
+        grp_dict[tag][f].setdefault(snr, [])
 
-        this_pos = reg_dict[ind]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
-        this_smls = reg_dict[ind]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
+        for ind in reg_dict:
 
-        this_lumin = reg_dict[ind][f]
+            print(ind, reg_dict[ind]["Nsubhalos"])
 
-        if np.nansum(this_lumin) == 0:
-            continue
+            this_pos = reg_dict[ind]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
+            this_smls = reg_dict[ind]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
 
-        if orientation == "sim" or orientation == "face-on":
+            this_lumin = reg_dict[ind][f]
 
-            this_radii = util.calc_rad(this_pos, i=0, j=1)
+            if np.nansum(this_lumin) == 0:
+                continue
 
-            print("Got radii")
+            if orientation == "sim" or orientation == "face-on":
 
-            # img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
-            #                          this_lumin,
-            #                          this_smls)
-            img = util.make_spline_img(this_pos, res, 0, 1, tree,
-                                       this_lumin, this_smls)
+                this_radii = util.calc_rad(this_pos, i=0, j=1)
 
-            print("Got image", np.min(img))
+                print("Got radii")
 
-            img = gaussian_filter(img, 3)
+                # img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
+                #                          this_lumin,
+                #                          this_smls)
+                img = util.make_spline_img(this_pos, res, 0, 1, tree,
+                                           this_lumin, this_smls)
 
-            img = util.noisy_img(img, snr=30, seed=10000)
+                print("Got image", np.min(img))
 
-        else:
+                img = gaussian_filter(img, 3)
 
-            # # Centre positions on luminosity weighted centre
-            # lumin_cent = util.lumin_weighted_centre(this_pos,
-            #                                         this_lumin,
-            #                                         i=2, j=0)
-            # this_pos[:, (2, 0)] -= lumin_cent
+                img = util.noisy_img(img, snr=30, seed=10000)
 
-            this_radii = util.calc_rad(this_pos, i=2, j=0)
+            else:
 
-            img = util.make_soft_img(this_pos, res, 2, 0, imgrange,
-                                     this_lumin,
-                                     this_smls)
+                # # Centre positions on luminosity weighted centre
+                # lumin_cent = util.lumin_weighted_centre(this_pos,
+                #                                         this_lumin,
+                #                                         i=2, j=0)
+                # this_pos[:, (2, 0)] -= lumin_cent
 
-        # img[img < 10**21] = 0
-        print(np.max(img), img.shape)
-        threshold = phut.detect_threshold(img, nsigma=5)
-        print("Threshold:", np.median(img))
-        # threshold = np.median(img)
+                this_radii = util.calc_rad(this_pos, i=2, j=0)
 
-        segm = phut.detect_sources(img, threshold, npixels=5)
-        segm = phut.deblend_sources(img, segm, npixels=5,
-                                    nlevels=32, contrast=0.001)
+                img = util.make_soft_img(this_pos, res, 2, 0, imgrange,
+                                         this_lumin,
+                                         this_smls)
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
-        ax1.grid(False)
-        ax2.grid(False)
-        plt_img = np.zeros_like(img)
-        plt_img[img > 0] = np.log10(img[img > 0])
-        ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
-        cmap = segm.make_cmap()
-        ax2.imshow(segm.data, extent=imgextent, cmap=cmap)
-        fig.savefig("plots/gal_img_log_" + f + "_%.1f.png"
-                    % np.log10(np.sum(img)), dpi=300)
-        plt.close(fig)
+            # img[img < 10**21] = 0
+            print(np.max(img), img.shape)
+            threshold = phut.detect_threshold(img, nsigma=5)
+            print("Threshold:", np.median(img))
+            # threshold = np.median(img)
 
-        fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
-        ax1.grid(False)
-        ax2.grid(False)
-        plt_img = np.zeros_like(img)
-        plt_img[img > 0] = np.log10(img[img > 0])
-        max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
-        ax1.imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
-                   max_ind[1] - 100: max_ind[1] + 100],
-                   extent=imgextent, cmap="Greys_r")
-        cmap = segm.make_cmap()
-        ax2.imshow(segm.data[max_ind[0] - 100: max_ind[0] + 100,
-                   max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
-                   cmap=cmap)
-        fig.savefig("plots/max_gal_img_log_" + f + "_%.1f.png"
-                    % np.log10(np.sum(img)), dpi=300)
-        plt.close(fig)
+            segm = phut.detect_sources(img, threshold, npixels=5)
+            segm = phut.deblend_sources(img, segm, npixels=5,
+                                        nlevels=32, contrast=0.001)
 
-        print(np.max(segm.data), "sources found")
+            # fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
+            # ax1.grid(False)
+            # ax2.grid(False)
+            # plt_img = np.zeros_like(img)
+            # plt_img[img > 0] = np.log10(img[img > 0])
+            # ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
+            # cmap = segm.make_cmap()
+            # ax2.imshow(segm.data, extent=imgextent, cmap=cmap)
+            # fig.savefig("plots/gal_img_log_" + f + "_%.1f.png"
+            #             % np.log10(np.sum(img)), dpi=300)
+            # plt.close(fig)
 
-        # for i in range(1, np.max(segm.data) + 1):
-        #     if np.sum(img[segm.data == i]) < np.median(img):
-        #         continue
-        #     print(np.sum(img[segm.data == i]))
-        #     for r in radii_fracs:
-        #         img_segm = np.zeros_like(img)
-        #         img_segm[segm.data == i] = img[segm.data == i]
-        #         hlr_pix_dict[tag][f][r].append(
-        #             util.get_pixel_hlr(img_segm, single_pixel_area,
-        #                                radii_frac=r))
-        #         # hlr_app_dict[tag][f][r].append(
-        #         #     util.get_img_hlr(img, apertures, app_radii, res,
-        #         #                      arc_res / arcsec_per_kpc_proper, r))
-        #     lumin_dict[tag][f].append(np.sum(img[segm.data == i]))
-        #
-        # img_dict[tag][f].append(img)
-        # segm_dict[tag][f].append(segm.data)
+            # fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
+            # ax1.grid(False)
+            # ax2.grid(False)
+            # plt_img = np.zeros_like(img)
+            # plt_img[img > 0] = np.log10(img[img > 0])
+            # max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
+            # ax1.imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
+            #            max_ind[1] - 100: max_ind[1] + 100],
+            #            extent=imgextent, cmap="Greys_r")
+            # cmap = segm.make_cmap()
+            # ax2.imshow(segm.data[max_ind[0] - 100: max_ind[0] + 100,
+            #            max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
+            #            cmap=cmap)
+            # fig.savefig("plots/max_gal_img_log_" + f + "_%.1f.png"
+            #             % np.log10(np.sum(img)), dpi=300)
+            # plt.close(fig)
+
+            print(np.max(segm.data), "sources found")
+
+            # for i in range(1, np.max(segm.data) + 1):
+            #     if np.sum(img[segm.data == i]) < np.median(img):
+            #         continue
+            #     print(np.sum(img[segm.data == i]))
+            #     for r in radii_fracs:
+            #         img_segm = np.zeros_like(img)
+            #         img_segm[segm.data == i] = img[segm.data == i]
+            #         hlr_pix_dict[tag][f][r].append(
+            #             util.get_pixel_hlr(img_segm, single_pixel_area,
+            #                                radii_frac=r))
+            #         # hlr_app_dict[tag][f][r].append(
+            #         #     util.get_img_hlr(img, apertures, app_radii, res,
+            #         #                      arc_res / arcsec_per_kpc_proper, r))
+            #     lumin_dict[tag][f].append(np.sum(img[segm.data == i]))
+            #
+            img_dict[tag][f][snr].append(img)
+            segm_dict[tag][f][snr].append(segm.data)
+            ngal_dict[tag][f][snr].append(np.max(segm.data))
+            grp_dict[tag][f][snr].append(ind)
 
 
 try:
     hdf = h5py.File("mock_data/"
-                    "flares_sizes_{}_{}_Webb.hdf5".format(reg, tag), "r+")
+                    "flares_segm_{}_{}_Webb.hdf5".format(reg, tag), "r+")
 except OSError:
     hdf = h5py.File("mock_data/"
-                    "flares_sizes_{}_{}_Webb.hdf5".format(reg, tag), "w")
+                    "flares_segm_{}_{}_Webb.hdf5".format(reg, tag), "w")
 
 try:
     type_group = hdf[Type]
@@ -300,100 +318,119 @@ except KeyError:
 
 for f in filters:
 
-    fluxes = np.array(lumin_dict[tag][f])
-    imgs = np.array(img_dict[tag][f])
-    segms = np.array(segm_dict[tag][f])
+    for snr in snrs:
 
-    print(imgs.shape)
+        # fluxes = np.array(lumin_dict[tag][f][snr])
+        imgs = np.array(img_dict[tag][f][snr])
+        segms = np.array(segm_dict[tag][f][snr])
+        ngals = np.array(ngal_dict[tag][f][snr])
+        grps = np.array(grp_dict[tag][f][snr])
 
-    try:
-        f_group = orientation_group[f]
-    except KeyError:
-        print(f, "Doesn't exists: Creating...")
-        f_group = orientation_group.create_group(f)
-
-    try:
-        dset = f_group.create_dataset("Flux", data=fluxes,
-                                      dtype=fluxes.dtype,
-                                      shape=fluxes.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "$nJy$"
-    except RuntimeError:
-        print("Flux already exists: Overwriting...")
-        del f_group["Flux"]
-        dset = f_group.create_dataset("Flux", data=fluxes,
-                                      dtype=fluxes.dtype,
-                                      shape=fluxes.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "$nJy$"
-
-    try:
-        dset = f_group.create_dataset("Images", data=imgs,
-                                      dtype=imgs.dtype,
-                                      shape=imgs.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "$nJy$"
-    except RuntimeError:
-        print("Images already exists: Overwriting...")
-        del f_group["Images"]
-        dset = f_group.create_dataset("Images", data=imgs,
-                                      dtype=imgs.dtype,
-                                      shape=imgs.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "$nJy$"
-
-    try:
-        dset = f_group.create_dataset("Segmentation_Maps", data=segms,
-                                      dtype=segms.dtype,
-                                      shape=segms.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
-    except RuntimeError:
-        print("Images already exists: Overwriting...")
-        del f_group["Images"]
-        dset = f_group.create_dataset("Segmentation_Maps", data=segms,
-                                      dtype=segms.dtype,
-                                      shape=segms.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
-
-    for r in radii_fracs:
-
-        hlrs_app = np.array(hlr_app_dict[tag][f][r])
-        hlrs_pix = np.array(hlr_pix_dict[tag][f][r])
+        print(imgs.shape)
 
         try:
-            dset = f_group.create_dataset("HLR_Aperture_%.1f" % r,
-                                          data=hlrs_app,
-                                          dtype=hlrs_app.dtype,
-                                          shape=hlrs_app.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "$\mathrm{pkpc}$"
-        except RuntimeError:
-            print("HLR_Aperture_%.1f" % r, "already exists: Overwriting...")
-            del f_group["HLR_Aperture_%.1f" % r]
-            dset = f_group.create_dataset("HLR_Aperture_%.1f" % r,
-                                          data=hlrs_app,
-                                          dtype=hlrs_app.dtype,
-                                          shape=hlrs_app.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "$\mathrm{pkpc}$"
+            f_group = orientation_group[f]
+        except KeyError:
+            print(f, "Doesn't exists: Creating...")
+            f_group = orientation_group.create_group(f)
 
         try:
-            dset = f_group.create_dataset("HLR_Pixel_%.1f" % r,
-                                          data=hlrs_pix,
-                                          dtype=hlrs_pix.dtype,
-                                          shape=hlrs_pix.shape,
+            dset = f_group.create_dataset("Group_ID", data=grps,
+                                          dtype=grps.dtype,
+                                          shape=grps.shape,
                                           compression="gzip")
-            dset.attrs["units"] = "$\mathrm{pkpc}$"
+            dset.attrs["units"] = "None"
         except RuntimeError:
-            print("HLR_Pixel_%.1f" % r, "already exists: Overwriting...")
-            del f_group["HLR_Pixel_%.1f" % r]
-            dset = f_group.create_dataset("HLR_Pixel_%.1f" % r,
-                                          data=hlrs_pix,
-                                          dtype=hlrs_pix.dtype,
-                                          shape=hlrs_pix.shape,
+            print("Group_ID already exists: Overwriting...")
+            del f_group["Group_ID"]
+            dset = f_group.create_dataset("Group_ID", data=grps,
+                                          dtype=grps.dtype,
+                                          shape=grps.shape,
                                           compression="gzip")
-            dset.attrs["units"] = "$\mathrm{pkpc}$"
+            dset.attrs["units"] = "None"
 
+        try:
+            dset = f_group.create_dataset("Images", data=imgs,
+                                          dtype=imgs.dtype,
+                                          shape=imgs.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "$nJy$"
+        except RuntimeError:
+            print("Images already exists: Overwriting...")
+            del f_group["Images"]
+            dset = f_group.create_dataset("Images", data=imgs,
+                                          dtype=imgs.dtype,
+                                          shape=imgs.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "$nJy$"
+
+        try:
+            dset = f_group.create_dataset("Segmentation_Maps", data=segms,
+                                          dtype=segms.dtype,
+                                          shape=segms.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "None"
+        except RuntimeError:
+            print("Segmentation_Maps already exists: Overwriting...")
+            del f_group["Segmentation_Maps"]
+            dset = f_group.create_dataset("Segmentation_Maps", data=segms,
+                                          dtype=segms.dtype,
+                                          shape=segms.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "None"
+
+        try:
+            dset = f_group.create_dataset("NGalaxy", data=ngals,
+                                          dtype=ngals.dtype,
+                                          shape=ngals.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "None"
+        except RuntimeError:
+            print("NGalaxy already exists: Overwriting...")
+            del f_group["NGalaxy"]
+            dset = f_group.create_dataset("NGalaxy", data=ngals,
+                                          dtype=ngals.dtype,
+                                          shape=ngals.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "None"
+
+        # for r in radii_fracs:
+        #
+        #     hlrs_app = np.array(hlr_app_dict[tag][f][r])
+        #     hlrs_pix = np.array(hlr_pix_dict[tag][f][r])
+        #
+        #     try:
+        #         dset = f_group.create_dataset("HLR_Aperture_%.1f" % r,
+        #                                       data=hlrs_app,
+        #                                       dtype=hlrs_app.dtype,
+        #                                       shape=hlrs_app.shape,
+        #                                       compression="gzip")
+        #         dset.attrs["units"] = "$\mathrm{pkpc}$"
+        #     except RuntimeError:
+        #         print("HLR_Aperture_%.1f" % r, "already exists: Overwriting...")
+        #         del f_group["HLR_Aperture_%.1f" % r]
+        #         dset = f_group.create_dataset("HLR_Aperture_%.1f" % r,
+        #                                       data=hlrs_app,
+        #                                       dtype=hlrs_app.dtype,
+        #                                       shape=hlrs_app.shape,
+        #                                       compression="gzip")
+        #         dset.attrs["units"] = "$\mathrm{pkpc}$"
+        #
+        #     try:
+        #         dset = f_group.create_dataset("HLR_Pixel_%.1f" % r,
+        #                                       data=hlrs_pix,
+        #                                       dtype=hlrs_pix.dtype,
+        #                                       shape=hlrs_pix.shape,
+        #                                       compression="gzip")
+        #         dset.attrs["units"] = "$\mathrm{pkpc}$"
+        #     except RuntimeError:
+        #         print("HLR_Pixel_%.1f" % r, "already exists: Overwriting...")
+        #         del f_group["HLR_Pixel_%.1f" % r]
+        #         dset = f_group.create_dataset("HLR_Pixel_%.1f" % r,
+        #                                       data=hlrs_pix,
+        #                                       dtype=hlrs_pix.dtype,
+        #                                       shape=hlrs_pix.shape,
+        #                                       compression="gzip")
+        #         dset.attrs["units"] = "$\mathrm{pkpc}$"
+        #
 hdf.close()
