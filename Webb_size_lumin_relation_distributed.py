@@ -177,11 +177,11 @@ for f in filters:
         hlr_app_dict[tag][f].setdefault(r, [])
         hlr_pix_dict[tag][f].setdefault(r, [])
 
-    lumin_dict[tag].setdefault(f, [])
-    img_dict[tag].setdefault(f, [])
-    segm_dict[tag].setdefault(f, [])
-    ngal_dict[tag].setdefault(f, [])
-    grp_dict[tag].setdefault(f, [])
+    lumin_dict[tag].setdefault(f, {})
+    img_dict[tag].setdefault(f, {})
+    segm_dict[tag].setdefault(f, {})
+    ngal_dict[tag].setdefault(f, {})
+    grp_dict[tag].setdefault(f, {})
 
     for snr in snrs:
 
