@@ -651,11 +651,8 @@ def noisy_img(img, snr, seed=10000):
                            nlevels=32, contrast=0.001)
 
     # Define the signal flux from the photometry table
-    print(np.unravel_index(np.argmax(img), img.shape))
-    print(segm.shape)
-    print(segm[np.unravel_index(np.argmax(img), img.shape)])
 
-    source = img[segm == segm[np.unravel_index(np.argmax(img), img.shape)]]
+    source = img[segm == 1]
     true_signal = np.sum(source) / source.size
 
     noise_sig = true_signal / snr
