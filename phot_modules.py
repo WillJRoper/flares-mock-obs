@@ -325,7 +325,9 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         okinds = star_tree.query_ball_point(cop, r=r)
         g_okinds = gas_tree.query_ball_point(cop, r=r)
 
-        print(ind, len(okinds), len(g_okinds), end="\r")
+        if np.sum(S_mass_ini[okinds]) < 10**9:
+            continue
+
 
         Fnus[ind] = {f: {} for f in filters}
 
