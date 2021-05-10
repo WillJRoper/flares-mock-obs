@@ -103,7 +103,7 @@ kernel.normalize()
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
-ini_width = 1000 * arcsec_per_kpc_proper
+ini_width = 500 * arcsec_per_kpc_proper
 
 # Define arc_second resolution
 if int(filters[0].split(".")[-1][1:4]) < 230:
@@ -201,7 +201,7 @@ for f in filters:
 
             print("Got image", np.min(img))
 
-            img = gaussian_filter(img, 10)
+            img = gaussian_filter(img, 5)
 
             img = util.noisy_img(img, snr=30, seed=10000)
 
