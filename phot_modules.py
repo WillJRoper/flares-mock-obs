@@ -51,13 +51,13 @@ def get_data(reg, snap, masslim):
     gal_cops = E.read_array('SUBFIND', path, snap,
                             'FOF/GroupCentreOfPotential',
                             noH=True, physicalUnits=True, numThreads=8)
-    all_gal_ns = E.read_array('SUBFIND', path, snap, 'FOF/NumOfSubhalos',
-                              numThreads=8)
+    all_grp_ms = E.read_array('SUBFIND', path, snap, 'FOF/Group_M_Mean200',
+                              numThreads=8) * 10**10
 
-    okinds = all_gal_ns > 5
+    okinds = all_grp_ms > 10**10
     gal_cops = gal_cops[okinds]
     r_200 = r_200[okinds]
-    all_gal_ns = all_gal_ns[okinds]
+    all_grp_ms = all_grp_ms[okinds]
 
     print(r_200)
 
@@ -98,7 +98,7 @@ def get_data(reg, snap, masslim):
     S_age = util.calc_ages(z, a_born)
 
     return S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-           G_coords, S_mass, gal_cops, r_200, all_gal_ns
+           G_coords, S_mass, gal_cops, r_200, all_grp_ms
 
 
 def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
