@@ -235,7 +235,7 @@ for f in filters:
         plt_img = np.zeros_like(img)
         plt_img[img > 0] = np.log10(img[img > 0])
         ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
-        cmap = segm.make_cmap(seed=123)
+        cmap = segm.make_cmap()
         ax2.imshow(segm.data, extent=imgextent, cmap=cmap)
         fig.savefig("plots/gal_img_log_" + f + "_%.1f.png"
                     % np.log10(np.sum(img)), dpi=300)
@@ -250,7 +250,7 @@ for f in filters:
         ax1.imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
                    max_ind[1] - 100: max_ind[1] + 100],
                    extent=imgextent, cmap="Greys_r")
-        cmap = segm.make_cmap(seed=123)
+        cmap = segm.make_cmap()
         ax2.imshow(segm.data[max_ind[0] - 100: max_ind[0] + 100,
                    max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
                    cmap=cmap)

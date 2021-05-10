@@ -654,10 +654,6 @@ def noisy_img(img, snr, seed=10000):
     true_signal = np.sum(source) / source.size
 
     noise_sig = true_signal / snr
-    print(true_signal)
-    print(snr)
-    print(source)
-    print(noise_sig)
 
     # Create large array of random noise
     noise = np.random.normal(loc=0.0, scale=noise_sig, size=img.shape)
