@@ -203,6 +203,8 @@ for f in filters:
 
             img = gaussian_filter(img, 10)
 
+            img = util.noisy_img(img, snr=20, seed=10000)
+
         else:
 
             # # Centre positions on luminosity weighted centre
@@ -223,10 +225,8 @@ for f in filters:
         print("Threshold:", np.median(img))
         # threshold = np.median(img)
 
-        segm = phut.detect_sources(img, threshold, npixels=10,
-                                   filter_kernel=kernel)
-        segm = phut.deblend_sources(img, segm, npixels=10,
-                                    filter_kernel=kernel,
+        segm = phut.detect_sources(img, threshold, npixels=5)
+        segm = phut.deblend_sources(img, segm, npixels=5,
                                     nlevels=32, contrast=0.001)
 
         fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))

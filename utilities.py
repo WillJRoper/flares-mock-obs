@@ -6,7 +6,9 @@ import matplotlib
 import numba as nb
 import numpy as np
 from astropy.cosmology import Planck13 as cosmo
-from photutils import aperture_photometry
+from photutils import CircularAperture, RectangularAperture, \
+    EllipticalAperture, aperture_photometry, detect_threshold, \
+    detect_sources, deblend_sources
 from scipy.interpolate import interp1d
 from scipy.spatial import cKDTree
 import schwimmbad
@@ -631,3 +633,32 @@ def binned_weighted_quantile(x, y, weights, bins, quantiles):
                                           sample_weight=weights[mask])
 
     return np.squeeze(out)
+
+
+def noisy_img(img, snr, seed=10000):
+
+    # Set random seed
+    if seed is int:
+        np.random.seed(seed)
+
+    # Define the dimensions of the object image for which a SNR is to be computed
+    ndim = img.shape[0]
+
+    threshold = detect_threshold(img, nsigma=5)
+
+    segm = detect_sources(img, threshold, npixels=5)
+    segm = deblend_sources(img, segm, npixels=5,
+                                nlevels=32, contrast=0.001)
+
+    # Define the signal flux from the photometry table
+    source = img[segm == segm[np.argmax(img)]]
+    true_signal = np.sum(source) / source.size
+
+    noise_sig = true_signal / snr
+
+    # Create large array of random noise
+    noise = np.random.normal(loc=0.0, scale=noise_sig, size=img.shape)
+
+    noisy_img = img + noise
+
+    return noisy_img
