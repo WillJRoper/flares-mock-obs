@@ -201,9 +201,9 @@ for f in filters:
 
             print("Got image", np.min(img))
 
-            img = gaussian_filter(img, 10)
+            img = gaussian_filter(img, 5)
 
-            img = util.noisy_img(img, snr=20, seed=10000)
+            img = util.noisy_img(img, snr=30, seed=10000)
 
         else:
 
