@@ -645,17 +645,20 @@ def noisy_img(img, snr, seed=10000):
     ndim = img.shape[0]
 
     threshold = detect_threshold(img, nsigma=5)
-
     segm = detect_sources(img, threshold, npixels=5)
     segm = deblend_sources(img, segm, npixels=5,
                            nlevels=32, contrast=0.001)
-
+    print(segm)
+    print(segm.max())
     # Define the signal flux from the photometry table
-
-    source = img[segm == 1]
+    source = img[segm == 3]
     true_signal = np.sum(source) / source.size
 
     noise_sig = true_signal / snr
+    print(true_signal)
+    print(snr)
+    print(source)
+    print(noise_sig)
 
     # Create large array of random noise
     noise = np.random.normal(loc=0.0, scale=noise_sig, size=img.shape)
