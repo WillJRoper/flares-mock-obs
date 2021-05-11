@@ -75,9 +75,11 @@ for ind in range(len(reg_snaps)):
           "and extinction {e} for region {x} and "
           "snapshot {u}".format(o=orientation, t=Type, e=extinction,
                                 x=reg, u=snap))
-
-    hdf = h5py.File("mock_data/"
-                    "flares_segm_{}_{}_Webb.hdf5".format(reg, snap), "r")
+    try:
+        hdf = h5py.File("mock_data/"
+                        "flares_segm_{}_{}_Webb.hdf5".format(reg, snap), "r")
+    except OSError:
+        continue
 
     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
     G_coords, S_mass, grp_cops, r_200, all_grp_ms, S_subgrpid, \
