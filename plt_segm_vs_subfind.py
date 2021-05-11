@@ -59,7 +59,7 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-f = ('JWST.NIRCAM.F150W', )
+f = 'JWST.NIRCAM.F150W'
 
 snr = 20
 
