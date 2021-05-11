@@ -91,8 +91,8 @@ for ind in range(len(reg_snaps)):
     orientation_group = type_group[orientation]
     f_group = orientation_group[f]
 
-    grp_ids = f_group[snr]["Group_ID"][:]
-    segm_ngals = f_group[snr]["NGalaxy"][:]
+    grp_ids = f_group["Group_ID"][:]
+    segm_ngals = f_group["NGalaxy"][:]
 
     for grpind, ngal in zip(grp_ids, segm_ngals):
 
