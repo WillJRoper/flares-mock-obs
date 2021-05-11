@@ -38,7 +38,7 @@ def DTM_fit(Z, Age):
     return DTM
 
 
-def get_data(reg, snap, masslim):
+def get_data(reg, snap, masslim=0):
 
     z_str = snap.split('z')[1].split('p')
     z = float(z_str[0] + '.' + z_str[1])
@@ -48,20 +48,36 @@ def get_data(reg, snap, masslim):
     # Load all necessary arrays
     r_200 = E.read_array('SUBFIND', path, snap, 'FOF/Group_R_Mean200',
                          noH=True, physicalUnits=True, numThreads=8)
-    gal_cops = E.read_array('SUBFIND', path, snap,
+    grp_cops = E.read_array('SUBFIND', path, snap,
                             'FOF/GroupCentreOfPotential',
                             noH=True, physicalUnits=True, numThreads=8)
+    gal_cops = E.read_array('SUBFIND', path, snap,
+                            'Subhalo/CentreOfPotential',
+                            noH=True, physicalUnits=True, numThreads=8)
+    gal_grpid = E.read_array('SUBFIND', path, snap,
+                            'Subhalo/GroupNumber',
+                            noH=True, physicalUnits=True, numThreads=8)
+    gal_ms = E.read_array('SUBFIND', path, snap,
+                            'Subhalo/ApertureMeasurements/Mass/030kpc',
+                            noH=True, physicalUnits=True,
+                          numThreads=8)[:, 4] * 10**10
     all_grp_ms = E.read_array('SUBFIND', path, snap, 'FOF/Group_M_Mean200',
                               numThreads=8) * 10**10
 
     okinds = all_grp_ms > 10**10
-    gal_cops = gal_cops[okinds]
+    grp_cops = grp_cops[okinds]
     r_200 = r_200[okinds]
     all_grp_ms = all_grp_ms[okinds]
 
-    print(r_200)
+    okinds = gal_ms > 10**8
+    gal_cops = gal_cops[okinds]
+    gal_ms = gal_ms[okinds]
+    gal_grpid = gal_grpid[okinds]
 
     # Load data for luminosities
+    S_subgrpid = E.read_array('PARTDATA', path, snap,
+                            'PartType4/SubGroupNumber', noH=True,
+                            physicalUnits=True, numThreads=8)
     S_coords = E.read_array('PARTDATA', path, snap,
                             'PartType4/Coordinates', noH=True,
                             physicalUnits=True, numThreads=8)
@@ -98,7 +114,8 @@ def get_data(reg, snap, masslim):
     S_age = util.calc_ages(z, a_born)
 
     return S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-           G_coords, S_mass, gal_cops, r_200, all_grp_ms
+           G_coords, S_mass, grp_cops, r_200, all_grp_ms, S_subgrpid, \
+           gal_cops, gal_ms, gal_grpid
 
 
 def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
@@ -276,9 +293,13 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     kbins = header.item()['bins']
 
     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-    G_coords, S_mass, cops, r_200, all_gal_ns = get_data(sim, tag, masslim)
+    G_coords, S_mass, cops, r_200, all_gal_ns, S_subgrpid,\
+    gal_cops, gal_ms, gal_grpid = get_data(sim, tag, masslim)
 
     Fnus = {}
+    Fnus["part_subgrpid"] = S_subgrpid
+    Fnus["gal_cop"] = gal_cops
+    Fnus["gal_ms"] = gal_ms
 
     model = models.define_model(
         F'BPASSv2.2.1.binary/{IMF}')  # DEFINE SED GRID -
