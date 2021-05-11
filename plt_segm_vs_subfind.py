@@ -87,9 +87,12 @@ for ind in range(len(reg_snaps)):
 
     tree = cKDTree(gal_cops)
 
-    type_group = hdf[Type]
-    orientation_group = type_group[orientation]
-    f_group = orientation_group[f]
+    try:
+        type_group = hdf[Type]
+        orientation_group = type_group[orientation]
+        f_group = orientation_group[f]
+    except KeyError:
+        continue
 
     grp_ids = f_group["Group_ID"][:]
     segm_ngals = f_group["NGalaxy"][:]
