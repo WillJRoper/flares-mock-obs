@@ -22,6 +22,7 @@ from FLARE.photom import lum_to_M, M_to_lum, lum_to_flux, m_to_flux
 import FLARE.photom as photconv
 from scipy.spatial import cKDTree
 import h5py
+import eagle_IO.eagle_IO as E
 import sys
 import pandas as pd
 import utilities as util
