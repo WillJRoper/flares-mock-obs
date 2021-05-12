@@ -78,7 +78,8 @@ for ind in range(len(reg_snaps)):
     try:
         hdf = h5py.File("mock_data/"
                         "flares_segm_{}_{}_Webb.hdf5".format(reg, snap), "r")
-    except OSError:
+    except OSError as e:
+        print(e)
         continue
 
     try:
@@ -92,7 +93,8 @@ for ind in range(len(reg_snaps)):
         subfind_ngals = f_group["SUBFIND_NGalaxy"][:]
 
         hdf.close()
-    except KeyError:
+    except KeyError as e:
+        print(e)
         hdf.close()
         continue
 
