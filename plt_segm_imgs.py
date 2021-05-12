@@ -163,16 +163,30 @@ while ind < n_img:
     subfind_img = util.make_subfind_spline_img(poss, res, 0, 1, tree, subgrp,
                                                smooth, spline_cut_off=5/2)
 
-    fig = plt.figure()
-    ax1 = fig.add_subplot(321)
-    ax2 = fig.add_subplot(322)
-    ax3 = fig.add_subplot(323)
-    ax4 = fig.add_subplot(324)
-    ax5 = fig.add_subplot(325)
-    ax6 = fig.add_subplot(326)
+    fig = plt.figure(figsize=(3, 6))
+    gs = gridspec.GridSpec(3, 2)
+    gs.update(wspace=0.0, hspace=0.0)
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[1, 0])
+    ax3 = fig.add_subplot(gs[2, 0])
+    ax4 = fig.add_subplot(gs[0, 1])
+    ax5 = fig.add_subplot(gs[1, 1])
+    ax6 = fig.add_subplot(gs[2, 1])
     axes = [ax1, ax2, ax3, ax4, ax5, ax6]
-    for ax in axes:
+    for i, ax in enumerate(axes):
         ax.grid(False)
+
+        if i < 2:
+            ax.tick_params(axis='x', top=False, bottom=False,
+                        labeltop=False, labelbottom=False)
+        elif i > 2 and i < 5:
+            ax.tick_params(axis='both', top=False, bottom=False,
+                           labeltop=False, labelbottom=False,
+                           left=False, right=False,
+                           labelleft=False, labelright=False)
+        elif i == 5:
+            ax3.tick_params(axis='y', left=False, right=False,
+                            labelleft=False, labelright=False)
     plt_img = np.zeros_like(img)
     plt_img[img > 0] = np.log10(img[img > 0])
     axes[0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
