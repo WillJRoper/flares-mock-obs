@@ -163,7 +163,7 @@ while ind < n_img or ind < imgs.shape[0]:
     subfind_img = util.make_subfind_spline_img(poss, res, 0, 1, tree, subgrp,
                                                smooth, spline_cut_off=5/2)
 
-    fig = plt.figure(figsize=(3, 5))
+    fig = plt.figure(figsize=(3, 4))
     gs = gridspec.GridSpec(3, 2)
     gs.update(wspace=0.0, hspace=0.0)
     ax1 = fig.add_subplot(gs[0, 0])
@@ -196,18 +196,19 @@ while ind < n_img or ind < imgs.shape[0]:
     axes[1].imshow(segm, extent=imgextent, cmap="plasma")
     axes[2].imshow(subfind_img, extent=imgextent, cmap="plasma")
 
-    print(subfind_img.shape)
+    print(np.unique(subfind_img))
 
     max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
     axes[3].imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
                max_ind[1] - 100: max_ind[1] + 100],
                extent=imgextent, cmap="Greys_r")
-    axes[4].imshow(segm[max_ind[0] - 100: max_ind[0] + 100, max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
-               cmap="plasma")
+    axes[4].imshow(segm[max_ind[0] - 100: max_ind[0] + 100,
+                   max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
+                   cmap="plasma")
     axes[5].imshow(subfind_img[max_ind[0] - 100: max_ind[0] + 100,
-               max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
-               cmap="plasma")
-    fig.savefig("plots/gal_img_log_" + f + "_" + str(ind) + ".png", dpi=300)
+                   max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
+                   cmap="plasma")
+    fig.savefig("plots/gal_img_log_" + f + "_" + str(ind) + ".png", dpi=600)
     plt.close(fig)
 
     ind += 1
