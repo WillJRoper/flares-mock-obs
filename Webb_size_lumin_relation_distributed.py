@@ -56,7 +56,7 @@ ind = int(sys.argv[1])
 # Set orientation
 orientation = sys.argv[2]
 
-# Define luminosity and dust model types
+# Define fluxosity and dust model types
 Type = sys.argv[3]
 extinction = 'default'
 
@@ -74,7 +74,7 @@ radii_fracs = (0.2, 0.5, 0.8)
 # Define dictionaries for results
 hlr_app_dict = {}
 hlr_pix_dict = {}
-lumin_dict = {}
+flux_dict = {}
 img_dict = {}
 segm_dict = {}
 ngal_dict = {}
@@ -89,7 +89,7 @@ z = float(z_str[0] + '.' + z_str[1])
 
 hlr_app_dict.setdefault(tag, {})
 hlr_pix_dict.setdefault(tag, {})
-lumin_dict.setdefault(tag, {})
+flux_dict.setdefault(tag, {})
 img_dict.setdefault(tag, {})
 segm_dict.setdefault(tag, {})
 ngal_dict.setdefault(tag, {})
@@ -179,7 +179,7 @@ for f in filters:
         hlr_app_dict[tag][f].setdefault(r, [])
         hlr_pix_dict[tag][f].setdefault(r, [])
 
-    lumin_dict[tag].setdefault(f, {})
+    flux_dict[tag].setdefault(f, {})
     img_dict[tag].setdefault(f, {})
     segm_dict[tag].setdefault(f, {})
     ngal_dict[tag].setdefault(f, {})
@@ -188,7 +188,7 @@ for f in filters:
 
     for snr in snrs:
 
-        lumin_dict[tag][f].setdefault(snr, [])
+        flux_dict[tag][f].setdefault(snr, [])
         img_dict[tag][f].setdefault(snr, [])
         segm_dict[tag][f].setdefault(snr, [])
         ngal_dict[tag][f].setdefault(snr, [])
@@ -204,11 +204,11 @@ for f in filters:
             this_smls = reg_dict[ind]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
             this_subgrpids = reg_dict[ind]["part_subgrpids"]
 
-            this_lumin = reg_dict[ind][f]
+            this_flux = reg_dict[ind][f]
 
             subfind_ids = np.unique(this_subgrpids)
 
-            if np.nansum(this_lumin) == 0:
+            if np.nansum(this_flux) == 0:
                 continue
 
             if orientation == "sim" or orientation == "face-on":
@@ -216,10 +216,10 @@ for f in filters:
                 this_radii = util.calc_rad(this_pos, i=0, j=1)
 
                 # img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
-                #                          this_lumin,
+                #                          this_flux,
                 #                          this_smls)
                 img = util.make_spline_img(this_pos, res, 0, 1, tree,
-                                           this_lumin, this_smls)
+                                           this_flux, this_smls)
 
                 img = gaussian_filter(img, 3)
 
@@ -227,16 +227,16 @@ for f in filters:
 
             else:
 
-                # # Centre positions on luminosity weighted centre
-                # lumin_cent = util.lumin_weighted_centre(this_pos,
-                #                                         this_lumin,
+                # # Centre positions on fluxosity weighted centre
+                # flux_cent = util.flux_weighted_centre(this_pos,
+                #                                         this_flux,
                 #                                         i=2, j=0)
-                # this_pos[:, (2, 0)] -= lumin_cent
+                # this_pos[:, (2, 0)] -= flux_cent
 
                 this_radii = util.calc_rad(this_pos, i=2, j=0)
 
                 img = util.make_soft_img(this_pos, res, 2, 0, imgrange,
-                                         this_lumin,
+                                         this_flux,
                                          this_smls)
 
             # img[img < 10**21] = 0
@@ -289,7 +289,7 @@ for f in filters:
             #         # hlr_app_dict[tag][f][r].append(
             #         #     util.get_img_hlr(img, apertures, app_radii, res,
             #         #                      arc_res / arcsec_per_kpc_proper, r))
-            #     lumin_dict[tag][f].append(np.sum(img[segm.data == i]))
+            #     flux_dict[tag][f].append(np.sum(img[segm.data == i]))
             #
             img_dict[tag][f][snr].append(img)
             segm_dict[tag][f][snr].append(segm.data)
@@ -304,7 +304,7 @@ for f in filters:
 
             ngal = 0
             for gal in subfind_ids:
-                if np.sum(this_lumin[this_subgrpids == gal]) > 5000:
+                if np.sum(this_flux[this_subgrpids == gal]) > 5000:
                     ngal += 1
 
             sf_ngal_dict[tag][f][snr].append(ngal)
@@ -340,7 +340,7 @@ for f in filters:
 
     for snr in snrs:
 
-        # fluxes = np.array(lumin_dict[tag][f][snr])
+        # fluxes = np.array(flux_dict[tag][f][snr])
         imgs = np.array(img_dict[tag][f][snr])
         segms = np.array(segm_dict[tag][f][snr])
         ngals = np.array(ngal_dict[tag][f][snr])
@@ -361,7 +361,7 @@ for f in filters:
                                           shape=grps.shape,
                                           compression="gzip")
             dset.attrs["units"] = "None"
-        except RuntimeError:
+        except ValueError:
             print("Group_ID already exists: Overwriting...")
             del snr_group["Group_ID"]
             dset = snr_group.create_dataset("Group_ID", data=grps,
@@ -376,7 +376,7 @@ for f in filters:
                                           shape=imgs.shape,
                                           compression="gzip")
             dset.attrs["units"] = "$nJy$"
-        except RuntimeError:
+        except ValueError:
             print("Images already exists: Overwriting...")
             del snr_group["Images"]
             dset = snr_group.create_dataset("Images", data=imgs,
@@ -391,7 +391,7 @@ for f in filters:
                                           shape=segms.shape,
                                           compression="gzip")
             dset.attrs["units"] = "None"
-        except RuntimeError:
+        except ValueError:
             print("Segmentation_Maps already exists: Overwriting...")
             del snr_group["Segmentation_Maps"]
             dset = snr_group.create_dataset("Segmentation_Maps", data=segms,
@@ -406,7 +406,7 @@ for f in filters:
                                           shape=ngals.shape,
                                           compression="gzip")
             dset.attrs["units"] = "None"
-        except RuntimeError:
+        except ValueError:
             print("NGalaxy already exists: Overwriting...")
             del snr_group["NGalaxy"]
             dset = snr_group.create_dataset("NGalaxy", data=ngals,
@@ -421,7 +421,7 @@ for f in filters:
                                           shape=sf_ngals.shape,
                                           compression="gzip")
             dset.attrs["units"] = "None"
-        except RuntimeError:
+        except ValueError:
             print("SUBFIND_NGalaxy already exists: Overwriting...")
             del snr_group["SUBFIND_NGalaxy"]
             dset = snr_group.create_dataset("SUBFIND_NGalaxy", data=sf_ngals,
@@ -442,7 +442,7 @@ for f in filters:
         #                                       shape=hlrs_app.shape,
         #                                       compression="gzip")
         #         dset.attrs["units"] = "$\mathrm{pkpc}$"
-        #     except RuntimeError:
+        #     except ValueError:
         #         print("HLR_Aperture_%.1f" % r, "already exists: Overwriting...")
         #         del f_group["HLR_Aperture_%.1f" % r]
         #         dset = f_group.create_dataset("HLR_Aperture_%.1f" % r,
@@ -459,7 +459,7 @@ for f in filters:
         #                                       shape=hlrs_pix.shape,
         #                                       compression="gzip")
         #         dset.attrs["units"] = "$\mathrm{pkpc}$"
-        #     except RuntimeError:
+        #     except ValueError:
         #         print("HLR_Pixel_%.1f" % r, "already exists: Overwriting...")
         #         del f_group["HLR_Pixel_%.1f" % r]
         #         dset = f_group.create_dataset("HLR_Pixel_%.1f" % r,
