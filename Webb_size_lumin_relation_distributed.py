@@ -313,7 +313,6 @@ for f in filters:
 
             ngal = 0
             for gal in np.unique(segm.data):
-                print(np.sum(img[segm.data == gal]), gal, np.sum(this_flux))
                 if np.sum(img[segm.data == gal]) > 10 and gal > 0:
                     ngal += 1
 
