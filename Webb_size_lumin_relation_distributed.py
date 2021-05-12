@@ -86,6 +86,7 @@ Slen = []
 smls = []
 fluxes = []
 subgrpids = []
+grp_mass = []
 
 # Set mass limit
 masslim = 700
@@ -303,15 +304,16 @@ for f in filters:
             grp_dict[tag][f][snr].append(ind)
 
             begin.append(len(fluxes))
+            grp_mass.append(this_groupmass)
             star_pos.extend(this_pos)
             smls.extend(this_smls)
             fluxes.extend(this_flux)
-            print(np.sum(this_flux))
             subgrpids.extend(this_subgrpids)
             Slen.append(len(this_smls))
 
             ngal = 0
             for gal in np.unique(segm.data):
+                print(np.sum(img[segm.data == gal]), gal, np.sum(this_flux))
                 if np.sum(img[segm.data == gal]) > 10 and gal > 0:
                     ngal += 1
 
@@ -319,7 +321,7 @@ for f in filters:
 
             ngal = 0
             for gal in subfind_ids:
-                if np.sum(this_flux[this_subgrpids == gal]) > 5000:
+                if np.sum(this_flux[this_subgrpids == gal]) > 10:
                     ngal += 1
 
             sf_ngal_dict[tag][f][snr].append(ngal)
@@ -353,7 +355,101 @@ for f in filters:
         print(f, "Doesn't exists: Creating...")
         f_group = orientation_group.create_group(f)
 
+    begin = np.array(begin)
+    grp_mass = np.array(grp_mass)
+    fluxes = np.array(fluxes)
+    subgrpids = np.array(subgrpids)
+    Slen = np.array(Slen)
 
+    try:
+        dset = f_group.create_dataset("Start_Index", data=begin,
+                                        dtype=begin.dtype,
+                                        shape=begin.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "None"
+    except ValueError:
+        print("Start_Index already exists: Overwriting...")
+        del f_group["Start_Index"]
+        dset = f_group.create_dataset("Start_Index", data=begin,
+                                        dtype=begin.dtype,
+                                        shape=begin.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "None"
+
+    try:
+        dset = f_group.create_dataset("Group_Mass", data=grp_mass,
+                                        dtype=grp_mass.dtype,
+                                        shape=grp_mass.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "$M_\odot$"
+    except ValueError:
+        print("Group_Mass already exists: Overwriting...")
+        del f_group["Group_Mass"]
+        dset = f_group.create_dataset("Group_Mass", data=grp_mass,
+                                        dtype=grp_mass.dtype,
+                                        shape=grp_mass.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "$M_\odot$"
+
+    try:
+        dset = f_group.create_dataset("Star_Pos", data=star_pos,
+                                        dtype=star_pos.dtype,
+                                        shape=star_pos.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "kpc"
+    except ValueError:
+        print("Star_Pos already exists: Overwriting...")
+        del f_group["Star_Pos"]
+        dset = f_group.create_dataset("Star_Pos", data=star_pos,
+                                        dtype=star_pos.dtype,
+                                        shape=star_pos.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "kpc"
+
+    try:
+        dset = f_group.create_dataset("Fluxes", data=fluxes,
+                                        dtype=fluxes.dtype,
+                                        shape=fluxes.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "nJy"
+    except ValueError:
+        print("Fluxes already exists: Overwriting...")
+        del f_group["Fluxes"]
+        dset = f_group.create_dataset("Fluxes", data=fluxes,
+                                        dtype=fluxes.dtype,
+                                        shape=fluxes.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "nJy"
+
+    try:
+        dset = f_group.create_dataset("Part_subgrpids", data=subgrpids,
+                                        dtype=subgrpids.dtype,
+                                        shape=subgrpids.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "None"
+    except ValueError:
+        print("Part_subgrpids already exists: Overwriting...")
+        del f_group["Part_subgrpids"]
+        dset = f_group.create_dataset("Part_subgrpids", data=subgrpids,
+                                        dtype=subgrpids.dtype,
+                                        shape=subgrpids.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "None"
+
+    try:
+        dset = f_group.create_dataset("Group_Length", data=Slen,
+                                        dtype=Slen.dtype,
+                                        shape=Slen.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "None"
+    except ValueError:
+        print("Group_Length already exists: Overwriting...")
+        del f_group["Group_Length"]
+        dset = f_group.create_dataset("Group_Length", data=Slen,
+                                        dtype=Slen.dtype,
+                                        shape=Slen.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "None"
 
     for snr in snrs:
 
