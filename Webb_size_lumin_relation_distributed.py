@@ -298,9 +298,9 @@ for f in filters:
             grp_dict[tag][f][snr].append(ind)
 
             ngal = 0
-            for gal in set(segm.data):
-                print(np.sum(img[segm.data == gal]))
-                if np.sum(img[segm.data == gal]) > np.median(img):
+            for gal in np.unique(segm.data):
+                print(gal, np.sum(img[segm.data == gal]))
+                if np.sum(img[segm.data == gal]) > np.median(img) and gal > 0:
                     ngal += 1
 
             ngal_dict[tag][f][snr].append(ngal)
