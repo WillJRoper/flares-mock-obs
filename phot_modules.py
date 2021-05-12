@@ -293,7 +293,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     kbins = header.item()['bins']
 
     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-    G_coords, S_mass, cops, r_200, all_gal_ns, S_subgrpid,\
+    G_coords, S_mass, cops, r_200, all_gal_ms, S_subgrpid,\
     gal_cops, gal_ms, gal_grpid = get_data(sim, tag, masslim)
 
     Fnus = {}
@@ -346,9 +346,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         okinds = star_tree.query_ball_point(cop, r=r)
         g_okinds = gas_tree.query_ball_point(cop, r=r)
 
-        if np.sum(S_mass_ini[okinds]) < 10**9:
-            continue
-
         Fnus[ind] = {f: {} for f in filters}
 
         # Extract values for this galaxy
@@ -362,7 +359,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         Fnus[ind]["smls"] = Smls
         Fnus[ind]["masses"] = Masses
-        Fnus[ind]["Nsubhalos"] = all_gal_ns[ind]
+        Fnus[ind]["group_mass"] = all_gal_ms[ind]
+        Fnus[ind]["group_cop"] = cops[ind]
         Fnus[ind]["part_subgrpids"] = S_subgrpid[okinds]
 
         if orientation == "sim":

@@ -71,7 +71,7 @@ filters = ('JWST.NIRCAM.F150W', )
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
 
-# Define dictionaries for results
+# Define dictionaries and lists for results
 hlr_app_dict = {}
 hlr_pix_dict = {}
 flux_dict = {}
@@ -80,6 +80,12 @@ segm_dict = {}
 ngal_dict = {}
 sf_ngal_dict = {}
 grp_dict = {}
+star_pos = []
+begin = []
+Slen = []
+smls = []
+fluxes = []
+subgrpids = []
 
 # Set mass limit
 masslim = 700
@@ -203,6 +209,7 @@ for f in filters:
             this_pos = reg_dict[ind]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
             this_smls = reg_dict[ind]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
             this_subgrpids = reg_dict[ind]["part_subgrpids"]
+            this_groupmass = reg_dict[ind]["group_mass"]
 
             this_flux = reg_dict[ind][f]
 
@@ -295,9 +302,17 @@ for f in filters:
             segm_dict[tag][f][snr].append(segm.data)
             grp_dict[tag][f][snr].append(ind)
 
+            begin.append(len(fluxes))
+            star_pos.extend(this_pos)
+            smls.extend(this_smls)
+            fluxes.extend(this_flux)
+            print(np.sum(this_flux))
+            subgrpids.extend(this_subgrpids)
+            Slen.append(len(this_smls))
+
             ngal = 0
             for gal in np.unique(segm.data):
-                if np.sum(img[segm.data == gal]) > 5000 and gal > 0:
+                if np.sum(img[segm.data == gal]) > 10 and gal > 0:
                     ngal += 1
 
             ngal_dict[tag][f][snr].append(ngal)
@@ -337,6 +352,8 @@ for f in filters:
     except KeyError:
         print(f, "Doesn't exists: Creating...")
         f_group = orientation_group.create_group(f)
+
+
 
     for snr in snrs:
 
