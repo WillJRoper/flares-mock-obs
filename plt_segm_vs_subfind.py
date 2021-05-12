@@ -106,7 +106,7 @@ for ind in range(len(reg_snaps)):
                               numThreads=8) * 10**10
 
     for grp in grp_ids:
-        grp_ms.extend(all_grp_ms[grp])
+        grp_ms.append(all_grp_ms[grp])
 
     ngals_segm.extend(segm_ngals)
     ngals_subfind.extend(subfind_ngals)
