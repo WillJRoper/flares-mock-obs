@@ -81,29 +81,32 @@ for ind in range(len(reg_snaps)):
     except OSError:
         continue
 
-    S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-    G_coords, S_mass, grp_cops, r_200, all_grp_ms, S_subgrpid, \
-    gal_cops, gal_ms, gal_grpid = phot.get_data(reg, snap, masslim=0)
-
-    tree = cKDTree(gal_cops)
-
     try:
         type_group = hdf[Type]
         orientation_group = type_group[orientation]
         f_group = orientation_group[f]
+        snr_group = f_group[str(snr)]
+
+        grp_ids = f_group["Group_ID"][:]
+        segm_ngals = f_group["NGalaxy"][:]
+        subfind_ngals = f_group["SUBFIND_NGalaxy"][:]
+
+        hdf.close()
     except KeyError:
+        hdf.close()
         continue
 
-    grp_ids = f_group["Group_ID"][:]
-    segm_ngals = f_group["NGalaxy"][:]
+    path = '/cosma/home/dp004/dc-rope1/FLARES/FLARES-1/G-EAGLE_' + reg + '/data'
 
-    for grpind, ngal in zip(grp_ids, segm_ngals):
+    # Load all necessary arrays
+    all_grp_ms = E.read_array('SUBFIND', path, snap, 'FOF/Group_M_Mean200',
+                              numThreads=8) * 10**10
 
-        okinds = tree.query_ball_point(grp_cops[grpind], r=0.5)
+    for grp in grp_ids:
+        grp_ms.extend(all_grp_ms[grp])
 
-        ngals_segm.append(ngal)
-        ngals_subfind.append(len(okinds))
-        grp_ms.append(all_grp_ms[grpind])
+    ngals_segm.extend(segm_ngals)
+    ngals_subfind.extend(subfind_ngals)
 
 ngals_segm = np.array(ngals_segm)
 ngals_subfind= np.array(ngals_subfind)
@@ -117,7 +120,7 @@ ax.scatter(ngals_segm, ngals_subfind, marker="+")
 ax.set_ylabel("$N_{\mathrm{gal, SUBFIND}}$")
 ax.set_xlabel("$N_{\mathrm{gal, Segmentation}}$")
 
-fig.savefig("plots/ngal_subfindvssegm.png", bbox_inches="tight")
+fig.savefig("plots/ngal_subfindvssegm_SNR" + str(snr) + ".png", bbox_inches="tight")
 
 plt.close(fig)
 
@@ -129,7 +132,7 @@ ax.loglog(grp_ms, ngals_subfind / ngals_segm, linestyle="none", marker="+")
 ax.set_ylabel("$N_{\mathrm{gal, SUBFIND}} / N_{\mathrm{gal, Segmentation}}$")
 ax.set_xlabel("$M_{FOF}/M_{\odot}$")
 
-fig.savefig("plots/ngal_subfindsegm_ratio_vs_mass.png", bbox_inches="tight")
+fig.savefig("plots/ngal_subfindsegm_ratio_vs_mass_SNR" + str(snr) + ".png", bbox_inches="tight")
 
 plt.close(fig)
 
