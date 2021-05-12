@@ -148,6 +148,8 @@ print("Pixel tree built")
 
 ind = 0
 while ind < n_img:
+    
+    print("Creating image", ind)
 
     img = imgs[ind, :, :]
     segm = segms[ind, :, :]
@@ -155,7 +157,8 @@ while ind < n_img:
     subgrp = subgrpids[begin[ind]: begin[ind] + group_len[ind]]
     smooth = all_smls[begin[ind]: begin[ind] + group_len[ind]]
 
-    subfind_img = util.make_subfind_spline_img(poss, res, 0, 1, tree, subgrp, smooth, spline_cut_off=5/2)
+    subfind_img = util.make_subfind_spline_img(poss, res, 0, 1, tree, subgrp,
+                                               smooth, spline_cut_off=5/2)
 
     fig, axes = plt.subplots(3, 2, figsize=(8, 8))
     for ax in axes:
