@@ -170,6 +170,8 @@ print("Pixel tree built")
 
 snrs = [1, 5, 10, 20, 50]
 
+print(reg_dict)
+
 for f in filters:
 
     hlr_app_dict[tag].setdefault(f, {})
@@ -196,7 +198,8 @@ for f in filters:
         grp_dict[tag][f].setdefault(snr, [])
 
         for ind in reg_dict:
-
+            print(reg_dict[ind])
+            print(list(reg_dict[ind].keys()))
             this_pos = reg_dict[ind]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
             this_smls = reg_dict[ind]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
             this_subgrpids = reg_dict[ind]["part_subgrpids"]
