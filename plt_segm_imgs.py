@@ -71,6 +71,9 @@ reg_ind = int(sys.argv[1])
 
 reg, snap = reg_snaps[reg_ind]
 
+z_str = snap.split('z')[1].split('p')
+z = float(z_str[0] + '.' + z_str[1])
+
 n_img = int(sys.argv[4])
 
 print("Making images for with orientation {o}, type {t}, "
@@ -148,7 +151,7 @@ print("Pixel tree built")
 
 ind = 0
 while ind < n_img:
-    
+
     print("Creating image", ind)
 
     img = imgs[ind, :, :]
