@@ -78,6 +78,15 @@ def get_data(reg, snap, masslim=0):
     S_subgrpid = E.read_array('PARTDATA', path, snap,
                             'PartType4/SubGroupNumber', noH=True,
                             physicalUnits=True, numThreads=8)
+    S_grpid = E.read_array('PARTDATA', path, snap,
+                            'PartType4/GroupNumber', noH=True,
+                            physicalUnits=True, numThreads=8)
+
+    # Convert to group.subgroup ID format
+    halo_ids = np.zeros(S_grpid.size, dtype=float)
+    for (ind, g), sg in zip(enumerate(S_grpid), S_subgrpid):
+        halo_ids[ind] = float(str(int(g)) + '.%05d'%int(sg))
+
     S_coords = E.read_array('PARTDATA', path, snap,
                             'PartType4/Coordinates', noH=True,
                             physicalUnits=True, numThreads=8)
@@ -114,7 +123,7 @@ def get_data(reg, snap, masslim=0):
     S_age = util.calc_ages(z, a_born)
 
     return S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-           G_coords, S_mass, grp_cops, r_200, all_grp_ms, S_subgrpid, \
+           G_coords, S_mass, grp_cops, r_200, all_grp_ms, halo_ids, \
            gal_cops, gal_ms, gal_grpid
 
 
