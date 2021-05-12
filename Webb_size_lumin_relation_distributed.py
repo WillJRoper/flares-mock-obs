@@ -349,10 +349,10 @@ for f in filters:
         print(imgs.shape)
             
         try:
-            snr_group = f_group[snr]
+            snr_group = f_group[str(snr)]
         except KeyError:
             print(f, "Doesn't exists: Creating...")
-            snr_group = f_group.create_group(snr)
+            snr_group = f_group.create_group(str(snr))
 
         try:
             dset = snr_group.create_dataset("Group_ID", data=grps,
