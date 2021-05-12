@@ -150,7 +150,7 @@ tree = cKDTree(pix_pos)
 print("Pixel tree built")
 
 ind = 0
-while ind < n_img:
+while ind < n_img or ind < imgs.shape[0]:
 
     print("Creating image", ind)
 
@@ -163,7 +163,7 @@ while ind < n_img:
     subfind_img = util.make_subfind_spline_img(poss, res, 0, 1, tree, subgrp,
                                                smooth, spline_cut_off=5/2)
 
-    fig = plt.figure(figsize=(3, 6))
+    fig = plt.figure(figsize=(3, 5))
     gs = gridspec.GridSpec(3, 2)
     gs.update(wspace=0.0, hspace=0.0)
     ax1 = fig.add_subplot(gs[0, 0])
@@ -172,7 +172,9 @@ while ind < n_img:
     ax4 = fig.add_subplot(gs[0, 1])
     ax5 = fig.add_subplot(gs[1, 1])
     ax6 = fig.add_subplot(gs[2, 1])
+
     axes = [ax1, ax2, ax3, ax4, ax5, ax6]
+
     for i, ax in enumerate(axes):
         ax.grid(False)
 
@@ -185,8 +187,9 @@ while ind < n_img:
                            left=False, right=False,
                            labelleft=False, labelright=False)
         elif i == 5:
-            ax3.tick_params(axis='y', left=False, right=False,
-                            labelleft=False, labelright=False)
+            ax.tick_params(axis='y', left=False, right=False,
+                           labelleft=False, labelright=False)
+
     plt_img = np.zeros_like(img)
     plt_img[img > 0] = np.log10(img[img > 0])
     axes[0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
