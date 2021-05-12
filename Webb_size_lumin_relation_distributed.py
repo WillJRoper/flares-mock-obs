@@ -360,6 +360,7 @@ for f in filters:
     subgrpids = np.array(subgrpids)
     Slen = np.array(Slen)
     smls = np.array(smls)
+    star_pos = np.array(star_pos)
 
     try:
         dset = f_group.create_dataset("Start_Index", data=begin,
