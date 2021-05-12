@@ -349,7 +349,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         if np.sum(S_mass_ini[okinds]) < 10**9:
             continue
 
-
         Fnus[ind] = {f: {} for f in filters}
 
         # Extract values for this galaxy
@@ -364,6 +363,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         Fnus[ind]["smls"] = Smls
         Fnus[ind]["masses"] = Masses
         Fnus[ind]["Nsubhalos"] = all_gal_ns[ind]
+        Fnus[ind]["part_subgrpids"] = S_subgrpid[okinds]
 
         if orientation == "sim":
 
