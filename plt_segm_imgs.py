@@ -179,8 +179,8 @@ while ind < n_img:
     axes[1].imshow(segm.data, extent=imgextent, cmap="plasma")
     axes[2].imshow(subfind_img, extent=imgextent, cmap="plasma")
 
-    plt_img = np.zeros_like(img)
-    plt_img[img > 0] = np.log10(img[img > 0])
+    print(subfind_img.shape)
+
     max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
     axes[3].imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
                max_ind[1] - 100: max_ind[1] + 100],
