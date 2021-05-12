@@ -176,8 +176,7 @@ while ind < n_img:
     plt_img = np.zeros_like(img)
     plt_img[img > 0] = np.log10(img[img > 0])
     axes[0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
-    cmap = segm.make_cmap()
-    axes[1].imshow(segm.data, extent=imgextent, cmap=cmap)
+    axes[1].imshow(segm.data, extent=imgextent, cmap="plasma")
     axes[2].imshow(subfind_img, extent=imgextent, cmap="plasma")
 
     plt_img = np.zeros_like(img)
@@ -188,7 +187,7 @@ while ind < n_img:
                extent=imgextent, cmap="Greys_r")
     axes[4].imshow(segm.data[max_ind[0] - 100: max_ind[0] + 100,
                max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
-               cmap=cmap)
+               cmap="plasma")
     axes[5].imshow(subfind_img[max_ind[0] - 100: max_ind[0] + 100,
                max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
                cmap="plasma")
