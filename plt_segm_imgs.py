@@ -150,7 +150,7 @@ tree = cKDTree(pix_pos)
 print("Pixel tree built")
 
 ind = 0
-while ind < n_img or ind < imgs.shape[0]:
+while ind < n_img and ind < imgs.shape[0]:
 
     print("Creating image", ind)
 

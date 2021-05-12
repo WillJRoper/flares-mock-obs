@@ -393,7 +393,10 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, spline_cut_off=5
 
     for ipos, subgrpid, sml in zip(part_pos, ids, smooth):
 
-        print(subgrpid)
+        if subgrpid == 1073741824:
+            continue
+
+        subgrpid += 1
 
         # Query the tree for this particle
         dist, inds = tree.query(ipos, k=pos.shape[0],
@@ -406,10 +409,10 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, spline_cut_off=5
         for i in pix_vals:
             print(i, subgrpid)
             okinds = smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] == i
-            if i == 0:
+            if i == 0.0:
                 smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][okinds] = subgrpid
             else:
-                mixed_id = np.min((i, subgrpid)) + np.abs(i - subgrpid) / 2
+                mixed_id = np.min((i, subgrpid)) + (np.abs(i - subgrpid) / 2)
                 smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] = mixed_id
 
     return smooth_img
