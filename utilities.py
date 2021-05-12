@@ -374,6 +374,44 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
     return smooth_img
 
 
+def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, spline_cut_off=5/2):
+
+    # Define 2D projected particle position array
+    part_pos = pos[:, (i, j)]
+
+    # Initialise the image array
+    smooth_img = np.zeros((Ndim, Ndim))
+
+    # Define x and y positions of pixels
+    X, Y = np.meshgrid(np.arange(0, Ndim, 1),
+                       np.arange(0, Ndim, 1))
+
+    # Define pixel position array for the KDTree
+    pix_pos = np.zeros((X.size, 2), dtype=int)
+    pix_pos[:, 0] = X.ravel()
+    pix_pos[:, 1] = Y.ravel()
+
+    for ipos, subgrpid, sml in zip(part_pos, ids, smooth):
+
+        # Query the tree for this particle
+        dist, inds = tree.query(ipos, k=pos.shape[0],
+                                distance_upper_bound=spline_cut_off * sml)
+        okinds =  dist < spline_cut_off * sml
+        inds = inds[okinds]
+
+        # Place the kernel for this particle within the img
+        pix_vals = np.unique(smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]])
+        for i in pix_vals:
+            okinds = smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] == i
+            if i == 0:
+                smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][okinds] = subgrpid
+            else:
+                mixed_id = np.min((i, subgrpid)) + np.abs(i - subgrpid) / 2
+                smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] = mixed_id
+
+    return smooth_img
+
+
 def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=5000, numThreads=1):
 
     # if numThreads != 1:

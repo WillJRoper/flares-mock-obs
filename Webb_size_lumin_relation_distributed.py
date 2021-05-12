@@ -359,6 +359,7 @@ for f in filters:
     fluxes = np.array(fluxes)
     subgrpids = np.array(subgrpids)
     Slen = np.array(Slen)
+    smls = np.array(smls)
 
     try:
         dset = f_group.create_dataset("Start_Index", data=begin,
@@ -389,6 +390,21 @@ for f in filters:
                                         shape=grp_mass.shape,
                                         compression="gzip")
         dset.attrs["units"] = "$M_\odot$"
+
+    try:
+        dset = f_group.create_dataset("Smoothing_Length", data=smls,
+                                        dtype=smls.dtype,
+                                        shape=smls.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "Mpc"
+    except ValueError:
+        print("Smoothing_Length already exists: Overwriting...")
+        del f_group["Smoothing_Length"]
+        dset = f_group.create_dataset("Smoothing_Length", data=smls,
+                                        dtype=smls.dtype,
+                                        shape=smls.shape,
+                                        compression="gzip")
+        dset.attrs["units"] = "Mpc"
 
     try:
         dset = f_group.create_dataset("Star_Pos", data=star_pos,
