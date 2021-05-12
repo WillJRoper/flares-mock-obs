@@ -354,10 +354,7 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
 
     # Define k constant for 3 dimensions
     k3 = 7 / (478 * np.pi)
-    i = 0
     for ipos, l, sml in zip(part_pos, ls, smooth):
-
-        print(i, end="\r")
 
         # Query the tree for this particle
         dist, inds = tree.query(ipos, k=pos.shape[0],
@@ -371,8 +368,6 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
 
         # Place the kernel for this particle within the img
         smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] += l * k3 * w / sml**3
-
-        i += 1
 
     return smooth_img
 

@@ -168,7 +168,7 @@ tree = cKDTree(pix_pos)
 
 print("Pixel tree built")
 
-snrs = [1, 5, 10, 20, 50]
+snrs = [20,]
 
 for f in filters:
 
@@ -316,6 +316,7 @@ try:
 except OSError:
     hdf = h5py.File("mock_data/"
                     "flares_segm_{}_{}_Webb.hdf5".format(reg, tag), "w")
+    print("Creating File...")
 
 try:
     type_group = hdf[Type]
