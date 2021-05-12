@@ -163,9 +163,16 @@ while ind < n_img:
     subfind_img = util.make_subfind_spline_img(poss, res, 0, 1, tree, subgrp,
                                                smooth, spline_cut_off=5/2)
 
-    fig, axes = plt.subplots(3, 2, figsize=(8, 8))
+    fig = plt.figure()
+    ax1 = fig.add_subplot(321)
+    ax2 = fig.add_subplot(322)
+    ax3 = fig.add_subplot(323)
+    ax4 = fig.add_subplot(324)
+    ax5 = fig.add_subplot(325)
+    ax6 = fig.add_subplot(326)
+    axes = [ax1, ax2, ax3, ax4, ax5, ax6]
     for ax in axes:
-        ax.set_grid(False)
+        ax.grid(False)
     plt_img = np.zeros_like(img)
     plt_img[img > 0] = np.log10(img[img > 0])
     axes[0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
