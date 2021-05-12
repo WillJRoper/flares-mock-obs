@@ -276,8 +276,6 @@ for f in filters:
             #             % np.log10(np.sum(img)), dpi=300)
             # plt.close(fig)
 
-            print(np.max(segm.data), "sources found")
-
             # for i in range(1, np.max(segm.data) + 1):
             #     if np.sum(img[segm.data == i]) < np.median(img):
             #         continue
@@ -299,15 +297,14 @@ for f in filters:
 
             ngal = 0
             for gal in np.unique(segm.data):
-                print(gal, np.sum(img[segm.data == gal]))
-                if np.sum(img[segm.data == gal]) > np.median(img) and gal > 0:
+                if np.sum(img[segm.data == gal]) > 5000 and gal > 0:
                     ngal += 1
 
             ngal_dict[tag][f][snr].append(ngal)
 
             ngal = 0
             for gal in subfind_ids:
-                if np.sum(this_lumin[this_subgrpids == gal]) > np.median(img):
+                if np.sum(this_lumin[this_subgrpids == gal]) > 5000:
                     ngal += 1
 
             sf_ngal_dict[tag][f][snr].append(ngal)
