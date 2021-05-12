@@ -88,64 +88,12 @@ for ind in range(len(reg_snaps)):
         f_group = orientation_group[f]
         snr_group = f_group[str(snr)]
 
-        grp_ids = snr_group["Group_ID"][:]
-        segm_ngals = snr_group["NGalaxy"][:]
-        subfind_ngals = snr_group["SUBFIND_NGalaxy"][:]
+        imgs = snr_group["Images"][:]
+        segms = snr_group["Segmentation_Maps"][:]
+        subfind_spos = f_group["SUBFIND_NGalaxy"][:]
 
         hdf.close()
     except KeyError as e:
         print(e)
         hdf.close()
         continue
-
-    path = '/cosma/home/dp004/dc-rope1/FLARES/FLARES-1/G-EAGLE_' + reg + '/data'
-
-    # Load all necessary arrays
-    all_grp_ms = E.read_array('SUBFIND', path, snap, 'FOF/Group_M_Mean200',
-                              numThreads=8) * 10**10
-
-    for grp in grp_ids:
-        grp_ms.extend(all_grp_ms[grp])
-
-    ngals_segm.extend(segm_ngals)
-    ngals_subfind.extend(subfind_ngals)
-
-ngals_segm = np.array(ngals_segm)
-ngals_subfind= np.array(ngals_subfind)
-grp_ms = np.array(grp_ms)
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-
-ax.scatter(ngals_segm, ngals_subfind, marker="+")
-
-ax.set_ylabel("$N_{\mathrm{gal, SUBFIND}}$")
-ax.set_xlabel("$N_{\mathrm{gal, Segmentation}}$")
-
-fig.savefig("plots/ngal_subfindvssegm_SNR" + str(snr) + ".png", bbox_inches="tight")
-
-plt.close(fig)
-
-fig = plt.figure()
-ax = fig.add_subplot(111)
-
-ax.loglog(grp_ms, ngals_subfind / ngals_segm, linestyle="none", marker="+")
-
-ax.set_ylabel("$N_{\mathrm{gal, SUBFIND}} / N_{\mathrm{gal, Segmentation}}$")
-ax.set_xlabel("$M_{FOF}/M_{\odot}$")
-
-fig.savefig("plots/ngal_subfindsegm_ratio_vs_mass_SNR" + str(snr) + ".png", bbox_inches="tight")
-
-plt.close(fig)
-
-
-
-
-
-
-
-
-
-
-
-
