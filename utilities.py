@@ -359,7 +359,11 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
         # Query the tree for this particle
         dist, inds = tree.query(ipos, k=pos.shape[0],
                                 distance_upper_bound=spline_cut_off * sml)
-        okinds =  dist < spline_cut_off * sml
+
+        if type(dist) is float:
+            continue
+        
+        okinds = dist < spline_cut_off * sml
         dist = dist[okinds]
         inds = inds[okinds]
 
