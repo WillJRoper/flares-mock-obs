@@ -362,7 +362,7 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
 
         if type(dist) is float:
             continue
-        
+
         okinds = dist < spline_cut_off * sml
         dist = dist[okinds]
         inds = inds[okinds]
@@ -687,14 +687,8 @@ def noisy_img(img, snr, seed=10000):
     # Set random seed
     if seed is int:
         np.random.seed(seed)
-
-    # Define the dimensions of the object image for which a SNR is to be computed
-    ndim = img.shape[0]
-
-    threshold = detect_threshold(img, nsigma=5)
-    segm = detect_sources(img, threshold, npixels=5)
-    segm = deblend_sources(img, segm, npixels=5,
-                           nlevels=32, contrast=0.001)
+        
+    segm = detect_sources(img, np.median, npixels=5)
 
     # Define the signal flux from the photometry table
     source = img[segm.data == segm.data[np.unravel_index(np.argmax(img), img.shape)]]
