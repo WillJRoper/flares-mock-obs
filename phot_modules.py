@@ -83,8 +83,8 @@ def get_data(reg, snap, r):
                             'PartType0/Coordinates', noH=True,
                             physicalUnits=True, numThreads=8)
 
-    print("Before", S_coords.shape)
-    print("Before", G_coords.shape)
+    sbefore = S_coords.shape[0]
+    gbefore = G_coords.shape[0]
 
     s_okinds_list = tree.query_ball_point(S_coords, r=r)
     g_okinds_list = tree.query_ball_point(G_coords, r=r)
@@ -101,8 +101,10 @@ def get_data(reg, snap, r):
     S_coords = S_coords[s_okinds, :]
     G_coords = G_coords[g_okinds, :]
 
-    print("After", S_coords.shape)
-    print("After", G_coords.shape)
+    print("Stars within images:", S_coords.shape[0], "of", sbefore,
+          "%.2f"%(S_coords.shape[0]/sbefore * 100) + "%")
+    print("Gas within images:", G_coords.shape[0], "of", gbefore, 
+          "%.2f"%(G_coords.shape[0]/gbefore * 100) + "%")
 
     # Load data for luminosities
     S_subgrpid = E.read_array('PARTDATA', path, snap,
