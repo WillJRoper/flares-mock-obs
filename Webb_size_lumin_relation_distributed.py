@@ -175,7 +175,7 @@ tree = cKDTree(pix_pos)
 
 print("Pixel tree built")
 
-snrs = [20,]
+snrs = [50, ]
 
 for f in filters:
 
