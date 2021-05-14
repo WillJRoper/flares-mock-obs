@@ -103,7 +103,7 @@ def get_data(reg, snap, r):
 
     print("Stars within images:", S_coords.shape[0], "of", sbefore,
           "%.2f"%(S_coords.shape[0]/sbefore * 100) + "%")
-    print("Gas within images:", G_coords.shape[0], "of", gbefore, 
+    print("Gas within images:", G_coords.shape[0], "of", gbefore,
           "%.2f"%(G_coords.shape[0]/gbefore * 100) + "%")
 
     # Load data for luminosities
@@ -200,8 +200,10 @@ def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
     model.create_Lnu_grid(
         F)  # --- create new L grid for each filter. In units of erg/s/Hz
 
-    star_tree = cKDTree(S_coords)
-    gas_tree = cKDTree(G_coords)
+    if S_coords.shape[0] > 0:
+
+        star_tree = cKDTree(S_coords)
+        gas_tree = cKDTree(G_coords)
 
     for ind, cop in enumerate(cops):
 
@@ -366,14 +368,16 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     # --- create new Fnu grid for each filter. In units of nJy/M_sol
     model.create_Fnu_grid(F, z, cosmo)
 
-    star_tree = cKDTree(S_coords)
+    if S_coords.shape[0] > 0:
 
-    print("Built stellar KD-Tree")
+        star_tree = cKDTree(S_coords)
 
-    gas_tree = cKDTree(G_coords)
+        print("Built stellar KD-Tree")
 
-    print("Built gas KD-Tree")
+        gas_tree = cKDTree(G_coords)
 
+        print("Built gas KD-Tree")
+    
     print("There are", len(cops), "groups")
 
     for ind, cop in enumerate(cops):
