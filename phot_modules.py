@@ -38,7 +38,7 @@ def DTM_fit(Z, Age):
     return DTM
 
 
-def get_data(reg, snap, masslim=0):
+def get_data(reg, snap, r):
 
     z_str = snap.split('z')[1].split('p')
     z = float(z_str[0] + '.' + z_str[1])
@@ -74,18 +74,7 @@ def get_data(reg, snap, masslim=0):
     gal_ms = gal_ms[okinds]
     gal_grpid = gal_grpid[okinds]
 
-    # Load data for luminosities
-    S_subgrpid = E.read_array('PARTDATA', path, snap,
-                            'PartType4/SubGroupNumber', noH=True,
-                            physicalUnits=True, numThreads=8)
-    S_grpid = E.read_array('PARTDATA', path, snap,
-                            'PartType4/GroupNumber', noH=True,
-                            physicalUnits=True, numThreads=8)
-
-    # Convert to group.subgroup ID format
-    halo_ids = np.zeros(S_grpid.size, dtype=float)
-    for (ind, g), sg in zip(enumerate(S_grpid), S_subgrpid):
-        halo_ids[ind] = float(str(int(g)) + '.%05d'%int(sg))
+    tree = cKDTree(grp_cops)
 
     S_coords = E.read_array('PARTDATA', path, snap,
                             'PartType4/Coordinates', noH=True,
@@ -93,31 +82,66 @@ def get_data(reg, snap, masslim=0):
     G_coords = E.read_array('PARTDATA', path, snap,
                             'PartType0/Coordinates', noH=True,
                             physicalUnits=True, numThreads=8)
+
+    print("Before", S_coords.shape)
+    print("Before", G_coords.shape)
+
+    s_okinds_list = tree.query_ball_point(S_coords, r=r)
+    g_okinds_list = tree.query_ball_point(G_coords, r=r)
+
+    s_okinds = []
+    for ind, lst in enumerate(s_okinds_list):
+        if len(lst) > 0:
+            s_okinds.append(ind)
+    g_okinds = []
+    for ind, lst in enumerate(g_okinds_list):
+        if len(lst) > 0:
+            g_okinds.append(ind)
+
+    S_coords = S_coords[s_okinds, :]
+    G_coords = G_coords[g_okinds, :]
+
+    print("After", S_coords.shape)
+    print("After", G_coords.shape)
+
+    # Load data for luminosities
+    S_subgrpid = E.read_array('PARTDATA', path, snap,
+                            'PartType4/SubGroupNumber', noH=True,
+                            physicalUnits=True, numThreads=8)[s_okinds]
+    S_grpid = E.read_array('PARTDATA', path, snap,
+                            'PartType4/GroupNumber', noH=True,
+                            physicalUnits=True, numThreads=8)[s_okinds]
+
+    # Convert to group.subgroup ID format
+    halo_ids = np.zeros(S_grpid.size, dtype=float)
+    for (ind, g), sg in zip(enumerate(S_grpid), S_subgrpid):
+        halo_ids[ind] = float(str(int(g)) + '.%05d'%int(sg))
+
     S_sml = E.read_array('PARTDATA', path, snap,
                          'PartType4/SmoothingLength', noH=True,
-                         physicalUnits=True, numThreads=8)
+                         physicalUnits=True, numThreads=8)[s_okinds]
     G_sml = E.read_array('PARTDATA', path, snap,
                          'PartType0/SmoothingLength', noH=True,
-                         physicalUnits=True, numThreads=8)
+                         physicalUnits=True, numThreads=8)[g_okinds]
     a_born = E.read_array('PARTDATA', path, snap,
                           'PartType4/StellarFormationTime', noH=True,
-                          physicalUnits=True, numThreads=8)
+                          physicalUnits=True, numThreads=8)[s_okinds]
     S_Z = E.read_array('PARTDATA', path, snap,
                        'PartType4/SmoothedMetallicity', noH=True,
-                       physicalUnits=True, numThreads=8)
+                       physicalUnits=True, numThreads=8)[s_okinds]
     G_Z = E.read_array('PARTDATA', path, snap,
                        'PartType0/SmoothedMetallicity', noH=True,
-                       physicalUnits=True, numThreads=8)
+                       physicalUnits=True, numThreads=8)[g_okinds]
     S_mass_ini = E.read_array('PARTDATA', path, snap,
                               'PartType4/InitialMass',
                               noH=True, physicalUnits=True,
-                              numThreads=8) * 10 ** 10
+                              numThreads=8)[s_okinds] * 10 ** 10
     S_mass = E.read_array('PARTDATA', path, snap, 'PartType4/Mass',
                           noH=True, physicalUnits=True,
-                          numThreads=8) * 10 ** 10
+                          numThreads=8)[s_okinds] * 10 ** 10
     G_mass = E.read_array('PARTDATA', path, snap, 'PartType0/Mass',
                           noH=True, physicalUnits=True,
-                          numThreads=8) * 10 ** 10
+                          numThreads=8)[g_okinds] * 10 ** 10
 
     # Calculate ages
     S_age = util.calc_ages(z, a_born)
@@ -303,7 +327,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
     G_coords, S_mass, cops, r_200, all_gal_ms, S_subgrpid,\
-    gal_cops, gal_ms, gal_grpid = get_data(sim, tag, masslim)
+    gal_cops, gal_ms, gal_grpid = get_data(sim, tag, r)
 
     Fnus = {}
     Fnus["part_subgrpid"] = S_subgrpid
