@@ -251,9 +251,20 @@ for f in filters:
             threshold = phut.detect_threshold(img, nsigma=5)
             # threshold = np.median(img)
 
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
+            ax1.grid(False)
+            ax2.grid(False)
+            plt_img = np.zeros_like(img)
+            plt_img[img > 0] = np.log10(img[img > 0])
+            ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
+            ax2.imshow(threshold, extent=imgextent, cmap="plasma")
+            fig.savefig("plots/gal_img_thresh_" + f + "_%d.png"
+                        % int(ind), dpi=300)
+            plt.close(fig)
+
             segm = phut.detect_sources(img, threshold, npixels=5)
-            # segm = phut.deblend_sources(img, segm, npixels=5,
-            #                             nlevels=32, contrast=0.001)
+            segm = phut.deblend_sources(img, segm, npixels=5,
+                                        nlevels=32, contrast=0.001)
 
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
             ax1.grid(False)
@@ -263,7 +274,7 @@ for f in filters:
             ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
             cmap = segm.make_cmap()
             ax2.imshow(segm.data, extent=imgextent, cmap=cmap)
-            fig.savefig("plots/gal_img_log_" + f + "_%.1f.png"
+            fig.savefig("plots/gal_img_log_" + f + "_%d.png"
                         % int(ind), dpi=300)
             plt.close(fig)
 
