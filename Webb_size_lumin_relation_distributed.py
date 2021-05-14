@@ -175,7 +175,7 @@ tree = cKDTree(pix_pos)
 
 print("Pixel tree built")
 
-snrs = [30, ]
+snrs = [20, ]
 
 for f in filters:
 
@@ -229,7 +229,7 @@ for f in filters:
                 img = util.make_spline_img(this_pos, res, 0, 1, tree,
                                            this_flux, this_smls)
 
-                img = gaussian_filter(img, 3)
+                img = gaussian_filter(img, 2.5)
 
                 img = util.noisy_img(img, snr=snr, seed=10000)
 
@@ -379,7 +379,7 @@ for f in filters:
                                         shape=begin.shape,
                                         compression="gzip")
         dset.attrs["units"] = "None"
-    except ValueError:
+    except OSError:
         print("Start_Index already exists: Overwriting...")
         del f_group["Start_Index"]
         dset = f_group.create_dataset("Start_Index", data=begin,
@@ -394,7 +394,7 @@ for f in filters:
                                         shape=grp_mass.shape,
                                         compression="gzip")
         dset.attrs["units"] = "$M_\odot$"
-    except ValueError:
+    except OSError:
         print("Group_Mass already exists: Overwriting...")
         del f_group["Group_Mass"]
         dset = f_group.create_dataset("Group_Mass", data=grp_mass,
@@ -409,7 +409,7 @@ for f in filters:
                                         shape=smls.shape,
                                         compression="gzip")
         dset.attrs["units"] = "Mpc"
-    except ValueError:
+    except OSError:
         print("Smoothing_Length already exists: Overwriting...")
         del f_group["Smoothing_Length"]
         dset = f_group.create_dataset("Smoothing_Length", data=smls,
@@ -424,7 +424,7 @@ for f in filters:
                                         shape=star_pos.shape,
                                         compression="gzip")
         dset.attrs["units"] = "kpc"
-    except ValueError:
+    except OSError:
         print("Star_Pos already exists: Overwriting...")
         del f_group["Star_Pos"]
         dset = f_group.create_dataset("Star_Pos", data=star_pos,
@@ -439,7 +439,7 @@ for f in filters:
                                         shape=fluxes.shape,
                                         compression="gzip")
         dset.attrs["units"] = "nJy"
-    except ValueError:
+    except OSError:
         print("Fluxes already exists: Overwriting...")
         del f_group["Fluxes"]
         dset = f_group.create_dataset("Fluxes", data=fluxes,
@@ -454,7 +454,7 @@ for f in filters:
                                         shape=subgrpids.shape,
                                         compression="gzip")
         dset.attrs["units"] = "None"
-    except ValueError:
+    except OSError:
         print("Part_subgrpids already exists: Overwriting...")
         del f_group["Part_subgrpids"]
         dset = f_group.create_dataset("Part_subgrpids", data=subgrpids,
@@ -469,7 +469,7 @@ for f in filters:
                                         shape=Slen.shape,
                                         compression="gzip")
         dset.attrs["units"] = "None"
-    except ValueError:
+    except OSError:
         print("Group_Length already exists: Overwriting...")
         del f_group["Group_Length"]
         dset = f_group.create_dataset("Group_Length", data=Slen,
@@ -501,7 +501,7 @@ for f in filters:
                                           shape=grps.shape,
                                           compression="gzip")
             dset.attrs["units"] = "None"
-        except ValueError:
+        except OSError:
             print("Group_ID already exists: Overwriting...")
             del snr_group["Group_ID"]
             dset = snr_group.create_dataset("Group_ID", data=grps,
@@ -516,7 +516,7 @@ for f in filters:
                                           shape=imgs.shape,
                                           compression="gzip")
             dset.attrs["units"] = "$nJy$"
-        except ValueError:
+        except OSError:
             print("Images already exists: Overwriting...")
             del snr_group["Images"]
             dset = snr_group.create_dataset("Images", data=imgs,
@@ -531,7 +531,7 @@ for f in filters:
                                           shape=segms.shape,
                                           compression="gzip")
             dset.attrs["units"] = "None"
-        except ValueError:
+        except OSError:
             print("Segmentation_Maps already exists: Overwriting...")
             del snr_group["Segmentation_Maps"]
             dset = snr_group.create_dataset("Segmentation_Maps", data=segms,
@@ -546,7 +546,7 @@ for f in filters:
                                           shape=ngals.shape,
                                           compression="gzip")
             dset.attrs["units"] = "None"
-        except ValueError:
+        except OSError:
             print("NGalaxy already exists: Overwriting...")
             del snr_group["NGalaxy"]
             dset = snr_group.create_dataset("NGalaxy", data=ngals,
@@ -561,7 +561,7 @@ for f in filters:
                                           shape=sf_ngals.shape,
                                           compression="gzip")
             dset.attrs["units"] = "None"
-        except ValueError:
+        except OSError:
             print("SUBFIND_NGalaxy already exists: Overwriting...")
             del snr_group["SUBFIND_NGalaxy"]
             dset = snr_group.create_dataset("SUBFIND_NGalaxy", data=sf_ngals,
@@ -582,7 +582,7 @@ for f in filters:
         #                                       shape=hlrs_app.shape,
         #                                       compression="gzip")
         #         dset.attrs["units"] = "$\mathrm{pkpc}$"
-        #     except ValueError:
+        #     except OSError:
         #         print("HLR_Aperture_%.1f" % r, "already exists: Overwriting...")
         #         del f_group["HLR_Aperture_%.1f" % r]
         #         dset = f_group.create_dataset("HLR_Aperture_%.1f" % r,
@@ -599,7 +599,7 @@ for f in filters:
         #                                       shape=hlrs_pix.shape,
         #                                       compression="gzip")
         #         dset.attrs["units"] = "$\mathrm{pkpc}$"
-        #     except ValueError:
+        #     except OSError:
         #         print("HLR_Pixel_%.1f" % r, "already exists: Overwriting...")
         #         del f_group["HLR_Pixel_%.1f" % r]
         #         dset = f_group.create_dataset("HLR_Pixel_%.1f" % r,
