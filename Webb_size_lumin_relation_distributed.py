@@ -252,8 +252,8 @@ for f in filters:
             # threshold = np.median(img)
 
             segm = phut.detect_sources(img, threshold, npixels=5)
-            segm = phut.deblend_sources(img, segm, npixels=5,
-                                        nlevels=32, contrast=0.001)
+            # segm = phut.deblend_sources(img, segm, npixels=5,
+            #                             nlevels=32, contrast=0.001)
 
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
             ax1.grid(False)
