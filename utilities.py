@@ -401,7 +401,6 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, spline_cut_off=5
 
         if int(str(grpsubgrp).split(".")[1]) == 1073741824:
             continue
-        print(grpsubgrp)
 
         # Query the tree for this particle
         dist, inds = tree.query(ipos, k=pos.shape[0],
@@ -409,9 +408,12 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, spline_cut_off=5
         okinds = dist < spline_cut_off * sml
         inds = inds[okinds]
 
+
+
         # Place the kernel for this particle within the img
         # pix_vals = np.unique(smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]])
         smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] == 0] = grpsubgrp
+        print(smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]])
         # for i in pix_vals:
         #     okinds = smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] == i
         #     print(okinds)
