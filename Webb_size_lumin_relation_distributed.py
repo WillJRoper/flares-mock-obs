@@ -229,9 +229,9 @@ for f in filters:
                 img = util.make_spline_img(this_pos, res, 0, 1, tree,
                                            this_flux, this_smls)
 
-                img_psf = gaussian_filter(img, 3)
+                img = gaussian_filter(img, 3)
 
-                img = util.noisy_img(img_psf, snr=snr, seed=10000)
+                img = util.noisy_img(img, snr=snr, seed=10000)
 
             else:
 
@@ -254,8 +254,8 @@ for f in filters:
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
             ax1.grid(False)
             ax2.grid(False)
-            plt_img = np.zeros_like(img_psf)
-            plt_img[img_psf > 0] = np.log10(img_psf[img_psf > 0])
+            plt_img = np.zeros_like(img)
+            plt_img[img > 0] = np.log10(img[img > 0])
             ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
             ax2.imshow(threshold, extent=imgextent, cmap="plasma")
             fig.savefig("plots/gal_img_thresh_" + f + "_%d.png"
