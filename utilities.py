@@ -410,13 +410,12 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, spline_cut_off=5
 
         # Place the kernel for this particle within the img
         pix_vals = np.unique(smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]])
-        print(pix_vals)
         for i in pix_vals:
             okinds = smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] == i
             if i == 0.0:
-                smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][okinds] = subgrpid
+                smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][okinds] = grpsubgrp
             else:
-                mixed_id = np.min((i, subgrpid)) + (np.abs(i - subgrpid) / 2)
+                mixed_id = np.min((i, grpsubgrp)) + (np.abs(i - grpsubgrp) / 2)
                 smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] = mixed_id
 
         subgrpid += 1
