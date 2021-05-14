@@ -255,7 +255,7 @@ for f in filters:
             ax1.grid(False)
             ax2.grid(False)
             plt_img = np.zeros_like(img_psf)
-            plt_img[img > 0] = np.log10(img_psf[img_psf > 0])
+            plt_img[img_psf > 0] = np.log10(img_psf[img_psf > 0])
             ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
             ax2.imshow(threshold, extent=imgextent, cmap="plasma")
             fig.savefig("plots/gal_img_thresh_" + f + "_%d.png"
