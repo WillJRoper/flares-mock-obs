@@ -401,6 +401,7 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, spline_cut_off=5
 
         if int(str(grpsubgrp).split(".")[1]) == 1073741824:
             continue
+        print(grpsubgrp)
 
         # Query the tree for this particle
         dist, inds = tree.query(ipos, k=pos.shape[0],
