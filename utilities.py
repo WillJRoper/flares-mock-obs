@@ -695,7 +695,7 @@ def noisy_img(img, snr, seed=10000):
                                                          img.shape)]]
 
     noise_sum = np.sum(source) / snr
-    noise_sig = noise_sum / np.sqrt(2 * np.pi)
+    noise_sig = noise_sum / np.sqrt(2 * np.pi) / source.size
 
     print(noise_sum, noise_sig, snr)
 
