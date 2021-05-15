@@ -697,7 +697,7 @@ def noisy_img(img, snr, seed=10000):
     noise_sig = np.mean(source) / snr
 
     # Create large array of random noise
-    noise = np.random.normal(loc=np.mean(source), scale=noise_sig, size=img.shape)
+    noise = np.random.normal(loc=0.0, scale=noise_sig, size=img.shape)
 
     noisy_img = img + noise
 
