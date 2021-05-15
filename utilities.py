@@ -704,9 +704,4 @@ def noisy_img(img, snr, seed=10000):
 
     noisy_img = img + noise
 
-    print(snr, np.mean(noisy_img[segm.data != 0]) / np.std(
-        noisy_img[segm.data == 0]),
-          np.mean(noisy_img[segm.data != 0]) / np.std(
-              noisy_img[segm.data != 0]))
-
     return noisy_img
