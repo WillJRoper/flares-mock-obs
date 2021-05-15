@@ -116,7 +116,7 @@ kernel.normalize()
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
-ini_width = 500 * arcsec_per_kpc_proper
+ini_width = 100 * arcsec_per_kpc_proper
 
 # Define arc_second resolution
 if int(filters[0].split(".")[-1][1:4]) < 230:
@@ -251,16 +251,16 @@ for f in filters:
             threshold = phut.detect_threshold(img, nsigma=5)
             # threshold = np.median(img)
 
-            # fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
-            # ax1.grid(False)
-            # ax2.grid(False)
-            # plt_img = np.zeros_like(img)
-            # plt_img[img > 0] = np.log10(img[img > 0])
-            # ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
-            # ax2.imshow(threshold, extent=imgextent, cmap="plasma")
-            # fig.savefig("plots/gal_img_thresh_" + f + "_%d.png"
-            #             % int(ind), dpi=300)
-            # plt.close(fig)
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
+            ax1.grid(False)
+            ax2.grid(False)
+            plt_img = np.zeros_like(img)
+            plt_img[img > 0] = np.log10(img[img > 0])
+            ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
+            ax2.imshow(np.log10(threshold), extent=imgextent, cmap="plasma")
+            fig.savefig("plots/gal_img_thresh_" + f + "_%d.png"
+                        % int(ind), dpi=300)
+            plt.close(fig)
 
             segm = phut.detect_sources(img, threshold, npixels=5)
             segm = phut.deblend_sources(img, segm, npixels=5,
