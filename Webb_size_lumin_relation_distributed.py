@@ -266,6 +266,8 @@ for f in filters:
             segm = phut.deblend_sources(img, segm, npixels=5,
                                         nlevels=32, contrast=0.001)
 
+            print(np.sum(img[segm.data != 0]) / np.std(img))
+
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
             ax1.grid(False)
             ax2.grid(False)
