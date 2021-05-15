@@ -88,7 +88,7 @@ filters = ('JWST.NIRCAM.F150W', )
 f = filters[0]
 
 # Define width
-ini_width = 100 * arcsec_per_kpc_proper
+ini_width = 500 * arcsec_per_kpc_proper
 
 # Define arc_second resolution
 if int(filters[0].split(".")[-1][1:4]) < 230:
