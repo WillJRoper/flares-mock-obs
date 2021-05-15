@@ -266,9 +266,9 @@ for f in filters:
             segm = phut.deblend_sources(img, segm, npixels=5,
                                         nlevels=32, contrast=0.001)
 
-            print(np.sum(img[segm.data == segm.data[np.unravel_index(np.argmax(img),
+            print(np.mean(img[segm.data == segm.data[np.unravel_index(np.argmax(img),
                                                          img.shape)]]), np.std(img),
-                  np.sum(img[segm.data == segm.data[np.unravel_index(np.argmax(img),
+                  np.mean(img[segm.data == segm.data[np.unravel_index(np.argmax(img),
                                                          img.shape)]]) / np.std(img))
 
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
