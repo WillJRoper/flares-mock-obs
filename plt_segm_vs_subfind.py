@@ -62,7 +62,7 @@ extinction = 'default'
 # Define filter
 f = 'JWST.NIRCAM.F150W'
 
-snr = 20
+snr = 10
 
 ngals_segm = []
 ngals_subfind = []
