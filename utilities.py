@@ -689,8 +689,7 @@ def noisy_img(img, snr, seed=10000):
     if seed is int:
         np.random.seed(seed)
 
-    threshold = detect_threshold(img, nsigma=5)
-    segm = detect_sources(img, threshold, npixels=5)
+    segm = detect_sources(img, np.median(img), npixels=5)
 
     # Define the signal flux from the photometry table
     source = img[segm.data == segm.data[np.unravel_index(np.argmax(img),
