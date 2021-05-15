@@ -706,6 +706,6 @@ def noisy_img(img, snr, seed=10000):
     nsource = noisy_img[segm.data == segm.data[np.unravel_index(np.argmax(img), img.shape)]]
 
     print(noise_sig, np.sum(source), np.sum(nsource), source.size, snr)
-    print(snr, np.mean(nsource) / np.std(noisy_img), np.mean(img) / np.std(noisy_img), np.mean(nsource) / np.std(nsource), np.mean(img[segm != 0]) / np.std(img[segm == 0]))
+    print(snr, np.mean(nsource) / np.std(noisy_img), np.mean(noisy_img) / np.std(noisy_img), np.mean(nsource) / np.std(nsource), np.mean(noisy_img[segm != 0]) / np.std(noisy_img[segm == 0]), np.max(noisy_img[segm != 0]) / np.max(noisy_img[segm == 0]))
 
     return noisy_img
