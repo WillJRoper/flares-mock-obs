@@ -690,6 +690,8 @@ def noisy_img(img, snr, seed=10000):
         np.random.seed(seed)
 
     segm = detect_sources(img, np.median(img), npixels=5)
+    segm = deblend_sources(img, segm, npixels=5,
+                           nlevels=32, contrast=0.001)
 
     # Define the signal flux from the photometry table
     source = img[segm.data == segm.data[np.unravel_index(np.argmax(img),
@@ -701,5 +703,10 @@ def noisy_img(img, snr, seed=10000):
     noise = np.random.normal(loc=0.0, scale=noise_sig, size=img.shape)
 
     noisy_img = img + noise
+
+    print(snr, np.mean(noisy_img[segm.data != 0]) / np.std(
+        noisy_img[segm.data == 0]),
+          np.mean(noisy_img[segm.data != 0]) / np.std(
+              noisy_img[segm.data != 0]))
 
     return noisy_img
