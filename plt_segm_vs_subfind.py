@@ -118,10 +118,18 @@ grp_ms = np.array(grp_ms)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-ax.scatter(ngals_segm, ngals_subfind, marker="+")
+cbar = ax.hexbin(ngals_segm, ngals_subfind, gridsize=50, mincnt=1,
+                  xscale='log', yscale='log',
+                  norm=LogNorm(), linewidths=0.2,
+                  cmap='viridis')
+ax.plot((ax.get_ylim()[0], ax.get_ylim()[0]),
+        (ax.get_ylim()[1], ax.get_ylim()[1]), linestyle="--", color="r")
 
 ax.set_ylabel("$N_{\mathrm{gal, SUBFIND}}$")
 ax.set_xlabel("$N_{\mathrm{gal, Segmentation}}$")
+
+cax = fig.colorbar(cbar)
+cax.set_label("$N$")
 
 fig.savefig("plots/ngal_subfindvssegm_SNR" + str(snr) + ".png", bbox_inches="tight")
 

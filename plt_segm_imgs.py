@@ -164,7 +164,7 @@ while ind < n_img and ind < imgs.shape[0]:
                                                smooth, spline_cut_off=5/2)
     subfind_img[segm == 0] = 0
 
-    fig = plt.figure(figsize=(3, 4))
+    fig = plt.figure(figsize=(2.5, 4))
     gs = gridspec.GridSpec(3, 2)
     gs.update(wspace=0.0, hspace=0.0)
     ax1 = fig.add_subplot(gs[0, 0])
@@ -196,8 +196,6 @@ while ind < n_img and ind < imgs.shape[0]:
     axes[0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
     axes[1].imshow(segm, extent=imgextent, cmap="plasma")
     axes[2].imshow(subfind_img, extent=imgextent, cmap="plasma")
-
-    print(np.unique(subfind_img))
 
     max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
     axes[3].imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
