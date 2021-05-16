@@ -162,8 +162,7 @@ while ind < n_img and ind < imgs.shape[0]:
 
     subfind_img = util.make_subfind_spline_img(poss, res, 0, 1, tree, subgrp,
                                                smooth, spline_cut_off=5/2)
-
-    print(np.unique(subfind_img))
+    subfind_img[segm == 0] = 0
 
     fig = plt.figure(figsize=(3, 4))
     gs = gridspec.GridSpec(3, 2)
