@@ -413,7 +413,7 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, spline_cut_off=5
         if pix_vals.size > 1:
             pop_vals = smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]]
             smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][pop_vals == 0] = subgrpid
-            smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][pop_vals != 0] = np.min((pop_vals[pop_vals != 0], subgrpid)) + (np.abs(pop_vals[pop_vals != 0] - subgrpid) / 2)
+            smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][pop_vals != 0] = pop_vals[pop_vals != 0] + (np.abs(pop_vals[pop_vals != 0] - subgrpid) / 2)
         else:
             smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] = subgrpid
 
