@@ -195,7 +195,7 @@ while ind < n_img and ind < imgs.shape[0]:
     plt_img[img > 0] = np.log10(img[img > 0])
     axes[0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
     axes[1].imshow(segm, extent=imgextent, cmap="plasma")
-    axes[2].imshow(subfind_img, extent=imgextent, cmap="'gist_rainbow'")
+    axes[2].imshow(subfind_img, extent=imgextent, cmap="gist_rainbow")
 
     max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
     axes[3].imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
@@ -206,7 +206,7 @@ while ind < n_img and ind < imgs.shape[0]:
                    cmap="plasma")
     axes[5].imshow(subfind_img[max_ind[0] - 100: max_ind[0] + 100,
                    max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
-                   cmap="'gist_rainbow'")
+                   cmap="gist_rainbow")
 
     ax1.set_title("500 Mpc")
     ax4.set_title("Brightest Source")
