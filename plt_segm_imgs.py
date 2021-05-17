@@ -162,9 +162,9 @@ while ind < n_img and ind < imgs.shape[0]:
 
     subfind_img = util.make_subfind_spline_img(poss, res, 0, 1, tree, subgrp,
                                                smooth, spline_cut_off=5/2)
-    subfind_img[segm == 0] = 0
+    subfind_img[segm == 0] = np.nan
 
-    fig = plt.figure(figsize=(4, 6.5))
+    fig = plt.figure(figsize=(4, 6.4))
     gs = gridspec.GridSpec(3, 2)
     gs.update(wspace=0.0, hspace=0.0)
     ax1 = fig.add_subplot(gs[0, 0])
