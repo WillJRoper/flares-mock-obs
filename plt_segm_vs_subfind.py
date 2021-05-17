@@ -121,8 +121,7 @@ ax = fig.add_subplot(111)
 cbar = ax.hexbin(ngals_segm, ngals_subfind, gridsize=50, mincnt=1,
                   norm=LogNorm(), linewidths=0.2,
                   cmap='viridis')
-ax.plot((ax.get_ylim()[0], ax.get_ylim()[0]),
-        (ax.get_ylim()[1], ax.get_ylim()[1]), linestyle="--", color="r")
+ax.plot((0, 0), (60, 60), linestyle="--", color="r")
 
 ax.set_ylabel("$N_{\mathrm{gal, SUBFIND}}$")
 ax.set_xlabel("$N_{\mathrm{gal, Segmentation}}$")
