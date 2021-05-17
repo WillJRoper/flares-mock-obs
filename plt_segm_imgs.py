@@ -207,6 +207,16 @@ while ind < n_img and ind < imgs.shape[0]:
     axes[5].imshow(subfind_img[max_ind[0] - 100: max_ind[0] + 100,
                    max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
                    cmap="'gist_rainbow'")
+
+    ax1.set_title("500 Mpc")
+    ax4.set_title("Brightest Source")
+
+    ax1.set_ylabel('y (")')
+    ax2.set_ylabel('y (")')
+    ax3.set_ylabel('y (")')
+    ax3.set_xlabel('x (")')
+    ax6.set_xlabel('x (")')
+
     fig.savefig("plots/gal_img_log_" + f + "_" + reg + "_" + snap + str(ind) + ".png", dpi=600)
     plt.close(fig)
 
