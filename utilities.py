@@ -692,7 +692,9 @@ def noisy_img(img, f):
 
     # --- get field info object. This contains the filters, depths,
     # image location etc. (if real image)
+    print(f)
     field = flare.surveys.surveys[survey_id].fields[field_id]
+    print(field)
 
     # --- select a filter (or loop over all filters)
     filter = f
