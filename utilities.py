@@ -16,7 +16,7 @@ from functools import partial
 import time
 from scipy.spatial import cKDTree
 
-os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
+os.environ['flare'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
