@@ -21,6 +21,11 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
 
+import imagesim
+
+import flare.surveys
+import flare.plots.image
+
 
 def calc_ages(z, a_born):
     # Convert scale factor into redshift
@@ -680,24 +685,24 @@ def binned_weighted_quantile(x, y, weights, bins, quantiles):
     return np.squeeze(out)
 
 
-def noisy_img(img, snr, seed=10000):
+def noisy_img(img, snr, f):
 
-    # Set random seed
-    if seed is int:
-        np.random.seed(seed)
+    survey_id = 'XDF'  # the XDF (updated HUDF)
+    field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
 
-    segm = detect_sources(img, np.median(img), npixels=5)
-    segm = deblend_sources(img, segm, npixels=5,
-                           nlevels=32, contrast=0.001)
+    # --- get field info object. This contains the filters, depths,
+    # image location etc. (if real image)
+    field = flare.surveys.surveys[survey_id].fields[field_id]
 
-    # Define the signal flux from the photometry table
-    source = img[segm.data == segm.data[np.unravel_index(np.argmax(img),
-                                                         img.shape)]]
+    # --- select a filter (or loop over all filters)
+    filter = f
 
-    noise_sig = np.mean(source) / snr
+    # --- initialise ImageCreator object
+    image_creator = imagesim.Idealised(filter, field)
 
-    # Create large array of random noise
-    noise = np.random.normal(loc=0.0, scale=noise_sig, size=img.shape)
+    # --- create an Image object with the required size
+    width_pixels = img.shape[0]
+    noise = image_creator.create_image(width_pixels)
 
     noisy_img = img + noise
 
