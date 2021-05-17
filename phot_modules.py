@@ -13,7 +13,7 @@ sys.path.insert(0, os.path.abspath(
     os.path.join(os.path.dirname("__file__"), '..')))
 from functools import partial
 import schwimmbad
-from SynthObs.SED import models
+from synthobs.SED import models
 import flare
 import flare.filters
 from flare.photom import lum_to_M
