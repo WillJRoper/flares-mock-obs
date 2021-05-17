@@ -56,7 +56,7 @@ ind = int(sys.argv[1])
 # Set orientation
 orientation = sys.argv[2]
 
-# Define fluxosity and dust model types
+# Define flux and dust model types
 Type = sys.argv[3]
 extinction = 'default'
 
@@ -66,7 +66,7 @@ print("Computing HLRs with orientation {o}, type {t}, and extinction {e}"
                                                e=extinction, x=reg, u=tag))
 
 # Define filter
-filters = ('Webb.NIRCAM.F150W', )
+filters = ('Hubble.WFC3.f160w', )
 
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
