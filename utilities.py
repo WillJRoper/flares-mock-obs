@@ -703,6 +703,7 @@ def noisy_img(img, f):
 
     # --- create an Image object with the required size
     width_pixels = img.shape[0]
+    print(width_pixels)
     noise = image_creator.create_image(width_pixels)
 
     noisy_img = img + noise
