@@ -66,7 +66,7 @@ print("Computing HLRs with orientation {o}, type {t}, and extinction {e}"
                                                e=extinction, x=reg, u=tag))
 
 # Define filter
-filters = ('JWST.NIRCAM.F150W', )
+filters = ('Webb.NIRCAM.F150W', )
 
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
