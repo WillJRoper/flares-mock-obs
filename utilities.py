@@ -21,7 +21,7 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
 
-import eritlux.imagesim as imagesim
+import eritlux.simulations.imagesim as imagesim
 
 import flare.surveys
 import flare.plots.image
