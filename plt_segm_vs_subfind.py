@@ -118,10 +118,10 @@ grp_ms = np.array(grp_ms)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-ax.plot((0, 0), (60, 60), zorder=1)
 cbar = ax.hexbin(ngals_segm, ngals_subfind, gridsize=50, mincnt=1,
                   norm=LogNorm(), linewidths=0.2,
                   cmap='viridis')
+ax.plot((0, 60), (0, 60), linestyle="--", zorder=1)
 
 ax.set_ylabel("$N_{\mathrm{gal, SUBFIND}}$")
 ax.set_xlabel("$N_{\mathrm{gal, Segmentation}}$")
