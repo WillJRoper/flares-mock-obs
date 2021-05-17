@@ -119,7 +119,6 @@ fig = plt.figure()
 ax = fig.add_subplot(111)
 
 cbar = ax.hexbin(ngals_segm, ngals_subfind, gridsize=50, mincnt=1,
-                  xscale='log', yscale='log',
                   norm=LogNorm(), linewidths=0.2,
                   cmap='viridis')
 ax.plot((ax.get_ylim()[0], ax.get_ylim()[0]),
