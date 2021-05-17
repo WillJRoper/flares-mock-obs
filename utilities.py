@@ -692,15 +692,14 @@ def noisy_img(img, f):
 
     # --- get field info object. This contains the filters, depths,
     # image location etc. (if real image)
-    print(f)
     field = flare.surveys.surveys[survey_id].fields[field_id]
-    print(field)
 
     # --- select a filter (or loop over all filters)
     filter = f
 
+
     # --- initialise ImageCreator object
-    image_creator = imagesim.Idealised(filter, field)
+    image_creator = imagesim.Idealised(filter, field, verbose=True)
 
     # --- create an Image object with the required size
     width_pixels = img.shape[0]
