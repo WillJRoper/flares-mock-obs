@@ -231,7 +231,7 @@ for f in filters:
 
                 img = gaussian_filter(img, 2.5)
 
-                img = util.noisy_img(img, snr=snr, seed=10000)
+                img = util.noisy_img(img, f)
 
             else:
 
@@ -255,17 +255,17 @@ for f in filters:
             segm = phut.deblend_sources(img, segm, npixels=5,
                                         nlevels=32, contrast=0.001)
 
-            # fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
-            # ax1.grid(False)
-            # ax2.grid(False)
-            # plt_img = np.zeros_like(img)
-            # plt_img[img > 0] = np.log10(img[img > 0])
-            # ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
-            # cmap = segm.make_cmap()
-            # ax2.imshow(segm.data, extent=imgextent, cmap=cmap)
-            # fig.savefig("plots/gal_img_log_" + f + "_%d.png"
-            #             % int(ind), dpi=300)
-            # plt.close(fig)
+            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
+            ax1.grid(False)
+            ax2.grid(False)
+            plt_img = np.zeros_like(img)
+            plt_img[img > 0] = np.log10(img[img > 0])
+            ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
+            cmap = segm.make_cmap()
+            ax2.imshow(segm.data, extent=imgextent, cmap=cmap)
+            fig.savefig("plots/gal_img_log_" + f + "_%d.png"
+                        % int(ind), dpi=300)
+            plt.close(fig)
 
             # fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
             # ax1.grid(False)

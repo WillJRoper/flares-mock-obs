@@ -685,7 +685,7 @@ def binned_weighted_quantile(x, y, weights, bins, quantiles):
     return np.squeeze(out)
 
 
-def noisy_img(img, snr, f):
+def noisy_img(img, f):
 
     survey_id = 'XDF'  # the XDF (updated HUDF)
     field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
