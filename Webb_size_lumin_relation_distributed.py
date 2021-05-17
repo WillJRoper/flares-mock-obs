@@ -17,7 +17,7 @@ import matplotlib.gridspec as gridspec
 from scipy.stats import binned_statistic
 import phot_modules as phot
 import utilities as util
-from FLARE.photom import lum_to_M, M_to_lum
+from flare.photom import lum_to_M, M_to_lum
 from astropy.cosmology import Planck13 as cosmo
 import h5py
 import photutils as phut

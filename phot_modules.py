@@ -14,9 +14,9 @@ sys.path.insert(0, os.path.abspath(
 from functools import partial
 import schwimmbad
 from SynthObs.SED import models
-import FLARE
-import FLARE.filters
-from FLARE.photom import lum_to_M
+import flare
+import flare.filters
+from flare.photom import lum_to_M
 import utilities as util
 import eagle_IO.eagle_IO as E
 from scipy.spatial import cKDTree
@@ -377,7 +377,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         gas_tree = cKDTree(G_coords)
 
         print("Built gas KD-Tree")
-    
+
     print("There are", len(cops), "groups")
 
     for ind, cop in enumerate(cops):
