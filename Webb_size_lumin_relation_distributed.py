@@ -189,6 +189,8 @@ for f in filters:
 
     print("Pixel tree built")
 
+    psf = imagesim.create_PSF(f, field, res)
+
     hlr_app_dict[tag].setdefault(f, {})
     hlr_pix_dict[tag].setdefault(f, {})
 
@@ -224,13 +226,10 @@ for f in filters:
 
             this_radii = util.calc_rad(this_pos, i=0, j=1)
 
-            # img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
-            #                          this_flux,
-            #                          this_smls)
             img = util.make_spline_img(this_pos, res, 0, 1, tree,
                                        this_flux, this_smls)
 
-            img = gaussian_filter(img, 2.5)
+            img = convolve_fft(img, psf)
 
             img = util.noisy_img(img, image_creator)
 
@@ -248,9 +247,7 @@ for f in filters:
                                      this_flux,
                                      this_smls)
 
-        # img[img < 10**21] = 0
         threshold = phut.detect_threshold(img, nsigma=5)
-        # threshold = np.median(img)
 
         try:
             segm = phut.detect_sources(img, threshold, npixels=5)
@@ -259,6 +256,11 @@ for f in filters:
         except TypeError:
             print(ind, "had no sources above noise")
             continue
+
+        subfind_img = util.make_subfind_spline_img(this_pos, res, 0, 1, tree,
+                                                   this_subgrpids,
+                                                   this_smls,
+                                                   spline_cut_off=5 / 2)
 
         # fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
         # ax1.grid(False)
@@ -323,12 +325,9 @@ for f in filters:
 
         ngal_dict[tag][f].append(ngal)
 
-        ngal = 0
-        for gal in subfind_ids:
-            if np.sum(this_flux[this_subgrpids == gal]) > image_creator.aperture.background:
-                ngal += 1
+        sub_ngal = np.unique(subfind_img[segm.data != 0]).size
 
-        sf_ngal_dict[tag][f].append(ngal)
+        sf_ngal_dict[tag][f].append(sub_ngal)
 
 
 try:
