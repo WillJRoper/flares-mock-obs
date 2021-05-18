@@ -697,7 +697,6 @@ def noisy_img(true_img, f):
     # --- select a filter (or loop over all filters)
     filter = f
 
-
     # --- initialise ImageCreator object
     image_creator = imagesim.Idealised(filter, field, verbose=True)
 
@@ -706,10 +705,10 @@ def noisy_img(true_img, f):
 
     img = imagesim.Image()
     img.nJy_to_es = image_creator.nJy_to_es
-    img.pixel_scale = image_creator.pixel_scale
-    img.noise = image_creator.pixel.noise_es * np.ones((width_pixels, width_pixels))
+    img.pixel_scale = 0.031
+    img.noise = image_creator.pixel.noise * np.ones((width_pixels, width_pixels))
     img.wht = 1./img.noise**2
-    img.bkg = image_creator.pixel.noise_es * np.random.randn(*img.noise.shape)
+    img.bkg = image_creator.pixel.noise * np.random.randn((width_pixels, width_pixels))
 
     noisy_img = true_img + img.bkg
 

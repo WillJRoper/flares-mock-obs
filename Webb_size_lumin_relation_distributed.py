@@ -251,9 +251,13 @@ for f in filters:
             threshold = phut.detect_threshold(img, nsigma=5)
             # threshold = np.median(img)
 
-            segm = phut.detect_sources(img, threshold, npixels=5)
-            segm = phut.deblend_sources(img, segm, npixels=5,
-                                        nlevels=32, contrast=0.001)
+            try:
+                segm = phut.detect_sources(img, threshold, npixels=5)
+                segm = phut.deblend_sources(img, segm, npixels=5,
+                                            nlevels=32, contrast=0.001)
+            except TypeError:
+                print(ind, "had no sources above noise")
+                continue
 
             fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
             ax1.grid(False)
