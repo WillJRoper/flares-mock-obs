@@ -17,6 +17,7 @@ import matplotlib.gridspec as gridspec
 from scipy.stats import binned_statistic
 import phot_modules as phot
 import utilities as util
+import flare
 from flare.photom import lum_to_M, M_to_lum
 from astropy.cosmology import Planck13 as cosmo
 import h5py
@@ -26,6 +27,9 @@ import sys
 from scipy.spatial import cKDTree
 from scipy.ndimage import gaussian_filter
 import time
+import eritlux.simulations.imagesim as imagesim
+import flare.surveys
+import flare.plots.image
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
@@ -103,6 +107,13 @@ ngal_dict.setdefault(tag, {})
 sf_ngal_dict.setdefault(tag, {})
 grp_dict.setdefault(tag, {})
 
+survey_id = 'XDF'  # the XDF (updated HUDF)
+field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
+
+# --- get field info object. This contains the filters, depths,
+# image location etc. (if real image)
+field = flare.surveys.surveys[survey_id].fields[field_id]
+
 if z <= 2.8:
     csoft = 0.000474390 / 0.6777 * 1e3
 else:
@@ -118,39 +129,6 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 # Define width
 ini_width = 500 * arcsec_per_kpc_proper
 
-# Define arc_second resolution
-if int(filters[0].split(".")[-1][1:4]) < 230:
-    arc_res = 0.031
-else:
-    arc_res = 0.063
-
-# Compute the resolution
-ini_res = ini_width / arc_res
-res = int(np.ceil(ini_res))
-
-# Compute the new width
-width = arc_res * res
-
-print("Image width and resolution (in arcseconds):", width, arc_res)
-print("Image width and resolution (in pkpc):",
-      width / arcsec_per_kpc_proper,
-      arc_res / arcsec_per_kpc_proper)
-print("Image width (in pixels):", res)
-
-# Define pixel area in pkpc
-single_pixel_area = arc_res * arc_res \
-                    / (arcsec_per_kpc_proper * arcsec_per_kpc_proper)
-
-# Define range and extent for the images in arc seconds
-imgrange = ((-width / 2, width / 2), (-width / 2, width / 2))
-imgextent = [-width / 2, width / 2, -width / 2, width / 2]
-
-# Set up aperture objects
-positions = [(res / 2, res / 2)]
-app_radii = np.linspace(0.001, res / 4, 100)
-apertures = [CircularAperture(positions, r=r) for r in app_radii]
-app_radii *= csoft
-
 # Kappa with DTM 0.0795, BC_fac=1., without 0.0063 BC_fac=1.25
 reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1, IMF='Chabrier_300',
                      filters=filters, Type=Type, log10t_BC=7.,
@@ -161,23 +139,54 @@ reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1, IMF='Chabrier_300',
 print("Got the dictionary for the region's groups:",
       len(reg_dict), "groups to  test")
 
-# Define x and y positions of pixels
-X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], res),
-                   np.linspace(imgrange[1][0], imgrange[1][1], res))
-
-# Define pixel position array for the KDTree
-pix_pos = np.zeros((X.size, 2))
-pix_pos[:, 0] = X.ravel()
-pix_pos[:, 1] = Y.ravel()
-
-# Build KDTree
-tree = cKDTree(pix_pos)
-
-print("Pixel tree built")
-
-snrs = [10, ]
-
 for f in filters:
+
+    # --- initialise ImageCreator object
+    image_creator = imagesim.Idealised(f, field)
+
+    arc_res = image_creator.pixel_scale
+
+    # Compute the resolution
+    ini_res = ini_width / arc_res
+    res = int(np.ceil(ini_res))
+
+    # Compute the new width
+    width = arc_res * res
+
+    print("Filter:", f)
+    print("Image width and resolution (in arcseconds):", width, arc_res)
+    print("Image width and resolution (in pkpc):",
+          width / arcsec_per_kpc_proper,
+          arc_res / arcsec_per_kpc_proper)
+    print("Image width (in pixels):", res)
+
+    # Define pixel area in pkpc
+    single_pixel_area = arc_res * arc_res \
+                        / (arcsec_per_kpc_proper * arcsec_per_kpc_proper)
+
+    # Define range and extent for the images in arc seconds
+    imgrange = ((-width / 2, width / 2), (-width / 2, width / 2))
+    imgextent = [-width / 2, width / 2, -width / 2, width / 2]
+
+    # Set up aperture objects
+    positions = [(res / 2, res / 2)]
+    app_radii = np.linspace(0.001, res / 4, 100)
+    apertures = [CircularAperture(positions, r=r) for r in app_radii]
+    app_radii *= csoft
+
+    # Define x and y positions of pixels
+    X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], res),
+                       np.linspace(imgrange[1][0], imgrange[1][1], res))
+
+    # Define pixel position array for the KDTree
+    pix_pos = np.zeros((X.size, 2))
+    pix_pos[:, 0] = X.ravel()
+    pix_pos[:, 1] = Y.ravel()
+
+    # Build KDTree
+    tree = cKDTree(pix_pos)
+
+    print("Pixel tree built")
 
     hlr_app_dict[tag].setdefault(f, {})
     hlr_pix_dict[tag].setdefault(f, {})
@@ -222,7 +231,7 @@ for f in filters:
 
             img = gaussian_filter(img, 2.5)
 
-            img = util.noisy_img(img, f, arc_res)
+            img = util.noisy_img(img, image_creator)
 
         else:
 
@@ -311,7 +320,7 @@ for f in filters:
             if np.sum(img[segm.data == gal]) > 10 and gal > 0:
                 ngal += 1
 
-        ngal_dict[tag][f][snr].append(ngal)
+        ngal_dict[tag][f].append(ngal)
 
         ngal = 0
         for gal in subfind_ids:

@@ -15,16 +15,12 @@ import schwimmbad
 from functools import partial
 import time
 from scipy.spatial import cKDTree
+import eritlux.simulations.imagesim as imagesim
 
 os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
-
-import eritlux.simulations.imagesim as imagesim
-
-import flare.surveys
-import flare.plots.image
 
 
 def calc_ages(z, a_born):
@@ -685,30 +681,19 @@ def binned_weighted_quantile(x, y, weights, bins, quantiles):
     return np.squeeze(out)
 
 
-def noisy_img(true_img, f, pixel_scale):
-
-    survey_id = 'XDF'  # the XDF (updated HUDF)
-    field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
-
-    # --- get field info object. This contains the filters, depths,
-    # image location etc. (if real image)
-    field = flare.surveys.surveys[survey_id].fields[field_id]
-
-    # --- select a filter (or loop over all filters)
-    filter = f
-
-    # --- initialise ImageCreator object
-    image_creator = imagesim.Idealised(filter, field)
+def noisy_img(true_img, image_creator):
 
     # --- create an Image object with the required size
     width_pixels = true_img.shape[0]
 
     img = imagesim.Image()
     img.nJy_to_es = image_creator.nJy_to_es
-    img.pixel_scale = pixel_scale
-    img.noise = image_creator.pixel.noise * np.ones((width_pixels, width_pixels))
+    img.pixel_scale = image_creator.pixel_scale
+    img.noise = image_creator.pixel.noise * np.ones((width_pixels,
+                                                     width_pixels))
     img.wht = 1./img.noise**2
-    img.bkg = image_creator.pixel.noise * np.random.randn(width_pixels, width_pixels)
+    img.bkg = image_creator.pixel.noise * np.random.randn(width_pixels,
+                                                          width_pixels)
 
     noisy_img = true_img + img.bkg
 
