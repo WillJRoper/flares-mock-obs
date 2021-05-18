@@ -64,7 +64,7 @@ def get_data(reg, snap, r):
     all_grp_ms = E.read_array('SUBFIND', path, snap, 'FOF/Group_M_Mean200',
                               numThreads=8) * 10**10
 
-    okinds = all_grp_ms > 10**11
+    okinds = all_grp_ms > 10**10
     grp_cops = grp_cops[okinds]
     r_200 = r_200[okinds]
     all_grp_ms = all_grp_ms[okinds]
@@ -146,7 +146,11 @@ def get_data(reg, snap, r):
                           numThreads=8)[g_okinds] * 10 ** 10
 
     # Calculate ages
-    S_age = util.calc_ages(z, a_born)
+    if len(a_born) > 0:
+        S_age = util.calc_ages(z, a_born)
+    else:
+        S_age = a_born
+
 
     return S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
            G_coords, S_mass, grp_cops, r_200, all_grp_ms, halo_ids, \
