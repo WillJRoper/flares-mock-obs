@@ -196,12 +196,12 @@ for f in filters:
         hlr_app_dict[tag][f].setdefault(r, [])
         hlr_pix_dict[tag][f].setdefault(r, [])
 
-    flux_dict[tag].setdefault(f, {})
-    img_dict[tag].setdefault(f, {})
-    segm_dict[tag].setdefault(f, {})
-    ngal_dict[tag].setdefault(f, {})
-    grp_dict[tag].setdefault(f, {})
-    sf_ngal_dict[tag].setdefault(f, {})
+    flux_dict[tag].setdefault(f, [])
+    img_dict[tag].setdefault(f, [])
+    segm_dict[tag].setdefault(f, [])
+    ngal_dict[tag].setdefault(f, [])
+    grp_dict[tag].setdefault(f, [])
+    sf_ngal_dict[tag].setdefault(f, [])
 
     for ind in reg_dict:
 
