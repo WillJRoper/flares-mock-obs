@@ -318,14 +318,14 @@ for f in filters:
 
         ngal = 0
         for gal in np.unique(segm.data):
-            if np.sum(img[segm.data == gal]) > 10 and gal > 0:
+            if np.sum(img[segm.data == gal]) > image_creator.aperture.background and gal > 0:
                 ngal += 1
 
         ngal_dict[tag][f].append(ngal)
 
         ngal = 0
         for gal in subfind_ids:
-            if np.sum(this_flux[this_subgrpids == gal]) > 10:
+            if np.sum(this_flux[this_subgrpids == gal]) > image_creator.aperture.background:
                 ngal += 1
 
         sf_ngal_dict[tag][f].append(ngal)
