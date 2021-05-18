@@ -46,7 +46,7 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-f = 'JWST.NIRCAM.F150W'
+f = 'Hubble.WFC3.f160w'
 
 snr = 10
 
