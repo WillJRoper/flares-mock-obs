@@ -116,7 +116,7 @@ kernel.normalize()
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
-ini_width = 100 * arcsec_per_kpc_proper
+ini_width = 500 * arcsec_per_kpc_proper
 
 # Define arc_second resolution
 if int(filters[0].split(".")[-1][1:4]) < 230:
@@ -193,141 +193,132 @@ for f in filters:
     grp_dict[tag].setdefault(f, {})
     sf_ngal_dict[tag].setdefault(f, {})
 
-    for snr in snrs:
+    for ind in reg_dict:
 
-        flux_dict[tag][f].setdefault(snr, [])
-        img_dict[tag][f].setdefault(snr, [])
-        segm_dict[tag][f].setdefault(snr, [])
-        ngal_dict[tag][f].setdefault(snr, [])
-        sf_ngal_dict[tag][f].setdefault(snr, [])
-        grp_dict[tag][f].setdefault(snr, [])
+        if not type(ind) is int:
+            continue
 
-        for ind in reg_dict:
+        this_pos = reg_dict[ind]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
+        this_smls = reg_dict[ind]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
+        this_subgrpids = reg_dict[ind]["part_subgrpids"]
+        this_groupmass = reg_dict[ind]["group_mass"]
 
-            if not type(ind) is int:
-                continue
+        this_flux = reg_dict[ind][f]
 
-            this_pos = reg_dict[ind]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
-            this_smls = reg_dict[ind]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
-            this_subgrpids = reg_dict[ind]["part_subgrpids"]
-            this_groupmass = reg_dict[ind]["group_mass"]
+        subfind_ids = np.unique(this_subgrpids)
 
-            this_flux = reg_dict[ind][f]
+        if np.nansum(this_flux) == 0:
+            continue
 
-            subfind_ids = np.unique(this_subgrpids)
+        if orientation == "sim" or orientation == "face-on":
 
-            if np.nansum(this_flux) == 0:
-                continue
+            this_radii = util.calc_rad(this_pos, i=0, j=1)
 
-            if orientation == "sim" or orientation == "face-on":
+            # img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
+            #                          this_flux,
+            #                          this_smls)
+            img = util.make_spline_img(this_pos, res, 0, 1, tree,
+                                       this_flux, this_smls)
 
-                this_radii = util.calc_rad(this_pos, i=0, j=1)
+            img = gaussian_filter(img, 2.5)
 
-                # img = util.make_soft_img(this_pos, res, 0, 1, imgrange,
-                #                          this_flux,
-                #                          this_smls)
-                img = util.make_spline_img(this_pos, res, 0, 1, tree,
-                                           this_flux, this_smls)
+            img = util.noisy_img(img, f, arc_res)
 
-                img = gaussian_filter(img, 2.5)
+        else:
 
-                img = util.noisy_img(img, f)
+            # # Centre positions on fluxosity weighted centre
+            # flux_cent = util.flux_weighted_centre(this_pos,
+            #                                         this_flux,
+            #                                         i=2, j=0)
+            # this_pos[:, (2, 0)] -= flux_cent
 
-            else:
+            this_radii = util.calc_rad(this_pos, i=2, j=0)
 
-                # # Centre positions on fluxosity weighted centre
-                # flux_cent = util.flux_weighted_centre(this_pos,
-                #                                         this_flux,
-                #                                         i=2, j=0)
-                # this_pos[:, (2, 0)] -= flux_cent
+            img = util.make_soft_img(this_pos, res, 2, 0, imgrange,
+                                     this_flux,
+                                     this_smls)
 
-                this_radii = util.calc_rad(this_pos, i=2, j=0)
+        # img[img < 10**21] = 0
+        threshold = phut.detect_threshold(img, nsigma=5)
+        # threshold = np.median(img)
 
-                img = util.make_soft_img(this_pos, res, 2, 0, imgrange,
-                                         this_flux,
-                                         this_smls)
+        try:
+            segm = phut.detect_sources(img, threshold, npixels=5)
+            segm = phut.deblend_sources(img, segm, npixels=5,
+                                        nlevels=32, contrast=0.001)
+        except TypeError:
+            print(ind, "had no sources above noise")
+            continue
 
-            # img[img < 10**21] = 0
-            threshold = phut.detect_threshold(img, nsigma=5)
-            # threshold = np.median(img)
+        # fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
+        # ax1.grid(False)
+        # ax2.grid(False)
+        # plt_img = np.zeros_like(img)
+        # plt_img[img > 0] = np.log10(img[img > 0])
+        # ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
+        # cmap = segm.make_cmap()
+        # ax2.imshow(segm.data, extent=imgextent, cmap=cmap)
+        # fig.savefig("plots/gal_img_log_" + f + "_%d.png"
+        #             % int(ind), dpi=300)
+        # plt.close(fig)
 
-            try:
-                segm = phut.detect_sources(img, threshold, npixels=5)
-                segm = phut.deblend_sources(img, segm, npixels=5,
-                                            nlevels=32, contrast=0.001)
-            except TypeError:
-                print(ind, "had no sources above noise")
-                continue
+        # fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
+        # ax1.grid(False)
+        # ax2.grid(False)
+        # plt_img = np.zeros_like(img)
+        # plt_img[img > 0] = np.log10(img[img > 0])
+        # max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
+        # ax1.imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
+        #            max_ind[1] - 100: max_ind[1] + 100],
+        #            extent=imgextent, cmap="Greys_r")
+        # cmap = segm.make_cmap()
+        # ax2.imshow(segm.data[max_ind[0] - 100: max_ind[0] + 100,
+        #            max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
+        #            cmap=cmap)
+        # fig.savefig("plots/max_gal_img_log_" + f + "_%.1f.png"
+        #             % np.log10(np.sum(img)), dpi=300)
+        # plt.close(fig)
 
-            fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
-            ax1.grid(False)
-            ax2.grid(False)
-            plt_img = np.zeros_like(img)
-            plt_img[img > 0] = np.log10(img[img > 0])
-            ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
-            cmap = segm.make_cmap()
-            ax2.imshow(segm.data, extent=imgextent, cmap=cmap)
-            fig.savefig("plots/gal_img_log_" + f + "_%d.png"
-                        % int(ind), dpi=300)
-            plt.close(fig)
+        # for i in range(1, np.max(segm.data) + 1):
+        #     if np.sum(img[segm.data == i]) < np.median(img):
+        #         continue
+        #     print(np.sum(img[segm.data == i]))
+        #     for r in radii_fracs:
+        #         img_segm = np.zeros_like(img)
+        #         img_segm[segm.data == i] = img[segm.data == i]
+        #         hlr_pix_dict[tag][f][r].append(
+        #             util.get_pixel_hlr(img_segm, single_pixel_area,
+        #                                radii_frac=r))
+        #         # hlr_app_dict[tag][f][r].append(
+        #         #     util.get_img_hlr(img, apertures, app_radii, res,
+        #         #                      arc_res / arcsec_per_kpc_proper, r))
+        #     flux_dict[tag][f].append(np.sum(img[segm.data == i]))
+        #
+        img_dict[tag][f].append(img)
+        segm_dict[tag][f].append(segm.data)
+        grp_dict[tag][f].append(ind)
 
-            # fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
-            # ax1.grid(False)
-            # ax2.grid(False)
-            # plt_img = np.zeros_like(img)
-            # plt_img[img > 0] = np.log10(img[img > 0])
-            # max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
-            # ax1.imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
-            #            max_ind[1] - 100: max_ind[1] + 100],
-            #            extent=imgextent, cmap="Greys_r")
-            # cmap = segm.make_cmap()
-            # ax2.imshow(segm.data[max_ind[0] - 100: max_ind[0] + 100,
-            #            max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
-            #            cmap=cmap)
-            # fig.savefig("plots/max_gal_img_log_" + f + "_%.1f.png"
-            #             % np.log10(np.sum(img)), dpi=300)
-            # plt.close(fig)
+        begin.append(len(fluxes))
+        grp_mass.append(this_groupmass)
+        star_pos.extend(this_pos)
+        smls.extend(this_smls)
+        fluxes.extend(this_flux)
+        subgrpids.extend(this_subgrpids)
+        Slen.append(len(this_smls))
 
-            # for i in range(1, np.max(segm.data) + 1):
-            #     if np.sum(img[segm.data == i]) < np.median(img):
-            #         continue
-            #     print(np.sum(img[segm.data == i]))
-            #     for r in radii_fracs:
-            #         img_segm = np.zeros_like(img)
-            #         img_segm[segm.data == i] = img[segm.data == i]
-            #         hlr_pix_dict[tag][f][r].append(
-            #             util.get_pixel_hlr(img_segm, single_pixel_area,
-            #                                radii_frac=r))
-            #         # hlr_app_dict[tag][f][r].append(
-            #         #     util.get_img_hlr(img, apertures, app_radii, res,
-            #         #                      arc_res / arcsec_per_kpc_proper, r))
-            #     flux_dict[tag][f].append(np.sum(img[segm.data == i]))
-            #
-            img_dict[tag][f][snr].append(img)
-            segm_dict[tag][f][snr].append(segm.data)
-            grp_dict[tag][f][snr].append(ind)
+        ngal = 0
+        for gal in np.unique(segm.data):
+            if np.sum(img[segm.data == gal]) > 10 and gal > 0:
+                ngal += 1
 
-            begin.append(len(fluxes))
-            grp_mass.append(this_groupmass)
-            star_pos.extend(this_pos)
-            smls.extend(this_smls)
-            fluxes.extend(this_flux)
-            subgrpids.extend(this_subgrpids)
-            Slen.append(len(this_smls))
+        ngal_dict[tag][f][snr].append(ngal)
 
-            ngal = 0
-            for gal in np.unique(segm.data):
-                if np.sum(img[segm.data == gal]) > 10 and gal > 0:
-                    ngal += 1
+        ngal = 0
+        for gal in subfind_ids:
+            if np.sum(this_flux[this_subgrpids == gal]) > 10:
+                ngal += 1
 
-            ngal_dict[tag][f][snr].append(ngal)
-
-            ngal = 0
-            for gal in subfind_ids:
-                if np.sum(this_flux[this_subgrpids == gal]) > 10:
-                    ngal += 1
-
-            sf_ngal_dict[tag][f][snr].append(ngal)
+        sf_ngal_dict[tag][f].append(ngal)
 
 
 try:
@@ -471,97 +462,89 @@ for f in filters:
                                         compression="gzip")
         dset.attrs["units"] = "None"
 
-    for snr in snrs:
+    # fluxes = np.array(flux_dict[tag][f][snr])
+    imgs = np.array(img_dict[tag][f])
+    segms = np.array(segm_dict[tag][f])
+    ngals = np.array(ngal_dict[tag][f])
+    sf_ngals = np.array(sf_ngal_dict[tag][f])
+    grps = np.array(grp_dict[tag][f])
 
-        # fluxes = np.array(flux_dict[tag][f][snr])
-        imgs = np.array(img_dict[tag][f][snr])
-        segms = np.array(segm_dict[tag][f][snr])
-        ngals = np.array(ngal_dict[tag][f][snr])
-        sf_ngals = np.array(sf_ngal_dict[tag][f][snr])
-        grps = np.array(grp_dict[tag][f][snr])
+    print(imgs.shape)
 
-        print(imgs.shape)
-            
-        try:
-            snr_group = f_group[str(snr)]
-        except KeyError:
-            print(f, "Doesn't exists: Creating...")
-            snr_group = f_group.create_group(str(snr))
+    try:
+        dset = f_group.create_dataset("Group_ID", data=grps,
+                                      dtype=grps.dtype,
+                                      shape=grps.shape,
+                                      compression="gzip")
+        dset.attrs["units"] = "None"
+    except OSError:
+        print("Group_ID already exists: Overwriting...")
+        del f_group["Group_ID"]
+        dset = f_group.create_dataset("Group_ID", data=grps,
+                                      dtype=grps.dtype,
+                                      shape=grps.shape,
+                                      compression="gzip")
+        dset.attrs["units"] = "None"
 
-        try:
-            dset = snr_group.create_dataset("Group_ID", data=grps,
-                                          dtype=grps.dtype,
-                                          shape=grps.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
-        except OSError:
-            print("Group_ID already exists: Overwriting...")
-            del snr_group["Group_ID"]
-            dset = snr_group.create_dataset("Group_ID", data=grps,
-                                          dtype=grps.dtype,
-                                          shape=grps.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
+    try:
+        dset = f_group.create_dataset("Images", data=imgs,
+                                      dtype=imgs.dtype,
+                                      shape=imgs.shape,
+                                      compression="gzip")
+        dset.attrs["units"] = "$nJy$"
+    except OSError:
+        print("Images already exists: Overwriting...")
+        del f_group["Images"]
+        dset = f_group.create_dataset("Images", data=imgs,
+                                      dtype=imgs.dtype,
+                                      shape=imgs.shape,
+                                      compression="gzip")
+        dset.attrs["units"] = "$nJy$"
 
-        try:
-            dset = snr_group.create_dataset("Images", data=imgs,
-                                          dtype=imgs.dtype,
-                                          shape=imgs.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "$nJy$"
-        except OSError:
-            print("Images already exists: Overwriting...")
-            del snr_group["Images"]
-            dset = snr_group.create_dataset("Images", data=imgs,
-                                          dtype=imgs.dtype,
-                                          shape=imgs.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "$nJy$"
+    try:
+        dset = f_group.create_dataset("Segmentation_Maps", data=segms,
+                                      dtype=segms.dtype,
+                                      shape=segms.shape,
+                                      compression="gzip")
+        dset.attrs["units"] = "None"
+    except OSError:
+        print("Segmentation_Maps already exists: Overwriting...")
+        del f_group["Segmentation_Maps"]
+        dset = f_group.create_dataset("Segmentation_Maps", data=segms,
+                                      dtype=segms.dtype,
+                                      shape=segms.shape,
+                                      compression="gzip")
+        dset.attrs["units"] = "None"
 
-        try:
-            dset = snr_group.create_dataset("Segmentation_Maps", data=segms,
-                                          dtype=segms.dtype,
-                                          shape=segms.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
-        except OSError:
-            print("Segmentation_Maps already exists: Overwriting...")
-            del snr_group["Segmentation_Maps"]
-            dset = snr_group.create_dataset("Segmentation_Maps", data=segms,
-                                          dtype=segms.dtype,
-                                          shape=segms.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
+    try:
+        dset = f_group.create_dataset("NGalaxy", data=ngals,
+                                      dtype=ngals.dtype,
+                                      shape=ngals.shape,
+                                      compression="gzip")
+        dset.attrs["units"] = "None"
+    except OSError:
+        print("NGalaxy already exists: Overwriting...")
+        del f_group["NGalaxy"]
+        dset = f_group.create_dataset("NGalaxy", data=ngals,
+                                      dtype=ngals.dtype,
+                                      shape=ngals.shape,
+                                      compression="gzip")
+        dset.attrs["units"] = "None"
 
-        try:
-            dset = snr_group.create_dataset("NGalaxy", data=ngals,
-                                          dtype=ngals.dtype,
-                                          shape=ngals.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
-        except OSError:
-            print("NGalaxy already exists: Overwriting...")
-            del snr_group["NGalaxy"]
-            dset = snr_group.create_dataset("NGalaxy", data=ngals,
-                                          dtype=ngals.dtype,
-                                          shape=ngals.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
-
-        try:
-            dset = snr_group.create_dataset("SUBFIND_NGalaxy", data=sf_ngals,
-                                          dtype=sf_ngals.dtype,
-                                          shape=sf_ngals.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
-        except OSError:
-            print("SUBFIND_NGalaxy already exists: Overwriting...")
-            del snr_group["SUBFIND_NGalaxy"]
-            dset = snr_group.create_dataset("SUBFIND_NGalaxy", data=sf_ngals,
-                                          dtype=sf_ngals.dtype,
-                                          shape=sf_ngals.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
+    try:
+        dset = f_group.create_dataset("SUBFIND_NGalaxy", data=sf_ngals,
+                                      dtype=sf_ngals.dtype,
+                                      shape=sf_ngals.shape,
+                                      compression="gzip")
+        dset.attrs["units"] = "None"
+    except OSError:
+        print("SUBFIND_NGalaxy already exists: Overwriting...")
+        del f_group["SUBFIND_NGalaxy"]
+        dset = f_group.create_dataset("SUBFIND_NGalaxy", data=sf_ngals,
+                                      dtype=sf_ngals.dtype,
+                                      shape=sf_ngals.shape,
+                                      compression="gzip")
+        dset.attrs["units"] = "None"
 
         # for r in radii_fracs:
         #

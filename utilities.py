@@ -685,7 +685,7 @@ def binned_weighted_quantile(x, y, weights, bins, quantiles):
     return np.squeeze(out)
 
 
-def noisy_img(true_img, f):
+def noisy_img(true_img, f, pixel_scale):
 
     survey_id = 'XDF'  # the XDF (updated HUDF)
     field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
@@ -698,14 +698,14 @@ def noisy_img(true_img, f):
     filter = f
 
     # --- initialise ImageCreator object
-    image_creator = imagesim.Idealised(filter, field, verbose=True)
+    image_creator = imagesim.Idealised(filter, field)
 
     # --- create an Image object with the required size
     width_pixels = true_img.shape[0]
 
     img = imagesim.Image()
     img.nJy_to_es = image_creator.nJy_to_es
-    img.pixel_scale = 0.031
+    img.pixel_scale = pixel_scale
     img.noise = image_creator.pixel.noise * np.ones((width_pixels, width_pixels))
     img.wht = 1./img.noise**2
     img.bkg = image_creator.pixel.noise * np.random.randn(width_pixels, width_pixels)
