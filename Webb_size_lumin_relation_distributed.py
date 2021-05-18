@@ -22,7 +22,8 @@ from flare.photom import lum_to_M, M_to_lum
 from astropy.cosmology import Planck13 as cosmo
 import h5py
 import photutils as phut
-from astropy.convolution import Gaussian2DKernel, convolve_fft
+from astropy.convolution import Gaussian2DKernel
+from scipy import signal
 import sys
 from scipy.spatial import cKDTree
 from scipy.ndimage import gaussian_filter
@@ -229,7 +230,7 @@ for f in filters:
             img = util.make_spline_img(this_pos, res, 0, 1, tree,
                                        this_flux, this_smls)
 
-            img = convolve_fft(img, psf)
+            img = signal.fftconvolve(img, psf, mode="same")
 
             img = util.noisy_img(img, image_creator)
 
