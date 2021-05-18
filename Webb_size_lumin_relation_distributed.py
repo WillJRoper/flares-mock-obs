@@ -129,16 +129,6 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 # Define width
 ini_width = 500 * arcsec_per_kpc_proper
 
-# Kappa with DTM 0.0795, BC_fac=1., without 0.0063 BC_fac=1.25
-reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1, IMF='Chabrier_300',
-                     filters=filters, Type=Type, log10t_BC=7.,
-                     extinction=extinction, orientation=orientation,
-                     masslim=masslim,
-                     r=width / arcsec_per_kpc_proper / 1000 / 2)
-
-print("Got the dictionary for the region's groups:",
-      len(reg_dict), "groups to  test")
-
 for f in filters:
 
     # --- initialise ImageCreator object
@@ -159,6 +149,17 @@ for f in filters:
           width / arcsec_per_kpc_proper,
           arc_res / arcsec_per_kpc_proper)
     print("Image width (in pixels):", res)
+
+    # Kappa with DTM 0.0795, BC_fac=1., without 0.0063 BC_fac=1.25
+    reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
+                         IMF='Chabrier_300',
+                         filters=filters, Type=Type, log10t_BC=7.,
+                         extinction=extinction, orientation=orientation,
+                         masslim=masslim,
+                         r=width / arcsec_per_kpc_proper / 1000 / 2)
+
+    print("Got the dictionary for the region's groups:",
+          len(reg_dict) - 3, "groups to  test")
 
     # Define pixel area in pkpc
     single_pixel_area = arc_res * arc_res \
