@@ -48,8 +48,6 @@ extinction = 'default'
 # Define filter
 f = 'Hubble.WFC3.f160w'
 
-snr = 10
-
 ngals_segm = []
 ngals_subfind = []
 grp_ms = []
@@ -73,7 +71,6 @@ for ind in range(len(reg_snaps)):
         type_group = hdf[Type]
         orientation_group = type_group[orientation]
         f_group = orientation_group[f]
-        snr_group = f_group[str(snr)]
 
         grp_ids = f_group["Group_ID"][:]
         segm_ngals = f_group["NGalaxy"][:]
