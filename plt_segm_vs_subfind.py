@@ -117,7 +117,7 @@ ax.loglog(grp_ms, ngals_subfind / ngals_segm, linestyle="none", marker="+")
 ax.set_ylabel("$N_{\mathrm{gal, SUBFIND}} / N_{\mathrm{gal, Segmentation}}$")
 ax.set_xlabel("$M_{FOF}/M_{\odot}$")
 
-fig.savefig("plots/ngal_subfindsegm_ratio_vs_mass_SNR" + str(snr) + ".png", bbox_inches="tight")
+fig.savefig("plots/ngal_subfindsegm_ratio_vs_mass_Filter-" + f + ".png", bbox_inches="tight")
 
 plt.close(fig)
 
