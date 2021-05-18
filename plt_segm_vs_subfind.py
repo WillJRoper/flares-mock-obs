@@ -105,7 +105,7 @@ ax.set_xlabel("$N_{\mathrm{gal, Segmentation}}$")
 cax = fig.colorbar(cbar)
 cax.set_label("$N$")
 
-fig.savefig("plots/ngal_subfindvssegm_SNR" + str(snr) + ".png", bbox_inches="tight")
+fig.savefig("plots/ngal_subfindvssegm_Filter-" + f + ".png", bbox_inches="tight")
 
 plt.close(fig)
 
