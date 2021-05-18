@@ -11,23 +11,9 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
 import seaborn as sns
-import matplotlib as mpl
 from matplotlib.colors import LogNorm
-import matplotlib.gridspec as gridspec
-from scipy.stats import binned_statistic
-from matplotlib.lines import Line2D
-from astropy.cosmology import Planck13 as cosmo
-import astropy.units as u
-from FLARE.photom import lum_to_M, M_to_lum, lum_to_flux, m_to_flux
-import FLARE.photom as photconv
-from scipy.spatial import cKDTree
 import h5py
-import eagle_IO.eagle_IO as E
 import sys
-import pandas as pd
-import utilities as util
-import phot_modules as phot
-import utilities as util
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
