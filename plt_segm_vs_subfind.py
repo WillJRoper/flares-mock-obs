@@ -89,9 +89,10 @@ for ind in range(len(reg_snaps)):
         f_group = orientation_group[f]
         snr_group = f_group[str(snr)]
 
-        grp_ids = snr_group["Group_ID"][:]
-        segm_ngals = snr_group["NGalaxy"][:]
-        subfind_ngals = snr_group["SUBFIND_NGalaxy"][:]
+        grp_ids = f_group["Group_ID"][:]
+        segm_ngals = f_group["NGalaxy"][:]
+        subfind_ngals = f_group["SUBFIND_NGalaxy"][:]
+        this_grp_ms = f_group["Group_Mass"][:]
 
         hdf.close()
     except KeyError as e:
@@ -99,15 +100,7 @@ for ind in range(len(reg_snaps)):
         hdf.close()
         continue
 
-    path = '/cosma/home/dp004/dc-rope1/FLARES/FLARES-1/G-EAGLE_' + reg + '/data'
-
-    # Load all necessary arrays
-    all_grp_ms = E.read_array('SUBFIND', path, snap, 'FOF/Group_M_Mean200',
-                              numThreads=8) * 10**10
-
-    for grp in grp_ids:
-        grp_ms.append(all_grp_ms[grp])
-
+    grp_ms.extend(this_grp_ms)
     ngals_segm.extend(segm_ngals)
     ngals_subfind.extend(subfind_ngals)
 
