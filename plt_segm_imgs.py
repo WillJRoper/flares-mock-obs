@@ -123,10 +123,9 @@ hdf = h5py.File("mock_data/"
 type_group = hdf[Type]
 orientation_group = type_group[orientation]
 f_group = orientation_group[f]
-snr_group = f_group[str(snr)]
 
-imgs = snr_group["Images"][:]
-segms = snr_group["Segmentation_Maps"][:]
+imgs = f_group["Images"][:]
+segms = f_group["Segmentation_Maps"][:]
 subfind_spos = f_group["Star_Pos"][:]
 all_smls = f_group["Smoothing_Length"][:]
 subgrpids = f_group["Part_subgrpids"][:]
