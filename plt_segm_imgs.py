@@ -27,6 +27,9 @@ import pandas as pd
 import utilities as util
 import phot_modules as phot
 import utilities as util
+import eritlux.simulations.imagesim as imagesim
+import flare.surveys
+import flare.plots.image
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
@@ -90,11 +93,17 @@ f = filters[0]
 # Define width
 ini_width = 500 * arcsec_per_kpc_proper
 
-# Define arc_second resolution
-if int(filters[0].split(".")[-1][1:4]) < 230:
-    arc_res = 0.031
-else:
-    arc_res = 0.063
+survey_id = 'XDF'  # the XDF (updated HUDF)
+field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
+
+# --- get field info object. This contains the filters, depths,
+# image location etc. (if real image)
+field = flare.surveys.surveys[survey_id].fields[field_id]
+
+# --- initialise ImageCreator object
+image_creator = imagesim.Idealised(f, field)
+
+arc_res = image_creator.pixel_scale
 
 # Compute the resolution
 ini_res = ini_width / arc_res
@@ -103,6 +112,7 @@ res = int(np.ceil(ini_res))
 # Compute the new width
 width = arc_res * res
 
+print("Filter:", f)
 print("Image width and resolution (in arcseconds):", width, arc_res)
 print("Image width and resolution (in pkpc):",
       width / arcsec_per_kpc_proper,
