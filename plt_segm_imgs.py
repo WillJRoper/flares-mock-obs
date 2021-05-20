@@ -18,8 +18,8 @@ from scipy.stats import binned_statistic
 from matplotlib.lines import Line2D
 from astropy.cosmology import Planck13 as cosmo
 import astropy.units as u
-from FLARE.photom import lum_to_M, M_to_lum, lum_to_flux, m_to_flux
-import FLARE.photom as photconv
+from flare.photom import lum_to_M, M_to_lum, lum_to_flux, m_to_flux
+import flare.photom as photconv
 from scipy.spatial import cKDTree
 import h5py
 import sys
