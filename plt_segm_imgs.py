@@ -84,7 +84,7 @@ print("Making images for with orientation {o}, type {t}, "
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define filter
-filters = ('JWST.NIRCAM.F150W', )
+filters = ('Hubble.WFC3.f160w', )
 f = filters[0]
 
 # Define width
