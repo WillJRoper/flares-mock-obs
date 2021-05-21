@@ -108,7 +108,7 @@ for ind in range(len(reg_snaps)):
 
             sid = subgrps.pop()
 
-            flux_subfind.append(np.sum(fluxes[beg: beg + img_len][subgrpids[beg: beg + img_len == sid]]))
+            flux_subfind.append(np.sum(fluxes[beg: beg + img_len][subgrpids[beg: beg + img_len] == sid]))
 
 flux_segm = np.array(flux_segm)
 flux_subfind= np.array(flux_subfind)
