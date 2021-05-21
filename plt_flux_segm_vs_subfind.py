@@ -123,19 +123,19 @@ flux_subfind= np.array(flux_subfind)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-H, bins = np.histogram(flux_subfind, bins=100)
+H, bins = np.histogram(np.log10(flux_subfind), bins=100)
 bin_wid = bins[1] - bins[0]
 bin_cents = bins[1:] - (bin_wid / 2)
 
 ax.bar(bin_cents, H, width=bin_wid, label="SUBFIND")
 
-H, bins = np.histogram(flux_segm, bins=100)
+H, bins = np.histogram(np.log10(flux_segm), bins=100)
 bin_wid = bins[1] - bins[0]
 bin_cents = bins[1:] - (bin_wid / 2)
 
 ax.plot(bin_cents, H, color="r", linestyle="--", label="Segmentation map")
 
-ax.set_xlabel("$F/[\mathrm{nJy}]$")
+ax.set_xlabel("$\log_{10}(F/[\mathrm{nJy}])$")
 ax.set_ylabel("$N$")
 
 ax.set_yscale("log")
