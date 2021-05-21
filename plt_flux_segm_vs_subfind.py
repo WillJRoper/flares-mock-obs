@@ -138,6 +138,8 @@ ax.plot(bin_cents, H, color="r", linestyle="--", label="Segmentation map")
 ax.set_xlabel("$F/[\mathrm{nJy}]$")
 ax.set_ylabel("$N$")
 
+ax.set_yscale("log")
+
 fig.savefig("plots/flux_hist_Snap-" + snaps[n_z] + "_Filter-" + f + ".png",
             bbox_inches="tight")
 
