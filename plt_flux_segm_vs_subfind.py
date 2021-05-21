@@ -123,13 +123,15 @@ flux_subfind= np.array(flux_subfind)
 fig = plt.figure()
 ax = fig.add_subplot(111)
 
-H, bins = np.histogram(np.log10(flux_subfind), bins=100)
+bin_edges = np.linspace(-2.5, 3.5, 50)
+
+H, bins = np.histogram(np.log10(flux_subfind), bins=bin_edges)
 bin_wid = bins[1] - bins[0]
 bin_cents = bins[1:] - (bin_wid / 2)
 
 ax.bar(bin_cents, H, width=bin_wid, label="SUBFIND")
 
-H, bins = np.histogram(np.log10(flux_segm), bins=bins)
+H, bins = np.histogram(np.log10(flux_segm), bins=bin_edges)
 bin_wid = bins[1] - bins[0]
 bin_cents = bins[1:] - (bin_wid / 2)
 
