@@ -84,6 +84,8 @@ for ind in range(len(reg_snaps)):
         hdf.close()
         continue
 
+    print(segms.shape[0])
+
     for ind in range(segms.shape[0]):
 
         segm = segms[ind, :, :]
