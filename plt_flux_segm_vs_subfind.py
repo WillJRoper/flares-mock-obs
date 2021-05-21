@@ -129,7 +129,7 @@ bin_cents = bins[1:] - (bin_wid / 2)
 
 ax.bar(bin_cents, H, width=bin_wid, label="SUBFIND")
 
-H, bins = np.histogram(np.log10(flux_segm), bins=100)
+H, bins = np.histogram(np.log10(flux_segm), bins=bins)
 bin_wid = bins[1] - bins[0]
 bin_cents = bins[1:] - (bin_wid / 2)
 
