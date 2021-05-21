@@ -45,6 +45,8 @@ orientation = sys.argv[1]
 Type = sys.argv[2]
 extinction = 'default'
 
+n_z = int(sys.argv[3])
+
 # Define filter
 f = 'Hubble.WFC3.f160w'
 
@@ -54,6 +56,9 @@ flux_subfind = []
 for ind in range(len(reg_snaps)):
 
     reg, snap = reg_snaps[ind]
+
+    if snap != snaps[n_z]:
+        continue
 
     print("Getting SUBFIND occupancy with orientation {o}, type {t}, "
           "and extinction {e} for region {x} and "
@@ -133,7 +138,8 @@ ax.plot(bin_cents, H, color="r", linestyle="--", label="Segmentation map")
 ax.set_xlabel("$F/[\mathrm{nJy}]$")
 ax.set_ylabel("$N$")
 
-fig.savefig("plots/flux_hist_Filter-" + f + ".png", bbox_inches="tight")
+fig.savefig("plots/flux_hist_Snap-" + snaps[n_z] + "_Filter-" + f + ".png",
+            bbox_inches="tight")
 
 plt.close(fig)
 
