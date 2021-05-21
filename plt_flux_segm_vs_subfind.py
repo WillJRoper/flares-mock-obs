@@ -88,7 +88,7 @@ for ind in range(len(reg_snaps)):
 
         segm = segms[ind, :, :]
         img = imgs[ind, :, :]
-        source_ids = set(segm)
+        source_ids = set(list(segm))
 
         while len(source_ids) > 0:
 
@@ -101,7 +101,7 @@ for ind in range(len(reg_snaps)):
 
     for beg, img_len in zip(begin, group_len):
 
-        subgrps = set(subgrpids[beg: beg + img_len])
+        subgrps = set(list(subgrpids[beg: beg + img_len]))
 
         while len(subgrps) > 0:
 
