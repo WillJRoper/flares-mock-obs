@@ -89,6 +89,7 @@ for ind in range(len(reg_snaps)):
         segm = segms[ind, :, :]
         img = imgs[ind, :, :]
         source_ids = np.unique(segm)
+        source_ids = set(list(source_ids))
 
         while len(source_ids) > 0:
 
