@@ -71,46 +71,48 @@ for n_z in range(len(snaps)):
             orientation_group = type_group[orientation]
             f_group = orientation_group[f]
 
-            imgs = f_group["Images"]
-            segms = f_group["Segmentation_Maps"]
-            fluxes = f_group["Fluxes"]
-            subgrpids = f_group["Part_subgrpids"]
-            begin = f_group["Start_Index"]
-            group_len = f_group["Group_Length"]
-
-            print(segms.shape[0])
-
-            for ind in range(segms.shape[0]):
-
-                segm = segms[ind, :, :]
-                img = imgs[ind, :, :]
-                source_ids = np.unique(segm)
-                source_ids = set(list(source_ids))
-
-                while len(source_ids) > 0:
-
-                    sid = source_ids.pop()
-
-                    if sid == 0:
-                        continue
-
-                    flux_segm.append(np.sum(img[segm == sid]))
-
-            for beg, img_len in zip(begin, group_len):
-
-                subgrps = set(list(subgrpids[beg: beg + img_len]))
-
-                while len(subgrps) > 0:
-
-                    sid = subgrps.pop()
-
-                    flux_subfind.append(np.sum(fluxes[beg: beg + img_len][subgrpids[beg: beg + img_len] == sid]))
+            imgs = f_group["Images"][:]
+            segms = f_group["Segmentation_Maps"][:]
+            fluxes = f_group["Fluxes"][:]
+            subgrpids = f_group["Part_subgrpids"][:]
+            begin = f_group["Start_Index"][:]
+            group_len = f_group["Group_Length"][:]
 
             hdf.close()
         except KeyError as e:
             print(e)
             hdf.close()
             continue
+
+        print(segms.shape[0])
+
+        for ind in range(segms.shape[0]):
+
+            segm = segms[ind, :, :]
+            img = imgs[ind, :, :]
+            source_ids = np.unique(segm)
+            source_ids = set(list(source_ids))
+
+            while len(source_ids) > 0:
+
+                sid = source_ids.pop()
+
+                if sid == 0:
+                    continue
+
+                flux_segm.append(np.sum(img[segm == sid]))
+
+        for beg, img_len in zip(begin, group_len):
+
+            subgrps, inverse_inds = np.unique(subgrpids[beg: beg + img_len], return_inverse=True)
+
+            this_flux = np.zeros(subgrps.size)
+
+            for flux, i in zip(fluxes[beg: beg + img_len], inverse_inds):
+
+                this_flux[i] += flux
+
+            flux_subfind.extend(this_flux)
 
     flux_segm = np.array(flux_segm)
     flux_subfind= np.array(flux_subfind)
