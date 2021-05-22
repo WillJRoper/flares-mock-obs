@@ -53,6 +53,8 @@ for n_z in range(len(snaps)):
     flux_segm = []
     flux_subfind = []
 
+    snap = snaps[n_z]
+
     for reg in regions:
 
         print("Getting SUBFIND occupancy with orientation {o}, type {t}, "
