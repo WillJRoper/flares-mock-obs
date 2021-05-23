@@ -117,12 +117,12 @@ for n_z in range(len(snaps)):
             flux_subfind.extend(this_flux)
 
     flux_segm = np.array(flux_segm)
-    flux_subfind= np.array(flux_subfind)
+    flux_subfind = np.array(flux_subfind)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    bin_edges = np.linspace(-2.5, 3.5, 50)
+    bin_edges = np.linspace(-3, 4, 100)
 
     H, bins = np.histogram(np.log10(flux_subfind), bins=bin_edges)
     bin_wid = bins[1] - bins[0]
