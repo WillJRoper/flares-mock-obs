@@ -130,9 +130,20 @@ for n_z in range(len(snaps)):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    bin_edges = np.logspace(np.log10(np.min((lumin_segm.min(), lumin_subfind.min()))),
-                            np.log10(np.max((lumin_segm.max(), lumin_subfind.max()))),
-                            75)
+    if lumin_segm.size > 0 and lumin_subfind.size > 0:
+        bin_edges = np.logspace(np.log10(np.min((lumin_segm.min(), lumin_subfind.min()))),
+                                np.log10(np.max((lumin_segm.max(), lumin_subfind.max()))),
+                                75)
+    elif lumin_subfind.size == 0:
+        bin_edges = np.logspace(lumin_segm.min(),
+                                lumin_segm.max(),
+                                75)
+    elif lumin_segm.size == 0:
+        bin_edges = np.logspace(lumin_subfind.min(),
+                                lumin_subfind.max(),
+                                75)
+    else: 
+        continue
 
     interval = bin_edges[1:] - bin_edges[:-1]
 
@@ -161,7 +172,20 @@ for n_z in range(len(snaps)):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    bin_edges = np.linspace(-3, 4, 100)
+    if flux_segm.size > 0 and flux_subfind.size > 0:
+        bin_edges = np.linspace(np.log10(np.min((flux_segm.min(), flux_subfind.min()))),
+                                np.log10(np.max((flux_segm.max(), flux_subfind.max()))),
+                                75)
+    elif flux_subfind.size == 0:
+        bin_edges = np.linspace(flux_segm.min(),
+                                flux_segm.max(),
+                                75)
+    elif flux_segm.size == 0:
+        bin_edges = np.linspace(flux_subfind.min(),
+                                flux_subfind.max(),
+                                75)
+    else: 
+        continue
 
     H, bins = np.histogram(np.log10(flux_subfind), bins=bin_edges)
     bin_wid = bins[1] - bins[0]
