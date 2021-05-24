@@ -147,7 +147,7 @@ for n_z in range(len(snaps)):
 
     ax.plot(bin_cents, H, color="r", linestyle="--", label="Segmentation map")
 
-    ax.set_xlabel("$\log_{10}(F/[\mathrm{nJy}])$")
+    ax.set_xlabel("$\log_{10}(L/[\mathrm{erg} \mathrm{s}^{-1} \mathrm{Hz}^{-1}])$")
     ax.set_ylabel("$N$")
 
     ax.set_yscale("log")
