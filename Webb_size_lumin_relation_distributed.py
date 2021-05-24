@@ -116,6 +116,7 @@ smls.setdefault(tag, {})
 fluxes.setdefault(tag, {})
 subgrpids.setdefault(tag, {})
 grp_mass.setdefault(tag, {})
+star_pos.setdefault(tag, {})
 
 survey_id = 'XDF'  # the XDF (updated HUDF)
 field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
@@ -231,6 +232,7 @@ for num, fdepth in enumerate(filters):
     fluxes[tag].setdefault(fdepth, [])
     subgrpids[tag].setdefault(fdepth, [])
     grp_mass[tag].setdefault(fdepth, [])
+    star_pos[tag].setdefault(fdepth, [])
 
     for ind in reg_dict:
 
