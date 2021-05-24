@@ -135,7 +135,7 @@ for f in filters:
     # --- initialise ImageCreator object
     image_creator = imagesim.Idealised(f, field)
 
-    print(image_creator.pixel.noise, field.depth_aperture_significance)
+    print(image_creator.pixel.noise, field.aperture.depth)
 
     arc_res = image_creator.pixel_scale
 
