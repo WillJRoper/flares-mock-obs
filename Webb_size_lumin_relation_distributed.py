@@ -135,6 +135,8 @@ for f in filters:
     # --- initialise ImageCreator object
     image_creator = imagesim.Idealised(f, field)
 
+    print(image_creator.pixel.noise)
+
     arc_res = image_creator.pixel_scale
 
     # Compute the resolution
