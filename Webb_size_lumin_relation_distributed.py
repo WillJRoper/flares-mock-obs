@@ -71,7 +71,8 @@ print("Computing HLRs with orientation {o}, type {t}, and extinction {e}"
                                                e=extinction, x=reg, u=tag))
 
 # Define filter
-filters = ('Hubble.WFC3.f160w', )
+filters = ('Hubble.WFC3.f160w.10','Hubble.WFC3.f160w.5', 'Hubble.WFC3.f160w.1',
+           'Hubble.WFC3.f160w.20', 'Hubble.WFC3.f160w.50')
 
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
@@ -85,13 +86,13 @@ segm_dict = {}
 ngal_dict = {}
 sf_ngal_dict = {}
 grp_dict = {}
-star_pos = []
-begin = []
-Slen = []
-smls = []
-fluxes = []
-subgrpids = []
-grp_mass = []
+star_pos = {}
+begin = {}
+Slen = {}
+smls = {}
+fluxes = {}
+subgrpids = {}
+grp_mass = {}
 
 # Set mass limit
 masslim = 700
@@ -107,6 +108,12 @@ segm_dict.setdefault(tag, {})
 ngal_dict.setdefault(tag, {})
 sf_ngal_dict.setdefault(tag, {})
 grp_dict.setdefault(tag, {})
+begin.setdefault(tag, {})
+Slen.setdefault(tag, {})
+smls.setdefault(tag, {})
+fluxes.setdefault(tag, {})
+subgrpids.setdefault(tag, {})
+grp_mass.setdefault(tag, {})
 
 survey_id = 'XDF'  # the XDF (updated HUDF)
 field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
@@ -130,19 +137,18 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 # Define width
 ini_width = 500 * arcsec_per_kpc_proper
 
-for f in filters:
+for fdepth in filters:
+
+    f_split = fdepth.split(".")
+    f = f_split[0] + "." + f_split[1] + "." + f_split[2]
+    depth = float(f_split[-1])
+
+    field.depths[f] = depth
 
     # --- initialise ImageCreator object
     image_creator = imagesim.Idealised(f, field)
 
-    print(image_creator.pixel.noise, image_creator.aperture.depth, field.depths[f])
-
-    field.depths[f] = 10
-
-    # --- initialise ImageCreator object
-    image_creator = imagesim.Idealised(f, field)
-
-    print(image_creator.pixel.noise, image_creator.aperture.depth, field.depths[f])
+    print("Noise, Depth:", image_creator.pixel.noise, field.depths[f])
 
     arc_res = image_creator.pixel_scale
 
@@ -208,12 +214,18 @@ for f in filters:
         hlr_app_dict[tag][f].setdefault(r, [])
         hlr_pix_dict[tag][f].setdefault(r, [])
 
-    flux_dict[tag].setdefault(f, [])
-    img_dict[tag].setdefault(f, [])
-    segm_dict[tag].setdefault(f, [])
-    ngal_dict[tag].setdefault(f, [])
-    grp_dict[tag].setdefault(f, [])
-    sf_ngal_dict[tag].setdefault(f, [])
+    flux_dict[tag].setdefault(fdepth, [])
+    img_dict[tag].setdefault(fdepth, [])
+    segm_dict[tag].setdefault(fdepth, [])
+    ngal_dict[tag].setdefault(fdepth, [])
+    grp_dict[tag].setdefault(fdepth, [])
+    sf_ngal_dict[tag].setdefault(fdepth, [])
+    begin[tag].setdefault(fdepth, [])
+    Slen[tag].setdefault(fdepth, [])
+    smls[tag].setdefault(fdepth, [])
+    fluxes[tag].setdefault(fdepth, [])
+    subgrpids[tag].setdefault(fdepth, [])
+    grp_mass[tag].setdefault(fdepth, [])
 
     for ind in reg_dict:
 
@@ -316,28 +328,28 @@ for f in filters:
         #         #                      arc_res / arcsec_per_kpc_proper, r))
         #     flux_dict[tag][f].append(np.sum(img[segm.data == i]))
         #
-        img_dict[tag][f].append(img)
-        segm_dict[tag][f].append(segm.data)
-        grp_dict[tag][f].append(ind)
+        img_dict[tag][fdepth].append(img)
+        segm_dict[tag][fdepth].append(segm.data)
+        grp_dict[tag][fdepth].append(ind)
 
-        begin.append(len(fluxes))
-        grp_mass.append(this_groupmass)
-        star_pos.extend(this_pos)
-        smls.extend(this_smls)
-        fluxes.extend(this_flux)
-        subgrpids.extend(this_subgrpids)
-        Slen.append(len(this_smls))
+        begin[tag][fdepth].append(len(fluxes))
+        grp_mass[tag][fdepth].append(this_groupmass)
+        star_pos[tag][fdepth].extend(this_pos)
+        smls[tag][fdepth].extend(this_smls)
+        fluxes[tag][fdepth].extend(this_flux)
+        subgrpids[tag][fdepth].extend(this_subgrpids)
+        Slen[tag][fdepth].append(len(this_smls))
 
         ngal = 0
         for gal in np.unique(segm.data):
             if np.sum(img[segm.data == gal]) > image_creator.aperture.background and gal > 0:
                 ngal += 1
 
-        ngal_dict[tag][f].append(ngal)
+        ngal_dict[tag][fdepth].append(ngal)
 
         sub_ngal = np.unique(subfind_img[segm.data != 0]).size
 
-        sf_ngal_dict[tag][f].append(sub_ngal)
+        sf_ngal_dict[tag][fdepth].append(sub_ngal)
 
 
 try:
@@ -368,13 +380,13 @@ for f in filters:
         print(f, "Doesn't exists: Creating...")
         f_group = orientation_group.create_group(f)
 
-    begin = np.array(begin)
-    grp_mass = np.array(grp_mass)
-    fluxes = np.array(fluxes)
-    subgrpids = np.array(subgrpids)
-    Slen = np.array(Slen)
-    smls = np.array(smls)
-    star_pos = np.array(star_pos)
+    begin = np.array(begin[tag][f])
+    grp_mass = np.array(grp_mass[tag][f])
+    fluxes = np.array(fluxes[tag][f])
+    subgrpids = np.array(subgrpids[tag][f])
+    Slen = np.array(Slen[tag][f])
+    smls = np.array(smls[tag][f])
+    star_pos = np.array(star_pos[tag][f])
 
     try:
         dset = f_group.create_dataset("Start_Index", data=begin,
