@@ -73,6 +73,8 @@ print("Computing HLRs with orientation {o}, type {t}, and extinction {e}"
 # Define filter
 filters = ('Hubble.WFC3.f160w.10','Hubble.WFC3.f160w.5', 'Hubble.WFC3.f160w.1',
            'Hubble.WFC3.f160w.20', 'Hubble.WFC3.f160w.50')
+# Define filter
+filters_no_depth = ('Hubble.WFC3.f160w','Hubble.WFC3.f160w', 'Hubble.WFC3.f160w', 'Hubble.WFC3.f160w', 'Hubble.WFC3.f160w')
 
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
@@ -137,10 +139,11 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 # Define width
 ini_width = 500 * arcsec_per_kpc_proper
 
-for fdepth in filters:
+for num, fdepth in enumerate(filters):
 
     f_split = fdepth.split(".")
-    f = f_split[0] + "." + f_split[1] + "." + f_split[2]
+    prev_f = f
+    f = filters_no_depth[num]
     depth = float(f_split[-1])
 
     field.depths[f] = depth
@@ -167,12 +170,13 @@ for fdepth in filters:
     print("Image width (in pixels):", res)
 
     # Kappa with DTM 0.0795, BC_fac=1., without 0.0063 BC_fac=1.25
-    reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
-                         IMF='Chabrier_300',
-                         filters=filters, Type=Type, log10t_BC=7.,
-                         extinction=extinction, orientation=orientation,
-                         masslim=masslim,
-                         r=width / arcsec_per_kpc_proper / 1000 / 2)
+    if f != prev_f:
+        reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
+                             IMF='Chabrier_300',
+                             filters=filters_no_depth, Type=Type, log10t_BC=7.,
+                             extinction=extinction, orientation=orientation,
+                             masslim=masslim,
+                             r=width / arcsec_per_kpc_proper / 1000 / 2)
 
     print("Got the dictionary for the region's groups:",
           len(reg_dict) - 3, "groups to  test")
