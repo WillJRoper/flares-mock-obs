@@ -128,20 +128,20 @@ for n_z in range(len(snaps)):
     lumin_subfind = 4 * np.pi * cosmo.luminosity_distance(z)**2 * flux_subfind * u.nJy
 
     print(lumin_segm.decompose)
-    print(lumin_segm.cgs)
+    print(lumin_segm.cgs.units)
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
     bin_edges = np.linspace(-3, 4, 100)
 
-    H, bins = np.histogram(np.log10(lumin_segm), bins=bin_edges)
+    H, bins = np.histogram(np.log10(lumin_segm.cgs / lumin_segm.cgs.units), bins=bin_edges)
     bin_wid = bins[1] - bins[0]
     bin_cents = bins[1:] - (bin_wid / 2)
 
     ax.bar(bin_cents, H, width=bin_wid, color="b", edgecolor="b", label="SUBFIND")
 
-    H, bins = np.histogram(np.log10(lumin_subfind), bins=bin_edges)
+    H, bins = np.histogram(np.log10(lumin_subfind.cgs / lumin_segm.cgs.units), bins=bin_edges)
     bin_wid = bins[1] - bins[0]
     bin_cents = bins[1:] - (bin_wid / 2)
 
