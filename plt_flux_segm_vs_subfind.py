@@ -130,9 +130,40 @@ for n_z in range(len(snaps)):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
+    bin_edges = np.logspace(np.log10(np.min((lumin_segm.min(), lumin_subfind.min()))),
+                            np.log10(np.max((lumin_segm.max(), lumin_subfind.max()))),
+                            75)
+
+    interval = bin_edges[1:] - bin_edges[:-1]
+
+    # Histogram the LF
+    H_segm, bins = np.histogram(lumin_segm.value, bins=bin_edges)
+    H_sf, _ = np.histogram(lumin_subfind.value, bins=bin_edges)
+
+    # Compute bin centres
+    bin_cents = bins[1:] - ((bins[1] - bins[0]) / 2)
+
+    # Plot each histogram
+    ax.loglog(bin_cents, np.log10(H_sf / interval), linestyle='--',
+              label="SUBFIND")
+    ax.loglog(bin_cents, np.log10(H_segm / interval), label="Segmentation map")
+
+    ax.set_xlabel("$\log_{10}(L[\mathrm{erg} \mathrm{s}^{-1} \mathrm{Hz}^{-1}])$")
+    ax.set_ylabel(r'$\mathrm{log}_{10}(\Phi/(\mathrm{cMpc}^{-3}\mathrm{dex}^{-1}))$')
+
+    ax.legend()
+
+    fig.savefig("plots/LF_Snap-" + snaps[n_z] + "_Filter-" + f + ".png",
+                bbox_inches="tight")
+
+    plt.close(fig)
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+
     bin_edges = np.linspace(-3, 4, 100)
 
-    H, bins = np.histogram(np.log10(lumin_segm.cgs.value), bins=bin_edges)
+    H, bins = np.histogram(np.log10(flux_subfind), bins=bin_edges)
     bin_wid = bins[1] - bins[0]
     bin_cents = bins[1:] - (bin_wid / 2)
 
@@ -144,7 +175,7 @@ for n_z in range(len(snaps)):
 
     ax.plot(bin_cents, H, color="r", linestyle="--", label="Segmentation map")
 
-    ax.set_xlabel("$\log_{10}(L/[\mathrm{erg} \mathrm{s}^{-1} \mathrm{Hz}^{-1}])$")
+    ax.set_xlabel("$\log_{10}(F/[\mathrm{nJy}])$")
     ax.set_ylabel("$N$")
 
     ax.set_yscale("log")
