@@ -14,6 +14,8 @@ import seaborn as sns
 from matplotlib.colors import LogNorm
 import h5py
 import sys
+from astropy.cosmology import Planck13 as cosmo
+import astropy.units as u
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
@@ -54,6 +56,9 @@ for n_z in range(len(snaps)):
     flux_subfind = []
 
     snap = snaps[n_z]
+
+    z_str = snap.split('z')[1].split('p')
+    z = float(z_str[0] + '.' + z_str[1])
 
     for reg in regions:
 
@@ -119,18 +124,24 @@ for n_z in range(len(snaps)):
     flux_segm = np.array(flux_segm)
     flux_subfind = np.array(flux_subfind)
 
+    lumin_segm = 4 * np.pi * cosmo.luminosity_distance(z)**2 * flux_segm * u.nJy
+    lumin_subfind = 4 * np.pi * cosmo.luminosity_distance(z)**2 * flux_subfind * u.nJy
+
+    print(lumin_segm)
+    print(lumin_segm.cgs)
+
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
     bin_edges = np.linspace(-3, 4, 100)
 
-    H, bins = np.histogram(np.log10(flux_subfind), bins=bin_edges)
+    H, bins = np.histogram(np.log10(lumin_segm), bins=bin_edges)
     bin_wid = bins[1] - bins[0]
     bin_cents = bins[1:] - (bin_wid / 2)
 
     ax.bar(bin_cents, H, width=bin_wid, color="b", edgecolor="b", label="SUBFIND")
 
-    H, bins = np.histogram(np.log10(flux_segm), bins=bin_edges)
+    H, bins = np.histogram(np.log10(lumin_subfind), bins=bin_edges)
     bin_wid = bins[1] - bins[0]
     bin_cents = bins[1:] - (bin_wid / 2)
 

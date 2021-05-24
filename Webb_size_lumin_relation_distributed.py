@@ -135,8 +135,6 @@ for f in filters:
     # --- initialise ImageCreator object
     image_creator = imagesim.Idealised(f, field)
 
-    print(image_creator.pixel.noise)
-
     arc_res = image_creator.pixel_scale
 
     # Compute the resolution
@@ -234,7 +232,7 @@ for f in filters:
 
             img = signal.fftconvolve(img, psf, mode="same")
 
-            img = util.noisy_img(img, image_creator)
+            img, noise = util.noisy_img(img, image_creator)
 
         else:
 
