@@ -127,7 +127,7 @@ for n_z in range(len(snaps)):
     lumin_segm = 4 * np.pi * cosmo.luminosity_distance(z)**2 * flux_segm * u.nJy
     lumin_subfind = 4 * np.pi * cosmo.luminosity_distance(z)**2 * flux_subfind * u.nJy
 
-    print(lumin_segm)
+    print(lumin_segm.decompose)
     print(lumin_segm.cgs)
 
     fig = plt.figure()
