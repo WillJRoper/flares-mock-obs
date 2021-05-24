@@ -134,11 +134,11 @@ for n_z in range(len(snaps)):
         bin_edges = np.logspace(np.log10(np.min((lumin_segm.min(), lumin_subfind.min()))),
                                 np.log10(np.max((lumin_segm.max(), lumin_subfind.max()))),
                                 75)
-    elif lumin_subfind.size == 0:
+    elif lumin_subfind.size == 0 and lumin_segm.size > 0:
         bin_edges = np.logspace(lumin_segm.min(),
                                 lumin_segm.max(),
                                 75)
-    elif lumin_segm.size == 0:
+    elif lumin_segm.size == 0 and lumin_subfind.size > 0:
         bin_edges = np.logspace(lumin_subfind.min(),
                                 lumin_subfind.max(),
                                 75)
@@ -176,11 +176,11 @@ for n_z in range(len(snaps)):
         bin_edges = np.linspace(np.log10(np.min((flux_segm.min(), flux_subfind.min()))),
                                 np.log10(np.max((flux_segm.max(), flux_subfind.max()))),
                                 75)
-    elif flux_subfind.size == 0:
+    elif flux_subfind.size == 0 and flux_segm.size > 0:
         bin_edges = np.linspace(flux_segm.min(),
                                 flux_segm.max(),
                                 75)
-    elif flux_segm.size == 0:
+    elif flux_segm.size == 0 and flux_subfind.size > 0:
         bin_edges = np.linspace(flux_subfind.min(),
                                 flux_subfind.max(),
                                 75)
