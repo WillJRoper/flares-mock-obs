@@ -140,8 +140,12 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 # Define width
 ini_width = 500 * arcsec_per_kpc_proper
 f = None
+f_this_run = int(sys.argv[4])
 
 for num, fdepth in enumerate(filters):
+
+    if num != f_this_run:
+        continue
 
     f_split = fdepth.split(".")
     prev_f = f
