@@ -62,7 +62,7 @@ Type = sys.argv[3]
 extinction = 'default'
 
 # Define filter
-f = 'Hubble.WFC3.f160w'
+f = 'Hubble.WFC3.f160w.10'
 
 snr = 10
 

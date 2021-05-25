@@ -48,116 +48,138 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-f = 'Hubble.WFC3.f160w'
+filters = ('Hubble.WFC3.f160w.10','Hubble.WFC3.f160w.5', 'Hubble.WFC3.f160w.1',
+           'Hubble.WFC3.f160w.20', 'Hubble.WFC3.f160w.50')
+
+flux_segm_dict = {}
+lumin_segm_dict = {}
 
 for n_z in range(len(snaps)):
 
-    flux_segm = []
-    flux_subfind = []
+    for f in filters:
 
-    snap = snaps[n_z]
+        flux_segm = []
+        flux_subfind = []
 
-    z_str = snap.split('z')[1].split('p')
-    z = float(z_str[0] + '.' + z_str[1])
+        snap = snaps[n_z]
 
-    for reg in regions:
+        z_str = snap.split('z')[1].split('p')
+        z = float(z_str[0] + '.' + z_str[1])
 
-        print("Getting SUBFIND occupancy with orientation {o}, type {t}, "
-              "and extinction {e} for region {x} and "
-              "snapshot {u}".format(o=orientation, t=Type, e=extinction,
-                                    x=reg, u=snap))
-        try:
-            hdf = h5py.File("mock_data/"
-                            "flares_segm_{}_{}_Webb.hdf5".format(reg, snap), "r")
-        except OSError as e:
-            print(e)
-            continue
+        for reg in regions:
 
-        try:
-            type_group = hdf[Type]
-            orientation_group = type_group[orientation]
-            f_group = orientation_group[f]
+            print("Getting SUBFIND occupancy with orientation {o}, type {t}, "
+                  "and extinction {e} for region {x} and "
+                  "snapshot {u}".format(o=orientation, t=Type, e=extinction,
+                                        x=reg, u=snap))
+            try:
+                hdf = h5py.File("mock_data/"
+                                "flares_segm_{}_{}_Webb.hdf5".format(reg, snap), "r")
+            except OSError as e:
+                print(e)
+                continue
 
-            imgs = f_group["Images"][:]
-            segms = f_group["Segmentation_Maps"][:]
-            fluxes = f_group["Fluxes"][:]
-            subgrpids = f_group["Part_subgrpids"][:]
-            begin = f_group["Start_Index"][:]
-            group_len = f_group["Group_Length"][:]
+            try:
+                type_group = hdf[Type]
+                orientation_group = type_group[orientation]
+                f_group = orientation_group[f]
 
-            hdf.close()
-        except KeyError as e:
-            print(e)
-            hdf.close()
-            continue
+                imgs = f_group["Images"][:]
+                segms = f_group["Segmentation_Maps"][:]
+                fluxes = f_group["Fluxes"][:]
+                subgrpids = f_group["Part_subgrpids"][:]
+                begin = f_group["Start_Index"][:]
+                group_len = f_group["Group_Length"][:]
 
-        print(segms.shape[0])
+                hdf.close()
+            except KeyError as e:
+                print(e)
+                hdf.close()
+                continue
 
-        for ind in range(segms.shape[0]):
+            print(segms.shape[0])
 
-            segm = segms[ind, :, :]
-            img = imgs[ind, :, :]
-            source_ids = np.unique(segm)
-            source_ids = set(list(source_ids))
+            for ind in range(segms.shape[0]):
 
-            while len(source_ids) > 0:
+                segm = segms[ind, :, :]
+                img = imgs[ind, :, :]
+                source_ids = np.unique(segm)
+                source_ids = set(list(source_ids))
 
-                sid = source_ids.pop()
+                while len(source_ids) > 0:
 
-                if sid == 0:
-                    continue
+                    sid = source_ids.pop()
 
-                flux_segm.append(np.sum(img[segm == sid]))
+                    if sid == 0:
+                        continue
 
-        for beg, img_len in zip(begin, group_len):
+                    flux_segm.append(np.sum(img[segm == sid]))
 
-            subgrps, inverse_inds = np.unique(subgrpids[beg: beg + img_len], return_inverse=True)
+            if f == filters[0]:
 
-            this_flux = np.zeros(subgrps.size)
+                for beg, img_len in zip(begin, group_len):
 
-            for flux, i in zip(fluxes[beg: beg + img_len], inverse_inds):
+                    subgrps, inverse_inds = np.unique(subgrpids[beg:
+                                                                beg + img_len],
+                                                      return_inverse=True)
 
-                this_flux[i] += flux
+                    this_flux = np.zeros(subgrps.size)
 
-            flux_subfind.extend(this_flux)
+                    for flux, i in zip(fluxes[beg: beg + img_len], inverse_inds):
 
-    flux_segm = np.array(flux_segm)
+                        this_flux[i] += flux
+
+                    flux_subfind.extend(this_flux)
+
+        flux_segm_dict[f] = np.array(flux_segm)
+        lumin_segm_dict[f] = 4 * np.pi * cosmo.luminosity_distance(z) ** 2 \
+                             * flux_segm_dict[f] * u.nJy
+
     flux_subfind = np.array(flux_subfind)
-
-    lumin_segm = 4 * np.pi * cosmo.luminosity_distance(z)**2 * flux_segm * u.nJy
-    lumin_subfind = 4 * np.pi * cosmo.luminosity_distance(z)**2 * flux_subfind * u.nJy
+    lumin_subfind = 4 * np.pi * cosmo.luminosity_distance(z)**2 \
+                    * flux_subfind * u.nJy
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    if lumin_segm.size > 0 and lumin_subfind.size > 0:
-        bin_edges = np.logspace(np.log10(np.min((lumin_segm.min(), lumin_subfind.min()))),
-                                np.log10(np.max((lumin_segm.max(), lumin_subfind.max()))),
+    all_lumin_segm = np.concatenate(list(lumin_segm_dict.values()))
+
+    if all_lumin_segm.size > 0 and lumin_subfind.size > 0:
+        bin_edges = np.logspace(
+            np.log10(np.min((all_lumin_segm.min(), lumin_subfind.min()))),
+            np.log10(np.max((all_lumin_segm.max(), lumin_subfind.max()))),
+            75)
+    elif lumin_subfind.size == 0 and all_lumin_segm.size > 0:
+        bin_edges = np.logspace(all_lumin_segm.min(),
+                                all_lumin_segm.max(),
                                 75)
-    elif lumin_subfind.size == 0 and lumin_segm.size > 0:
-        bin_edges = np.logspace(lumin_segm.min(),
-                                lumin_segm.max(),
-                                75)
-    elif lumin_segm.size == 0 and lumin_subfind.size > 0:
+    elif all_lumin_segm.size == 0 and lumin_subfind.size > 0:
         bin_edges = np.logspace(lumin_subfind.min(),
                                 lumin_subfind.max(),
                                 75)
-    else: 
+    else:
         continue
 
     interval = bin_edges[1:] - bin_edges[:-1]
 
-    # Histogram the LF
-    H_segm, bins = np.histogram(lumin_segm.value, bins=bin_edges)
-    H_sf, _ = np.histogram(lumin_subfind.value, bins=bin_edges)
-
     # Compute bin centres
-    bin_cents = bins[1:] - ((bins[1] - bins[0]) / 2)
+    bin_cents = bin_edges[1:] - ((bin_edges[1] - bin_edges[0]) / 2)
 
-    # Plot each histogram
+    for f in filters:
+
+        depth = f.split(".")[-1]
+
+        lumin_segm = lumin_segm_dict[f]
+
+        # Histogram the LF
+        H_segm, bins = np.histogram(lumin_segm.value, bins=bin_edges)
+
+        # Plot each histogram
+        ax.loglog(bin_cents, np.log10(H_segm / interval), label="Segmentation map: " + depth + " nJy")
+
+    H_sf, _ = np.histogram(lumin_subfind.value, bins=bin_edges)
     ax.loglog(bin_cents, np.log10(H_sf / interval), linestyle='--',
               label="SUBFIND")
-    ax.loglog(bin_cents, np.log10(H_segm / interval), label="Segmentation map")
 
     ax.set_xlabel("$\log_{10}(L[\mathrm{erg} \mathrm{s}^{-1} \mathrm{Hz}^{-1}])$")
     ax.set_ylabel(r'$\mathrm{log}_{10}(\Phi/(\mathrm{cMpc}^{-3}\mathrm{dex}^{-1}))$')
@@ -172,19 +194,22 @@ for n_z in range(len(snaps)):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    if flux_segm.size > 0 and flux_subfind.size > 0:
-        bin_edges = np.linspace(np.log10(np.min((flux_segm.min(), flux_subfind.min()))),
-                                np.log10(np.max((flux_segm.max(), flux_subfind.max()))),
+    all_flux_segm = np.concatenate(list(flux_segm_dict.values()))
+
+    if all_flux_segm.size > 0 and flux_subfind.size > 0:
+        bin_edges = np.logspace(
+            np.log10(np.min((all_flux_segm.min(), flux_subfind.min()))),
+            np.log10(np.max((all_flux_segm.max(), flux_subfind.max()))),
+            75)
+    elif flux_subfind.size == 0 and all_flux_segm.size > 0:
+        bin_edges = np.logspace(all_flux_segm.min(),
+                                all_flux_segm.max(),
                                 75)
-    elif flux_subfind.size == 0 and flux_segm.size > 0:
-        bin_edges = np.linspace(flux_segm.min(),
-                                flux_segm.max(),
-                                75)
-    elif flux_segm.size == 0 and flux_subfind.size > 0:
-        bin_edges = np.linspace(flux_subfind.min(),
+    elif all_flux_segm.size == 0 and flux_subfind.size > 0:
+        bin_edges = np.logspace(flux_subfind.min(),
                                 flux_subfind.max(),
                                 75)
-    else: 
+    else:
         continue
 
     H, bins = np.histogram(np.log10(flux_subfind), bins=bin_edges)
@@ -193,11 +218,16 @@ for n_z in range(len(snaps)):
 
     ax.bar(bin_cents, H, width=bin_wid, color="b", edgecolor="b", label="SUBFIND")
 
-    H, bins = np.histogram(np.log10(lumin_subfind.cgs.value), bins=bin_edges)
-    bin_wid = bins[1] - bins[0]
-    bin_cents = bins[1:] - (bin_wid / 2)
+    for f in filters:
 
-    ax.plot(bin_cents, H, color="r", linestyle="--", label="Segmentation map")
+        depth = f.split(".")[-1]
+
+        H, bins = np.histogram(np.log10(flux_segm_dict[f]), bins=bin_edges)
+        bin_wid = bins[1] - bins[0]
+        bin_cents = bins[1:] - (bin_wid / 2)
+
+        ax.plot(bin_cents, H, color="r", linestyle="--",
+                label="Segmentation map: " + depth + " nJy")
 
     ax.set_xlabel("$\log_{10}(F/[\mathrm{nJy}])$")
     ax.set_ylabel("$N$")
