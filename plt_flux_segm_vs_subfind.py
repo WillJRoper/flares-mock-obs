@@ -96,10 +96,6 @@ for n_z in range(len(snaps)):
                 print(e)
                 hdf.close()
                 continue
-            except ValueError as e:
-                print(e)
-                hdf.close()
-                continue
 
             for beg, img_len in zip(begin, group_len):
 
@@ -121,6 +117,11 @@ for n_z in range(len(snaps)):
                 flux_subfind.extend(this_flux)
 
             for depth in depths:
+
+                hdf = h5py.File("mock_data/"
+                                "flares_segm_{}_{}_Webb.hdf5".format(reg,
+                                                                     snap),
+                                "r")
 
                 try:
                     type_group = hdf[Type]
