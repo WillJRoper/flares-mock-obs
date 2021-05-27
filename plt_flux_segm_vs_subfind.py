@@ -96,6 +96,10 @@ for n_z in range(len(snaps)):
                 print(e)
                 hdf.close()
                 continue
+            except ValueError as e:
+                print(e)
+                hdf.close()
+                continue
 
             for beg, img_len in zip(begin, group_len):
 
