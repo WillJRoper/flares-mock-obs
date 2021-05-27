@@ -154,6 +154,10 @@ tree = cKDTree(pix_pos)
 
 print("Pixel tree built")
 
+print(subfind_spos)
+print(begin)
+print(group_len)
+
 ind = 0
 while ind < n_img and ind < imgs.shape[0]:
 
