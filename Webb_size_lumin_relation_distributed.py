@@ -191,14 +191,18 @@ for f in filters:
 
     image_keys = [k for k in reg_dict.keys() if type(k) is int]
 
-    nimg = max(image_keys) + 1
-
     gal_mass[f] = reg_dict["gal_ms"]
     gal_haloids[f] = reg_dict["gal_haloids"]
 
-    begin.setdefault(f, np.zeros(nimg, dtype=int))
-    Slen.setdefault(f, np.zeros(nimg, dtype=int))
-    grp_mass.setdefault(f, np.zeros(nimg))
+    if len(image_keys) > 0:
+        nimg = np.max(image_keys) + 1
+
+        begin.setdefault(f, np.zeros(nimg, dtype=int))
+        Slen.setdefault(f, np.zeros(nimg, dtype=int))
+        grp_mass.setdefault(f, np.zeros(nimg))
+
+    else:
+        nimg = 0
 
     smls.setdefault(f, [])
     fluxes.setdefault(f, [])

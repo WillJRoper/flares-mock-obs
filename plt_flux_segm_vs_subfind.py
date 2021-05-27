@@ -85,8 +85,6 @@ for n_z in range(len(snaps)):
                 orientation_group = type_group[orientation]
                 f_group = orientation_group[f]
 
-                imgs = f_group["Images"][:]
-                segms = f_group["Segmentation_Maps"][:]
                 fluxes = f_group["Fluxes"][:]
                 subgrpids = f_group["Part_subgrpids"][:]
                 begin = f_group["Start_Index"][:]
@@ -98,46 +96,62 @@ for n_z in range(len(snaps)):
                 hdf.close()
                 continue
 
-            print(segms.shape[0])
+            for beg, img_len in zip(begin, group_len):
 
-            for ind in range(segms.shape[0]):
+                subgrps, inverse_inds = np.unique(subgrpids[beg:
+                                                            beg + img_len],
+                                                  return_inverse=True)
 
-                segm = segms[ind, :, :]
-                img = imgs[ind, :, :]
-                source_ids = np.unique(segm)
-                source_ids = set(list(source_ids))
+                this_flux = np.zeros(subgrps.size)
 
-                while len(source_ids) > 0:
+                for flux, i in zip(fluxes[beg: beg + img_len], inverse_inds):
 
-                    sid = source_ids.pop()
+                    this_flux[i] += flux
 
-                    if sid == 0:
-                        continue
+                flux_subfind.extend(this_flux)
 
-                    flux_segm.append(np.sum(img[segm == sid]))
+            for depth in depths:
 
-            if f == filters[0]:
+                try:
+                    type_group = hdf[Type]
+                    orientation_group = type_group[orientation]
+                    f_group = orientation_group[f]
+                    fdepth_group = f_group[str(depth)]
 
-                for beg, img_len in zip(begin, group_len):
+                    imgs = fdepth_group["Images"][:]
+                    segms = fdepth_group["Segmentation_Maps"][:]
 
-                    subgrps, inverse_inds = np.unique(subgrpids[beg:
-                                                                beg + img_len],
-                                                      return_inverse=True)
+                    hdf.close()
+                except KeyError as e:
+                    print(e)
+                    hdf.close()
+                    continue
 
-                    this_flux = np.zeros(subgrps.size)
+                print(segms.shape[0])
 
-                    for flux, i in zip(fluxes[beg: beg + img_len], inverse_inds):
+                for ind in range(segms.shape[0]):
 
-                        this_flux[i] += flux
+                    segm = segms[ind, :, :]
+                    img = imgs[ind, :, :]
+                    source_ids = np.unique(segm)
+                    source_ids = set(list(source_ids))
 
-                    flux_subfind.extend(this_flux)
+                    while len(source_ids) > 0:
 
-        flux_segm_dict[f] = np.array(flux_segm)
-        lumin_segm_dict[f] = 4 * np.pi * cosmo.luminosity_distance(z) ** 2 \
-                             * flux_segm_dict[f] * u.nJy
+                        sid = source_ids.pop()
+
+                        if sid == 0:
+                            continue
+
+                        flux_segm.append(np.sum(img[segm == sid]))
+
+                flux_segm_dict[f + "." + str(depth)] = np.array(flux_segm)
+                lumin_segm_dict[f + "." + str(depth)] = 4 * np.pi \
+                                                        * cosmo.luminosity_distance(z) ** 2 \
+                                                        * flux_segm_dict[f] * u.nJy
 
     flux_subfind = np.array(flux_subfind)
-    print(flux_subfind.size)
+    print("SUBFIND:", flux_subfind.size)
     lumin_subfind = (4 * np.pi * cosmo.luminosity_distance(z)**2
                      * flux_subfind * u.nJy).value
 
