@@ -196,8 +196,8 @@ for f in filters:
     gal_mass[f] = reg_dict["gal_ms"]
     gal_haloids[f] = reg_dict["gal_haloids"]
 
-    begin.setdefault(f, np.zeros(nimg))
-    Slen.setdefault(f, np.zeros(nimg))
+    begin.setdefault(f, np.zeros(nimg, dtype=int))
+    Slen.setdefault(f, np.zeros(nimg, dtype=int))
     grp_mass.setdefault(f, np.zeros(nimg))
 
     smls.setdefault(f, [])
@@ -241,7 +241,7 @@ for f in filters:
                 sig_dict[fdepth][ind, :, :] = np.zeros((res, res))
 
                 if num == 0:
-                    begin[f][ind] = np.nan
+                    begin[f][ind] = -1
                     Slen[f][ind] = 0
 
                 continue
@@ -296,7 +296,7 @@ for f in filters:
 
             if num == 0:
 
-                begin[f][ind] = len(fluxes)
+                begin[f][ind] = len(fluxes[f])
                 Slen[f][ind] = len(this_smls)
                 grp_mass[f][ind] = this_groupmass
 
