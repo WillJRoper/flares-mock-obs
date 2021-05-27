@@ -71,7 +71,7 @@ print("Computing HLRs with orientation {o}, type {t}, and extinction {e}"
                                                e=extinction, x=reg, u=tag))
 
 # Define filter
-filters = ('Hubble.WFC3.f160w')
+filters = ('Hubble.WFC3.f160w', )
 
 depths = [1, 5, 10, 20, 50]
 
@@ -126,7 +126,6 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 # Define width
 ini_width_pkpc = 100
 ini_width = ini_width_pkpc * arcsec_per_kpc_proper
-f = None
 
 for f in filters:
 
