@@ -276,8 +276,6 @@ for f in filters:
 
                 img, img_obj = util.noisy_img(img_psf, image_creator)
 
-                img *= img_obj.wht
-
             significance_image = img / img_obj.noise
 
             try:
