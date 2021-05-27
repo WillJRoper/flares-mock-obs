@@ -281,7 +281,7 @@ for f in filters:
             significance_image = img / img_obj.noise
 
             try:
-                segm = phut.detect_sources(significance_image, 2.0, npixels=5)
+                segm = phut.detect_sources(significance_image, 2.5, npixels=5)
                 segm = phut.deblend_sources(img, segm, npixels=5,
                                             nlevels=32, contrast=0.001)
 
