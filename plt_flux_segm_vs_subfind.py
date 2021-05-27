@@ -172,7 +172,7 @@ for n_z in range(len(snaps)):
         lumin_segm = lumin_segm_dict[f].value
 
         # Histogram the LF
-        H_segm, bins = np.histogram(lumin_segm.value, bins=bin_edges)
+        H_segm, bins = np.histogram(lumin_segm, bins=bin_edges)
 
         # Plot each histogram
         ax.loglog(bin_cents, np.log10(H_segm / interval), label="Segmentation map: " + depth + " nJy")
