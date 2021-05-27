@@ -164,7 +164,10 @@ for n_z in range(len(snaps)):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    all_lumin_segm = np.concatenate(list(lumin_segm_dict.values())).value
+    try:
+        all_lumin_segm = np.concatenate(list(lumin_segm_dict.values())).value
+    except ValueError:
+        all_lumin_segm = np.array([])
 
     if all_lumin_segm.size > 0 and lumin_subfind.size > 0:
         bin_edges = np.logspace(
@@ -216,7 +219,10 @@ for n_z in range(len(snaps)):
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    all_flux_segm = np.concatenate(list(flux_segm_dict.values()))
+    try:
+        all_flux_segm = np.concatenate(list(flux_segm_dict.values()))
+    except ValueError:
+        all_flux_segm = np.array([])
 
     if all_flux_segm.size > 0 and flux_subfind.size > 0:
         bin_edges = np.logspace(
