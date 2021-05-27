@@ -101,6 +101,7 @@ arc_res = image_creator.pixel_scale
 # Compute the resolution
 ini_res = ini_width / arc_res
 res = int(np.ceil(ini_res))
+cutout_halfsize = int(res * 0.1)
 
 # Compute the new width
 width = arc_res * res
@@ -207,17 +208,17 @@ while ind < n_img and ind < imgs.shape[0]:
     axes[2].imshow(subfind_img, extent=imgextent, cmap="gist_rainbow")
 
     max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
-    ind_slice = [np.max((0, max_ind[0] - 50)),
-                 np.min((plt_img.size, max_ind[0] + 50)),
-                 np.max((0, max_ind[1] - 50)),
-                 np.min((plt_img.size, max_ind[1] + 50))]
+    ind_slice = [np.max((0, max_ind[0] - cutout_halfsize)),
+                 np.min((plt_img.size, max_ind[0] + cutout_halfsize)),
+                 np.max((0, max_ind[1] - cutout_halfsize)),
+                 np.min((plt_img.size, max_ind[1] + cutout_halfsize))]
     axes[3].imshow(plt_img[ind_slice[0]: ind_slice[1],
                    ind_slice[2]: ind_slice[3]],
                    extent=imgextent, cmap="Greys_r")
     axes[4].imshow(segm[ind_slice[0]: ind_slice[1],
                    ind_slice[2]: ind_slice[3]], extent=imgextent,
                    cmap="plasma")
-    axes[5].imshow(subfind_img[ind_slice[0] : ind_slice[1],
+    axes[5].imshow(subfind_img[ind_slice[0]: ind_slice[1],
                    ind_slice[2]: ind_slice[3]], extent=imgextent,
                    cmap="gist_rainbow")
 
@@ -230,8 +231,9 @@ while ind < n_img and ind < imgs.shape[0]:
     ax3.set_xlabel('x (")')
     ax6.set_xlabel('x (")')
 
-    fig.savefig("plots/gal_img_log_" + f + "_" + reg + "_"
-                + snap + "_" + str(ind) + ".png", dpi=600)
+    fig.savefig("plots/gal_img_log_Filter-" + f + "_Depth-" + str(depth)
+                + "_Region-" + reg + "_Snap-" + snap + "_Group-"
+                + str(ind) + ".png", dpi=600)
     plt.close(fig)
 
     ind += 1
