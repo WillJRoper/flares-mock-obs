@@ -177,7 +177,7 @@ for n_z in range(len(snaps)):
         # Plot each histogram
         ax.loglog(bin_cents, np.log10(H_segm / interval), label="Segmentation map: " + depth + " nJy")
 
-    H_sf, _ = np.histogram(lumin_subfind.value, bins=bin_edges)
+    H_sf, _ = np.histogram(lumin_subfind, bins=bin_edges)
     ax.loglog(bin_cents, np.log10(H_sf / interval), linestyle='--',
               label="SUBFIND")
 
