@@ -111,9 +111,9 @@ def get_data(reg, snap, r):
     G_coords = G_coords[g_okinds, :]
 
     print("Stars within images:", S_coords.shape[0], "of", sbefore,
-          "%.2f"%(S_coords.shape[0]/sbefore * 100) + "%")
+          "(%.2f"%(S_coords.shape[0]/sbefore * 100) + "%)")
     print("Gas within images:", G_coords.shape[0], "of", gbefore,
-          "%.2f"%(G_coords.shape[0]/gbefore * 100) + "%")
+          "(%.2f"%(G_coords.shape[0]/gbefore * 100) + "%)")
 
     # Load data for luminosities
     S_subgrpid = E.read_array('PARTDATA', path, snap,

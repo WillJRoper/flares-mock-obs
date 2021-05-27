@@ -67,7 +67,7 @@ extinction = 'default'
 
 reg, tag = reg_snaps[ind]
 print("Computing HLRs with orientation {o}, type {t}, and extinction {e}"
-      "for region {x} and snapshot {u}".format(o=orientation, t=Type,
+      " for region {x} and snapshot {u}".format(o=orientation, t=Type,
                                                e=extinction, x=reg, u=tag))
 
 # Define filter
@@ -157,7 +157,7 @@ for f in filters:
                          r=width / arcsec_per_kpc_proper / 1000 / 2)
 
     print("Got the dictionary for the region's groups:",
-          len(reg_dict) - 3, "groups to  test")
+          len(reg_dict) - 4, "groups to  test")
 
     # Define pixel area in pkpc
     single_pixel_area = arc_res * arc_res \
@@ -191,7 +191,7 @@ for f in filters:
 
     image_keys = [k for k in reg_dict.keys() if type(k) is int]
 
-    nimg = max(image_keys)
+    nimg = max(image_keys) + 1
 
     gal_mass[f] = reg_dict["gal_ms"]
     gal_haloids[f] = reg_dict["gal_haloids"]
@@ -209,7 +209,8 @@ for f in filters:
 
         field.depths[f] = depth
 
-        print("Noise, Depth:", image_creator.pixel.noise, field.depths[f])
+        print("Creating image for Filter, Noise, Depth:",
+              f, image_creator.pixel.noise, field.depths[f])
 
         # --- initialise ImageCreator object
         image_creator = imagesim.Idealised(f, field)
