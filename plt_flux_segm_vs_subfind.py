@@ -48,7 +48,7 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-filters = ('Hubble.WFC3.f160w')
+filters = ('Hubble.WFC3.f160w', )
 
 depths = [1, 5, 10, 20, 50]
 
@@ -89,6 +89,7 @@ for n_z in range(len(snaps)):
                 subgrpids = f_group["Part_subgrpids"][:]
                 begin = f_group["Start_Index"][:]
                 group_len = f_group["Group_Length"][:]
+                gal_ids = set(f_group["Subgroup_IDs"][:])
 
                 hdf.close()
             except KeyError as e:
@@ -98,16 +99,21 @@ for n_z in range(len(snaps)):
 
             for beg, img_len in zip(begin, group_len):
 
-                subgrps, inverse_inds = np.unique(subgrpids[beg:
-                                                            beg + img_len],
+                this_subgrpids = subgrpids[beg: beg + img_len]
+
+                subgrps, inverse_inds = np.unique(this_subgrpids,
                                                   return_inverse=True)
 
                 this_flux = np.zeros(subgrps.size)
 
-                for flux, i in zip(fluxes[beg: beg + img_len], inverse_inds):
+                for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
+                                             inverse_inds, this_subgrpids):
 
-                    this_flux[i] += flux
+                    if subgrpid in gal_ids:
 
+                        this_flux[i] += flux
+
+                this_flux = this_flux[this_flux > 0]
                 flux_subfind.extend(this_flux)
 
             for depth in depths:
