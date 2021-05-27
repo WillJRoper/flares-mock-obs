@@ -195,17 +195,17 @@ for n_z in range(len(snaps)):
     # Compute bin centres
     bin_cents = bin_edges[1:] - ((bin_edges[1] - bin_edges[0]) / 2)
 
-    for f in filters:
+    for depth in depths:
 
-        depth = f.split(".")[-1]
+        fdepth = f + "." + str(depth)
 
-        lumin_segm = lumin_segm_dict[f].value
+        lumin_segm = lumin_segm_dict[fdepth].value
 
         # Histogram the LF
         H_segm, bins = np.histogram(lumin_segm, bins=bin_edges)
 
         # Plot each histogram
-        ax.loglog(bin_cents, np.log10(H_segm / interval), label="Segmentation map: " + depth + " nJy")
+        ax.loglog(bin_cents, np.log10(H_segm / interval), label="Segmentation map: " + str(depth) + " nJy")
 
     H_sf, _ = np.histogram(lumin_subfind, bins=bin_edges)
     ax.loglog(bin_cents, np.log10(H_sf / interval), linestyle='--',
@@ -251,15 +251,15 @@ for n_z in range(len(snaps)):
 
     ax.bar(bin_cents, H, width=bin_wid, color="b", edgecolor="b", label="SUBFIND")
 
-    for f in filters:
+    for depth in depths:
 
-        depth = f.split(".")[-1]
+        fdepth = f + "." + str(depth)
 
-        H, bins = np.histogram(flux_segm_dict[f], bins=bin_edges)
+        H, bins = np.histogram(flux_segm_dict[fdepth], bins=bin_edges)
         bin_wid = bins[1] - bins[0]
         bin_cents = bins[1:] - (bin_wid / 2)
 
-        ax.plot(bin_cents, H, label="Segmentation map: " + depth + " nJy")
+        ax.plot(bin_cents, H, label="Segmentation map: " + str(depth) + " nJy")
 
     ax.set_xlabel("$\log_{10}(F/[\mathrm{nJy}])$")
     ax.set_ylabel("$N$")
