@@ -145,16 +145,16 @@ for n_z in range(len(snaps)):
     all_lumin_segm = np.concatenate(list(lumin_segm_dict.values())).value
 
     if all_lumin_segm.size > 0 and lumin_subfind.size > 0:
-        bin_edges = np.logspace(
+        bin_edges = np.linspace(
             np.log10(np.min((all_lumin_segm.min(), lumin_subfind.min()))),
             np.log10(np.max((all_lumin_segm.max(), lumin_subfind.max()))),
             75)
     elif lumin_subfind.size == 0 and all_lumin_segm.size > 0:
-        bin_edges = np.logspace(np.log10(all_lumin_segm.min()),
+        bin_edges = np.linspace(np.log10(all_lumin_segm.min()),
                                 np.log10(all_lumin_segm.max()),
                                 75)
     elif all_lumin_segm.size == 0 and lumin_subfind.size > 0:
-        bin_edges = np.logspace(np.log10(lumin_subfind.min()),
+        bin_edges = np.linspace(np.log10(lumin_subfind.min()),
                                 np.log10(lumin_subfind.max()),
                                 75)
     else:
@@ -212,7 +212,7 @@ for n_z in range(len(snaps)):
     else:
         continue
 
-    H, bins = np.histogram(np.log10(flux_subfind), bins=bin_edges)
+    H, bins = np.histogram(flux_subfind, bins=bin_edges)
     bin_wid = bins[1] - bins[0]
     bin_cents = bins[1:] - (bin_wid / 2)
 
@@ -222,7 +222,7 @@ for n_z in range(len(snaps)):
 
         depth = f.split(".")[-1]
 
-        H, bins = np.histogram(np.log10(flux_segm_dict[f]), bins=bin_edges)
+        H, bins = np.histogram(flux_segm_dict[f], bins=bin_edges)
         bin_wid = bins[1] - bins[0]
         bin_cents = bins[1:] - (bin_wid / 2)
 
