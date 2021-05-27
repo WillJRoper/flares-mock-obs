@@ -700,4 +700,4 @@ def noisy_img(true_img, image_creator):
 
     noisy_img = true_img + img.bkg
 
-    return noisy_img, img.bkg
+    return noisy_img, img

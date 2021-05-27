@@ -255,7 +255,9 @@ for f in filters:
 
                 img_psf = signal.fftconvolve(img, psf, mode="same")
 
-                img, noise = util.noisy_img(img_psf, image_creator)
+                img, img_obj = util.noisy_img(img_psf, image_creator)
+
+                img *= img_obj.wht
 
             else:
 
@@ -272,9 +274,11 @@ for f in filters:
 
                 img_psf = signal.fftconvolve(img, psf, mode="same")
 
-                img, noise = util.noisy_img(img_psf, image_creator)
+                img, img_obj = util.noisy_img(img_psf, image_creator)
 
-            significance_image = img / noise
+                img *= img_obj.wht
+
+            significance_image = img / img_obj.noise
 
             try:
                 segm = phut.detect_sources(significance_image, 2.0, npixels=5)
