@@ -136,6 +136,7 @@ for n_z in range(len(snaps)):
                              * flux_segm_dict[f] * u.nJy
 
     flux_subfind = np.array(flux_subfind)
+    print(flux_subfind.size)
     lumin_subfind = (4 * np.pi * cosmo.luminosity_distance(z)**2
                      * flux_subfind * u.nJy).value
 
@@ -145,16 +146,16 @@ for n_z in range(len(snaps)):
     all_lumin_segm = np.concatenate(list(lumin_segm_dict.values())).value
 
     if all_lumin_segm.size > 0 and lumin_subfind.size > 0:
-        bin_edges = np.linspace(
+        bin_edges = np.logspace(
             np.log10(np.min((all_lumin_segm.min(), lumin_subfind.min()))),
             np.log10(np.max((all_lumin_segm.max(), lumin_subfind.max()))),
             75)
     elif lumin_subfind.size == 0 and all_lumin_segm.size > 0:
-        bin_edges = np.linspace(np.log10(all_lumin_segm.min()),
+        bin_edges = np.logspace(np.log10(all_lumin_segm.min()),
                                 np.log10(all_lumin_segm.max()),
                                 75)
     elif all_lumin_segm.size == 0 and lumin_subfind.size > 0:
-        bin_edges = np.linspace(np.log10(lumin_subfind.min()),
+        bin_edges = np.logspace(np.log10(lumin_subfind.min()),
                                 np.log10(lumin_subfind.max()),
                                 75)
     else:
@@ -226,8 +227,7 @@ for n_z in range(len(snaps)):
         bin_wid = bins[1] - bins[0]
         bin_cents = bins[1:] - (bin_wid / 2)
 
-        ax.plot(bin_cents, H, color="r", linestyle="--",
-                label="Segmentation map: " + depth + " nJy")
+        ax.plot(bin_cents, H, label="Segmentation map: " + depth + " nJy")
 
     ax.set_xlabel("$\log_{10}(F/[\mathrm{nJy}])$")
     ax.set_ylabel("$N$")
