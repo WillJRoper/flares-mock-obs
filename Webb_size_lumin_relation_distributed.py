@@ -151,7 +151,7 @@ for f in filters:
     # Kappa with DTM 0.0795, BC_fac=1., without 0.0063 BC_fac=1.25
     reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
                          IMF='Chabrier_300',
-                         filters=f, Type=Type, log10t_BC=7.,
+                         filters=(f, ), Type=Type, log10t_BC=7.,
                          extinction=extinction, orientation=orientation,
                          masslim=masslim,
                          r=width / arcsec_per_kpc_proper / 1000 / 2)
@@ -286,7 +286,8 @@ for f in filters:
 
             except TypeError:
 
-                print(ind, "had no sources above noise")
+                print(ind, "had no sources above noise with a depth of",
+                      depth, "nJy")
 
                 img_dict[fdepth][ind, :, :] = img
                 segm_dict[fdepth][ind, :, :] = np.zeros((res, res))
