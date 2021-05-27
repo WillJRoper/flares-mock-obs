@@ -62,13 +62,9 @@ Type = sys.argv[3]
 extinction = 'default'
 
 # Define filter
-f = 'Hubble.WFC3.f160w.10'
+f = 'Hubble.WFC3.f160w'
 
-snr = 10
-
-ngals_segm = []
-ngals_subfind = []
-grp_ms = []
+depth = int(sys.argv[4])
 
 reg_ind = int(sys.argv[1])
 
@@ -77,7 +73,7 @@ reg, snap = reg_snaps[reg_ind]
 z_str = snap.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
 
-n_img = int(sys.argv[4])
+n_img = int(sys.argv[5])
 
 print("Making images for with orientation {o}, type {t}, "
       "and extinction {e} for region {x} and "
@@ -86,12 +82,9 @@ print("Making images for with orientation {o}, type {t}, "
 
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
-# Define filter
-filters = ('Hubble.WFC3.f160w', )
-f = filters[0]
-
 # Define width
-ini_width = 500 * arcsec_per_kpc_proper
+ini_width_pkpc = 100
+ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
 survey_id = 'XDF'  # the XDF (updated HUDF)
 field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
@@ -133,14 +126,17 @@ hdf = h5py.File("mock_data/"
 type_group = hdf[Type]
 orientation_group = type_group[orientation]
 f_group = orientation_group[f]
+fdepth_group = f_group[str(depth)]
 
-imgs = f_group["Images"][:]
-segms = f_group["Segmentation_Maps"][:]
+imgs = fdepth_group["Images"][:]
+segms = fdepth_group["Segmentation_Maps"][:]
+sigs = fdepth_group["Significance_Images"][:]
 subfind_spos = f_group["Star_Pos"][:]
 all_smls = f_group["Smoothing_Length"][:]
 subgrpids = f_group["Part_subgrpids"][:]
 begin = f_group["Start_Index"][:]
 group_len = f_group["Group_Length"][:]
+gal_ids = set(f_group["Subgroup_IDs"][:])
 
 hdf.close()
 
@@ -170,7 +166,7 @@ while ind < n_img and ind < imgs.shape[0]:
     smooth = all_smls[begin[ind]: begin[ind] + group_len[ind]]
 
     subfind_img = util.make_subfind_spline_img(poss, res, 0, 1, tree, subgrp,
-                                               smooth, spline_cut_off=5/2)
+                                               smooth, gal_ids, spline_cut_off=5/2)
     subfind_img[segm == 0] = np.nan
 
     fig = plt.figure(figsize=(4, 6.4))
@@ -207,17 +203,21 @@ while ind < n_img and ind < imgs.shape[0]:
     axes[2].imshow(subfind_img, extent=imgextent, cmap="gist_rainbow")
 
     max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
-    axes[3].imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
-               max_ind[1] - 100: max_ind[1] + 100],
-               extent=imgextent, cmap="Greys_r")
-    axes[4].imshow(segm[max_ind[0] - 100: max_ind[0] + 100,
-                   max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
+    ind_slice = [np.max((0, max_ind[0] - 50)),
+                 np.min((plt_img.size, max_ind[0] + 50)),
+                 np.max((0, max_ind[1] - 50)),
+                 np.min((plt_img.size, max_ind[1] + 50))]
+    axes[3].imshow(plt_img[ind_slice[0]: ind_slice[1],
+                   ind_slice[2]: ind_slice[3]],
+                   extent=imgextent, cmap="Greys_r")
+    axes[4].imshow(segm[ind_slice[0]: ind_slice[1],
+                   ind_slice[2]: ind_slice[3]], extent=imgextent,
                    cmap="plasma")
-    axes[5].imshow(subfind_img[max_ind[0] - 100: max_ind[0] + 100,
-                   max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
+    axes[5].imshow(subfind_img[ind_slice[0] : ind_slice[1],
+                   ind_slice[2]: ind_slice[3]], extent=imgextent,
                    cmap="gist_rainbow")
 
-    ax1.set_title("500 pkpc")
+    ax1.set_title(str(ini_width_pkpc) + " pkpc")
     ax4.set_title("Brightest Source")
 
     ax1.set_ylabel('y (")')

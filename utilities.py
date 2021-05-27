@@ -379,7 +379,7 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
     return smooth_img
 
 
-def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, spline_cut_off=5/2):
+def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids, spline_cut_off=5/2):
 
     # Define 2D projected particle position array
     part_pos = pos[:, (i, j)]
@@ -401,6 +401,9 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, spline_cut_off=5
     for ipos, grpsubgrp, sml in zip(part_pos, ids, smooth):
 
         if int(str(grpsubgrp).split(".")[1]) == 1073741824:
+            continue
+
+        if not grpsubgrp in gal_ids:
             continue
 
         # Query the tree for this particle
