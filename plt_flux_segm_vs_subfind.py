@@ -48,8 +48,9 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-filters = ('Hubble.WFC3.f160w.10','Hubble.WFC3.f160w.5', 'Hubble.WFC3.f160w.1',
-           'Hubble.WFC3.f160w.20', 'Hubble.WFC3.f160w.50')
+filters = ('Hubble.WFC3.f160w')
+
+depths = [1, 5, 10, 20, 50]
 
 flux_segm_dict = {}
 lumin_segm_dict = {}
@@ -240,14 +241,4 @@ for n_z in range(len(snaps)):
                 bbox_inches="tight")
 
     plt.close(fig)
-
-
-
-
-
-
-
-
-
-
 

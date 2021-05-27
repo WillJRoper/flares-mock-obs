@@ -71,10 +71,9 @@ print("Computing HLRs with orientation {o}, type {t}, and extinction {e}"
                                                e=extinction, x=reg, u=tag))
 
 # Define filter
-filters = ('Hubble.WFC3.f160w.10','Hubble.WFC3.f160w.5', 'Hubble.WFC3.f160w.1',
-           'Hubble.WFC3.f160w.20', 'Hubble.WFC3.f160w.50')
-# Define filter
-filters_no_depth = ('Hubble.WFC3.f160w','Hubble.WFC3.f160w', 'Hubble.WFC3.f160w', 'Hubble.WFC3.f160w', 'Hubble.WFC3.f160w')
+filters = ('Hubble.WFC3.f160w')
+
+depths = [1, 5, 10, 20, 50]
 
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
@@ -85,6 +84,7 @@ hlr_pix_dict = {}
 flux_dict = {}
 img_dict = {}
 segm_dict = {}
+sig_dict = {}
 ngal_dict = {}
 sf_ngal_dict = {}
 grp_dict = {}
@@ -95,28 +95,14 @@ smls = {}
 fluxes = {}
 subgrpids = {}
 grp_mass = {}
+gal_mass = {}
+gal_haloids = {}
 
 # Set mass limit
 masslim = 700
 
 z_str = tag.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
-
-hlr_app_dict.setdefault(tag, {})
-hlr_pix_dict.setdefault(tag, {})
-flux_dict.setdefault(tag, {})
-img_dict.setdefault(tag, {})
-segm_dict.setdefault(tag, {})
-ngal_dict.setdefault(tag, {})
-sf_ngal_dict.setdefault(tag, {})
-grp_dict.setdefault(tag, {})
-begin.setdefault(tag, {})
-Slen.setdefault(tag, {})
-smls.setdefault(tag, {})
-fluxes.setdefault(tag, {})
-subgrpids.setdefault(tag, {})
-grp_mass.setdefault(tag, {})
-star_pos.setdefault(tag, {})
 
 survey_id = 'XDF'  # the XDF (updated HUDF)
 field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
@@ -138,26 +124,14 @@ kernel.normalize()
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
-ini_width = 500 * arcsec_per_kpc_proper
+ini_width_pkpc = 100
+ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 f = None
-f_this_run = int(sys.argv[4])
 
-for num, fdepth in enumerate(filters):
-
-    if num != f_this_run:
-        continue
-
-    f_split = fdepth.split(".")
-    prev_f = f
-    f = filters_no_depth[num]
-    depth = float(f_split[-1])
-
-    field.depths[f] = depth
+for f in enumerate(filters):
 
     # --- initialise ImageCreator object
     image_creator = imagesim.Idealised(f, field)
-
-    print("Noise, Depth:", image_creator.pixel.noise, field.depths[f])
 
     arc_res = image_creator.pixel_scale
 
@@ -176,13 +150,12 @@ for num, fdepth in enumerate(filters):
     print("Image width (in pixels):", res)
 
     # Kappa with DTM 0.0795, BC_fac=1., without 0.0063 BC_fac=1.25
-    if f != prev_f:
-        reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
-                             IMF='Chabrier_300',
-                             filters=filters_no_depth, Type=Type, log10t_BC=7.,
-                             extinction=extinction, orientation=orientation,
-                             masslim=masslim,
-                             r=width / arcsec_per_kpc_proper / 1000 / 2)
+    reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
+                         IMF='Chabrier_300',
+                         filters=f, Type=Type, log10t_BC=7.,
+                         extinction=extinction, orientation=orientation,
+                         masslim=masslim,
+                         r=width / arcsec_per_kpc_proper / 1000 / 2)
 
     print("Got the dictionary for the region's groups:",
           len(reg_dict) - 3, "groups to  test")
@@ -217,150 +190,119 @@ for num, fdepth in enumerate(filters):
 
     psf = imagesim.create_PSF(f, field, res)
 
-    hlr_app_dict[tag].setdefault(f, {})
-    hlr_pix_dict[tag].setdefault(f, {})
+    image_keys = [k for k in reg_dict.keys() if type(k) is int]
 
-    for r in radii_fracs:
-        hlr_app_dict[tag][f].setdefault(r, [])
-        hlr_pix_dict[tag][f].setdefault(r, [])
+    nimg = max(image_keys)
 
-    flux_dict[tag].setdefault(fdepth, [])
-    img_dict[tag].setdefault(fdepth, [])
-    segm_dict[tag].setdefault(fdepth, [])
-    ngal_dict[tag].setdefault(fdepth, [])
-    grp_dict[tag].setdefault(fdepth, [])
-    sf_ngal_dict[tag].setdefault(fdepth, [])
-    begin[tag].setdefault(fdepth, [])
-    Slen[tag].setdefault(fdepth, [])
-    smls[tag].setdefault(fdepth, [])
-    fluxes[tag].setdefault(fdepth, [])
-    subgrpids[tag].setdefault(fdepth, [])
-    grp_mass[tag].setdefault(fdepth, [])
-    star_pos[tag].setdefault(fdepth, [])
+    gal_mass[f] = reg_dict["gal_ms"]
+    gal_haloids[f] = reg_dict["gal_haloids"]
 
-    for ind in reg_dict:
+    begin.setdefault(f, np.zeros(nimg))
+    Slen.setdefault(f, np.zeros(nimg))
+    grp_mass.setdefault(f, np.zeros(nimg))
 
-        if not type(ind) is int:
-            continue
+    smls.setdefault(f, [])
+    fluxes.setdefault(f, [])
+    subgrpids.setdefault(f, [])
+    star_pos.setdefault(f, [])
 
-        this_pos = reg_dict[ind]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
-        this_smls = reg_dict[ind]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
-        this_subgrpids = reg_dict[ind]["part_subgrpids"]
-        this_groupmass = reg_dict[ind]["group_mass"]
+    for num, depth in enumerate(depths):
 
-        this_flux = reg_dict[ind][f]
+        field.depths[f] = depth
 
-        subfind_ids = np.unique(this_subgrpids)
+        print("Noise, Depth:", image_creator.pixel.noise, field.depths[f])
 
-        if np.nansum(this_flux) == 0:
-            continue
+        # --- initialise ImageCreator object
+        image_creator = imagesim.Idealised(f, field)
 
-        if orientation == "sim" or orientation == "face-on":
+        fdepth = f + "." + str(depth)
 
-            this_radii = util.calc_rad(this_pos, i=0, j=1)
+        img_dict.setdefault(fdepth, np.full((nimg, res, res), np.nan))
+        segm_dict.setdefault(fdepth, np.zeros((nimg, res, res)))
+        sig_dict.setdefault(fdepth, np.zeros((nimg, res, res)))
 
-            img = util.make_spline_img(this_pos, res, 0, 1, tree,
-                                       this_flux, this_smls)
+        for key in image_keys:
 
-            img = signal.fftconvolve(img, psf, mode="same")
+            ind = key
 
-            img, noise = util.noisy_img(img, image_creator)
+            this_pos = reg_dict[key]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
+            this_smls = reg_dict[key]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
+            this_subgrpids = reg_dict[key]["part_subgrpids"]
+            this_groupmass = reg_dict[key]["group_mass"]
 
-        else:
+            this_flux = reg_dict[key][f]
 
-            # # Centre positions on fluxosity weighted centre
-            # flux_cent = util.flux_weighted_centre(this_pos,
-            #                                         this_flux,
-            #                                         i=2, j=0)
-            # this_pos[:, (2, 0)] -= flux_cent
+            subfind_ids = np.unique(this_subgrpids)
 
-            this_radii = util.calc_rad(this_pos, i=2, j=0)
+            if np.nansum(this_flux) == 0:
 
-            img = util.make_soft_img(this_pos, res, 2, 0, imgrange,
-                                     this_flux,
-                                     this_smls)
+                img_dict[fdepth][ind, :, :] = np.full((res, res), np.nan)
+                segm_dict[fdepth][ind, :, :] = np.zeros((res, res))
+                sig_dict[fdepth][ind, :, :] = np.zeros((res, res))
 
-        threshold = phut.detect_threshold(img, nsigma=5)
+                if num == 0:
+                    begin[f][ind] = np.nan
+                    Slen[f][ind] = 0
 
-        try:
-            segm = phut.detect_sources(img, threshold, npixels=5)
-            segm = phut.deblend_sources(img, segm, npixels=5,
-                                        nlevels=32, contrast=0.001)
-        except TypeError:
-            print(ind, "had no sources above noise")
-            continue
+                continue
 
-        subfind_img = util.make_subfind_spline_img(this_pos, res, 0, 1, tree,
-                                                   this_subgrpids,
-                                                   this_smls,
-                                                   spline_cut_off=5 / 2)
+            if orientation == "sim" or orientation == "face-on":
 
-        # fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
-        # ax1.grid(False)
-        # ax2.grid(False)
-        # plt_img = np.zeros_like(img)
-        # plt_img[img > 0] = np.log10(img[img > 0])
-        # ax1.imshow(plt_img, extent=imgextent, cmap="Greys_r")
-        # cmap = segm.make_cmap()
-        # ax2.imshow(segm.data, extent=imgextent, cmap=cmap)
-        # fig.savefig("plots/gal_img_log_" + f + "_%d.png"
-        #             % int(ind), dpi=300)
-        # plt.close(fig)
+                this_radii = util.calc_rad(this_pos, i=0, j=1)
 
-        # fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
-        # ax1.grid(False)
-        # ax2.grid(False)
-        # plt_img = np.zeros_like(img)
-        # plt_img[img > 0] = np.log10(img[img > 0])
-        # max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
-        # ax1.imshow(plt_img[max_ind[0] - 100: max_ind[0] + 100,
-        #            max_ind[1] - 100: max_ind[1] + 100],
-        #            extent=imgextent, cmap="Greys_r")
-        # cmap = segm.make_cmap()
-        # ax2.imshow(segm.data[max_ind[0] - 100: max_ind[0] + 100,
-        #            max_ind[1] - 100: max_ind[1] + 100], extent=imgextent,
-        #            cmap=cmap)
-        # fig.savefig("plots/max_gal_img_log_" + f + "_%.1f.png"
-        #             % np.log10(np.sum(img)), dpi=300)
-        # plt.close(fig)
+                img = util.make_spline_img(this_pos, res, 0, 1, tree,
+                                           this_flux, this_smls)
 
-        # for i in range(1, np.max(segm.data) + 1):
-        #     if np.sum(img[segm.data == i]) < np.median(img):
-        #         continue
-        #     print(np.sum(img[segm.data == i]))
-        #     for r in radii_fracs:
-        #         img_segm = np.zeros_like(img)
-        #         img_segm[segm.data == i] = img[segm.data == i]
-        #         hlr_pix_dict[tag][f][r].append(
-        #             util.get_pixel_hlr(img_segm, single_pixel_area,
-        #                                radii_frac=r))
-        #         # hlr_app_dict[tag][f][r].append(
-        #         #     util.get_img_hlr(img, apertures, app_radii, res,
-        #         #                      arc_res / arcsec_per_kpc_proper, r))
-        #     flux_dict[tag][f].append(np.sum(img[segm.data == i]))
-        #
-        img_dict[tag][fdepth].append(img)
-        segm_dict[tag][fdepth].append(segm.data)
-        grp_dict[tag][fdepth].append(ind)
+                img_psf = signal.fftconvolve(img, psf, mode="same")
 
-        begin[tag][fdepth].append(len(fluxes))
-        grp_mass[tag][fdepth].append(this_groupmass)
-        star_pos[tag][fdepth].extend(this_pos)
-        smls[tag][fdepth].extend(this_smls)
-        fluxes[tag][fdepth].extend(this_flux)
-        subgrpids[tag][fdepth].extend(this_subgrpids)
-        Slen[tag][fdepth].append(len(this_smls))
+                img, noise = util.noisy_img(img_psf, image_creator)
 
-        ngal = 0
-        for gal in np.unique(segm.data):
-            if np.sum(img[segm.data == gal]) > image_creator.aperture.background and gal > 0:
-                ngal += 1
+            else:
 
-        ngal_dict[tag][fdepth].append(ngal)
+                # # Centre positions on fluxosity weighted centre
+                # flux_cent = util.flux_weighted_centre(this_pos,
+                #                                         this_flux,
+                #                                         i=2, j=0)
+                # this_pos[:, (2, 0)] -= flux_cent
 
-        sub_ngal = np.unique(subfind_img[segm.data != 0]).size
+                this_radii = util.calc_rad(this_pos, i=2, j=0)
 
-        sf_ngal_dict[tag][fdepth].append(sub_ngal)
+                img = util.make_spline_img(this_pos, res, 2, 0, tree,
+                                           this_flux, this_smls)
+
+                img_psf = signal.fftconvolve(img, psf, mode="same")
+
+                img, noise = util.noisy_img(img_psf, image_creator)
+
+            significance_image = img_psf / noise
+
+            try:
+                segm = phut.detect_sources(significance_image, 2.0, npixels=5)
+                segm = phut.deblend_sources(img, segm, npixels=5,
+                                            nlevels=32, contrast=0.001)
+
+                img_dict[fdepth][ind, :, :] = img
+                segm_dict[fdepth][ind, :, :] = segm.data
+                sig_dict[fdepth][ind, :, :] = significance_image
+
+            except TypeError:
+
+                print(ind, "had no sources above noise")
+
+                img_dict[fdepth][ind, :, :] = img
+                segm_dict[fdepth][ind, :, :] = np.zeros((res, res))
+                sig_dict[fdepth][ind, :, :] = np.zeros((res, res))
+
+            if num == 0:
+
+                begin[f][ind] = len(fluxes)
+                Slen[f][ind] = len(this_smls)
+                grp_mass[f][ind] = this_groupmass
+
+                star_pos[f].extend(this_pos)
+                smls[f].extend(this_smls)
+                fluxes[f].extend(this_flux)
+                subgrpids[f].extend(this_subgrpids)
 
 
 try:
@@ -391,13 +333,47 @@ for f in filters:
         print(f, "Doesn't exists: Creating...")
         f_group = orientation_group.create_group(f)
 
-    begin = np.array(begin[tag][f])
-    grp_mass = np.array(grp_mass[tag][f])
-    fluxes = np.array(fluxes[tag][f])
-    subgrpids = np.array(subgrpids[tag][f])
-    Slen = np.array(Slen[tag][f])
-    smls = np.array(smls[tag][f])
-    star_pos = np.array(star_pos[tag][f])
+    begin = begin[f]
+    grp_mass = grp_mass[f]
+    Slen = Slen[f]
+    fluxes = np.array(fluxes[f])
+    subgrpids = np.array(subgrpids[f])
+    smls = np.array(smls[f])
+    star_pos = np.array(star_pos[f])
+
+    try:
+        dset = f_group.create_dataset("Subgroup_IDs",
+                                                data=gal_haloids[f],
+                                                dtype=gal_haloids[f].dtype,
+                                                shape=gal_haloids[f].shape,
+                                                compression="gzip")
+        dset.attrs["units"] = "None"
+    except OSError:
+        print("Subgroup_IDs already exists: Overwriting...")
+        del f_group["Subgroup_IDs"]
+        dset = f_group.create_dataset("Subgroup_IDs",
+                                                data=gal_haloids[f],
+                                                dtype=gal_haloids[f].dtype,
+                                                shape=gal_haloids[f].shape,
+                                                compression="gzip")
+        dset.attrs["units"] = "None"
+
+    try:
+        dset = f_group.create_dataset("Galaxy Mass",
+                                                data=gal_mass[f],
+                                                dtype=gal_mass[f].dtype,
+                                                shape=gal_mass[f].shape,
+                                                compression="gzip")
+        dset.attrs["units"] = "$M_\odot$"
+    except OSError:
+        print("Galaxy Mass already exists: Overwriting...")
+        del f_group["Galaxy Mass"]
+        dset = f_group.create_dataset("Galaxy Mass",
+                                                data=gal_mass[f],
+                                                dtype=gal_mass[f].dtype,
+                                                shape=gal_mass[f].shape,
+                                                compression="gzip")
+        dset.attrs["units"] = "$M_\odot$"
 
     try:
         dset = f_group.create_dataset("Start_Index", data=begin,
@@ -504,127 +480,65 @@ for f in filters:
                                         compression="gzip")
         dset.attrs["units"] = "None"
 
-    # fluxes = np.array(flux_dict[tag][f][snr])
-    imgs = np.array(img_dict[tag][f])
-    segms = np.array(segm_dict[tag][f])
-    ngals = np.array(ngal_dict[tag][f])
-    sf_ngals = np.array(sf_ngal_dict[tag][f])
-    grps = np.array(grp_dict[tag][f])
+    for num, depth in enumerate(depths):
 
-    print(imgs.shape)
+        fdepth = f + "." + str(depth)
+        imgs = np.array(img_dict[fdepth])
+        segms = np.array(segm_dict[fdepth])
+        sigs = np.array(sig_dict[fdepth])
 
-    try:
-        dset = f_group.create_dataset("Group_ID", data=grps,
-                                      dtype=grps.dtype,
-                                      shape=grps.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
-    except OSError:
-        print("Group_ID already exists: Overwriting...")
-        del f_group["Group_ID"]
-        dset = f_group.create_dataset("Group_ID", data=grps,
-                                      dtype=grps.dtype,
-                                      shape=grps.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
+        print(imgs.shape)
 
-    try:
-        dset = f_group.create_dataset("Images", data=imgs,
-                                      dtype=imgs.dtype,
-                                      shape=imgs.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "$nJy$"
-    except OSError:
-        print("Images already exists: Overwriting...")
-        del f_group["Images"]
-        dset = f_group.create_dataset("Images", data=imgs,
-                                      dtype=imgs.dtype,
-                                      shape=imgs.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "$nJy$"
+        try:
+            fdepth_group = f_group[str(depth)]
+        except KeyError:
+            print(str(depth), "Doesn't exists: Creating...")
+            fdepth_group = f_group.create_group(str(depth))
 
-    try:
-        dset = f_group.create_dataset("Segmentation_Maps", data=segms,
-                                      dtype=segms.dtype,
-                                      shape=segms.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
-    except OSError:
-        print("Segmentation_Maps already exists: Overwriting...")
-        del f_group["Segmentation_Maps"]
-        dset = f_group.create_dataset("Segmentation_Maps", data=segms,
-                                      dtype=segms.dtype,
-                                      shape=segms.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
+        try:
+            dset = fdepth_group.create_dataset("Images", data=imgs,
+                                          dtype=imgs.dtype,
+                                          shape=imgs.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "$nJy$"
+        except OSError:
+            print("Images already exists: Overwriting...")
+            del fdepth_group["Images"]
+            dset = fdepth_group.create_dataset("Images", data=imgs,
+                                          dtype=imgs.dtype,
+                                          shape=imgs.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "$nJy$"
 
-    try:
-        dset = f_group.create_dataset("NGalaxy", data=ngals,
-                                      dtype=ngals.dtype,
-                                      shape=ngals.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
-    except OSError:
-        print("NGalaxy already exists: Overwriting...")
-        del f_group["NGalaxy"]
-        dset = f_group.create_dataset("NGalaxy", data=ngals,
-                                      dtype=ngals.dtype,
-                                      shape=ngals.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
+        try:
+            dset = fdepth_group.create_dataset("Segmentation_Maps", data=segms,
+                                          dtype=segms.dtype,
+                                          shape=segms.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "None"
+        except OSError:
+            print("Segmentation_Maps already exists: Overwriting...")
+            del fdepth_group["Segmentation_Maps"]
+            dset = fdepth_group.create_dataset("Segmentation_Maps", data=segms,
+                                          dtype=segms.dtype,
+                                          shape=segms.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "None"
 
-    try:
-        dset = f_group.create_dataset("SUBFIND_NGalaxy", data=sf_ngals,
-                                      dtype=sf_ngals.dtype,
-                                      shape=sf_ngals.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
-    except OSError:
-        print("SUBFIND_NGalaxy already exists: Overwriting...")
-        del f_group["SUBFIND_NGalaxy"]
-        dset = f_group.create_dataset("SUBFIND_NGalaxy", data=sf_ngals,
-                                      dtype=sf_ngals.dtype,
-                                      shape=sf_ngals.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
 
-        # for r in radii_fracs:
-        #
-        #     hlrs_app = np.array(hlr_app_dict[tag][f][r])
-        #     hlrs_pix = np.array(hlr_pix_dict[tag][f][r])
-        #
-        #     try:
-        #         dset = f_group.create_dataset("HLR_Aperture_%.1f" % r,
-        #                                       data=hlrs_app,
-        #                                       dtype=hlrs_app.dtype,
-        #                                       shape=hlrs_app.shape,
-        #                                       compression="gzip")
-        #         dset.attrs["units"] = "$\mathrm{pkpc}$"
-        #     except OSError:
-        #         print("HLR_Aperture_%.1f" % r, "already exists: Overwriting...")
-        #         del f_group["HLR_Aperture_%.1f" % r]
-        #         dset = f_group.create_dataset("HLR_Aperture_%.1f" % r,
-        #                                       data=hlrs_app,
-        #                                       dtype=hlrs_app.dtype,
-        #                                       shape=hlrs_app.shape,
-        #                                       compression="gzip")
-        #         dset.attrs["units"] = "$\mathrm{pkpc}$"
-        #
-        #     try:
-        #         dset = f_group.create_dataset("HLR_Pixel_%.1f" % r,
-        #                                       data=hlrs_pix,
-        #                                       dtype=hlrs_pix.dtype,
-        #                                       shape=hlrs_pix.shape,
-        #                                       compression="gzip")
-        #         dset.attrs["units"] = "$\mathrm{pkpc}$"
-        #     except OSError:
-        #         print("HLR_Pixel_%.1f" % r, "already exists: Overwriting...")
-        #         del f_group["HLR_Pixel_%.1f" % r]
-        #         dset = f_group.create_dataset("HLR_Pixel_%.1f" % r,
-        #                                       data=hlrs_pix,
-        #                                       dtype=hlrs_pix.dtype,
-        #                                       shape=hlrs_pix.shape,
-        #                                       compression="gzip")
-        #         dset.attrs["units"] = "$\mathrm{pkpc}$"
-        #
+        try:
+            dset = fdepth_group.create_dataset("Significance_Images", data=sigs,
+                                          dtype=sigs.dtype,
+                                          shape=sigs.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "None"
+        except OSError:
+            print("Significance_Images already exists: Overwriting...")
+            del fdepth_group["Significance_Images"]
+            dset = fdepth_group.create_dataset("Significance_Images", data=sigs,
+                                          dtype=sigs.dtype,
+                                          shape=sigs.shape,
+                                          compression="gzip")
+            dset.attrs["units"] = "None"
+
 hdf.close()

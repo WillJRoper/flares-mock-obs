@@ -57,6 +57,9 @@ def get_data(reg, snap, r):
     gal_grpid = E.read_array('SUBFIND', path, snap,
                             'Subhalo/GroupNumber',
                             noH=True, physicalUnits=True, numThreads=8)
+    gal_subgrpid = E.read_array('SUBFIND', path, snap,
+                            'Subhalo/SubGroupNumber',
+                            noH=True, physicalUnits=True, numThreads=8)
     gal_ms = E.read_array('SUBFIND', path, snap,
                             'Subhalo/ApertureMeasurements/Mass/030kpc',
                             noH=True, physicalUnits=True,
@@ -64,7 +67,7 @@ def get_data(reg, snap, r):
     all_grp_ms = E.read_array('SUBFIND', path, snap, 'FOF/Group_M_Mean200',
                               numThreads=8) * 10**10
 
-    okinds = all_grp_ms > 10**10
+    okinds = all_grp_ms > 10**11
     grp_cops = grp_cops[okinds]
     r_200 = r_200[okinds]
     all_grp_ms = all_grp_ms[okinds]
@@ -73,6 +76,12 @@ def get_data(reg, snap, r):
     gal_cops = gal_cops[okinds]
     gal_ms = gal_ms[okinds]
     gal_grpid = gal_grpid[okinds]
+    gal_subgrpid = gal_subgrpid[okinds]
+
+    # Convert to group.subgroup ID format
+    gal_haloids = np.zeros(gal_grpid.size, dtype=float)
+    for (ind, g), sg in zip(enumerate(gal_grpid), gal_subgrpid):
+        gal_haloids[ind] = float(str(int(g)) + '.%05d'%int(sg))
 
     tree = cKDTree(grp_cops)
 
@@ -154,7 +163,7 @@ def get_data(reg, snap, r):
 
     return S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
            G_coords, S_mass, grp_cops, r_200, all_grp_ms, halo_ids, \
-           gal_cops, gal_ms, gal_grpid
+           gal_cops, gal_ms, gal_grpid, gal_subgrpid, gal_haloids
 
 
 def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
@@ -335,12 +344,13 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
     G_coords, S_mass, cops, r_200, all_gal_ms, S_subgrpid,\
-    gal_cops, gal_ms, gal_grpid = get_data(sim, tag, r)
+    gal_cops, gal_ms, gal_grpid, gal_subgrpid, gal_haloids = get_data(sim,
+                                                                      tag, r)
 
     Fnus = {}
-    Fnus["part_subgrpid"] = S_subgrpid
     Fnus["gal_cop"] = gal_cops
     Fnus["gal_ms"] = gal_ms
+    Fnus["gal_haloids"] = gal_haloids
 
     model = models.define_model(
         F'BPASSv2.2.1.binary/{IMF}')  # DEFINE SED GRID -
