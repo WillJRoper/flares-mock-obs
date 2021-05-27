@@ -256,7 +256,7 @@ for f in filters:
                 img_psf = signal.fftconvolve(img, psf, mode="same")
 
                 img, img_obj = util.noisy_img(img_psf, image_creator)
-                
+
             else:
 
                 # # Centre positions on fluxosity weighted centre
