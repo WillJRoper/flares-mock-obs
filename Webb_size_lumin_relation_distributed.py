@@ -128,7 +128,7 @@ ini_width_pkpc = 100
 ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 f = None
 
-for f in enumerate(filters):
+for f in filters:
 
     # --- initialise ImageCreator object
     image_creator = imagesim.Idealised(f, field)
