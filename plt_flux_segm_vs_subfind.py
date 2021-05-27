@@ -136,13 +136,13 @@ for n_z in range(len(snaps)):
                              * flux_segm_dict[f] * u.nJy
 
     flux_subfind = np.array(flux_subfind)
-    lumin_subfind = 4 * np.pi * cosmo.luminosity_distance(z)**2 \
-                    * flux_subfind * u.nJy
+    lumin_subfind = (4 * np.pi * cosmo.luminosity_distance(z)**2
+                     * flux_subfind * u.nJy).value
 
     fig = plt.figure()
     ax = fig.add_subplot(111)
 
-    all_lumin_segm = np.concatenate(list(lumin_segm_dict.values()))
+    all_lumin_segm = np.concatenate(list(lumin_segm_dict.values())).value
 
     if all_lumin_segm.size > 0 and lumin_subfind.size > 0:
         bin_edges = np.logspace(
@@ -169,7 +169,7 @@ for n_z in range(len(snaps)):
 
         depth = f.split(".")[-1]
 
-        lumin_segm = lumin_segm_dict[f]
+        lumin_segm = lumin_segm_dict[f].value
 
         # Histogram the LF
         H_segm, bins = np.histogram(lumin_segm.value, bins=bin_edges)
