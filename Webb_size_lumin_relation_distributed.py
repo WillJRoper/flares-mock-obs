@@ -274,7 +274,7 @@ for f in filters:
 
                 img, noise = util.noisy_img(img_psf, image_creator)
 
-            significance_image = img_psf / noise
+            significance_image = img / noise
 
             try:
                 segm = phut.detect_sources(significance_image, 2.0, npixels=5)
