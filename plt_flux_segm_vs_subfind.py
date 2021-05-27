@@ -159,7 +159,7 @@ for n_z in range(len(snaps)):
                 flux_segm_dict[f + "." + str(depth)] = np.array(flux_segm)
                 lumin_segm_dict[f + "." + str(depth)] = 4 * np.pi \
                                                         * cosmo.luminosity_distance(z) ** 2 \
-                                                        * flux_segm_dict[f] * u.nJy
+                                                        * flux_segm_dict[f + "." + str(depth)] * u.nJy
 
     flux_subfind = np.array(flux_subfind)
     print("SUBFIND:", flux_subfind.size)
