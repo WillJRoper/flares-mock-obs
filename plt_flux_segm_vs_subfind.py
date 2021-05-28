@@ -156,8 +156,8 @@ for n_z in range(len(snaps)):
                         flux_segm.append(np.sum(img[segm == sid]))
 
                 flux_segm_dict[f + "." + str(depth)] = np.array(flux_segm)
-                lumin_segm_dict[f + "." + str(depth)] = (4 * np.pi \
-                                                        * cosmo.luminosity_distance(z) ** 2 \
+                lumin_segm_dict[f + "." + str(depth)] = (4 * np.pi
+                                                        * cosmo.luminosity_distance(z) ** 2
                                                         * flux_segm_dict[f + "." + str(depth)] * u.nJy).to(u.erg)
 
         flux_subfind = np.array(flux_subfind)
@@ -250,7 +250,7 @@ for n_z in range(len(snaps)):
         bin_wid = bins[1] - bins[0]
         bin_cents = bins[1:] - (bin_wid / 2)
 
-        ax.bar(bin_cents, H, width=bin_wid, color="b", edgecolor="b", label="SUBFIND")
+        # ax.bar(bin_cents, H, width=bin_wid, color="b", edgecolor="b", label="SUBFIND")
 
         for depth in depths:
 
