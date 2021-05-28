@@ -283,9 +283,6 @@ for f in filters:
 
                 failed += 1
 
-                print(failed, "have no sources above noise with a depth of",
-                      depth, "nJy of", imgs.shape[0], end="\r")
-
                 imgs[ind, :, :] = img
                 segms[ind, :, :] = np.zeros((res, res))
                 sigs[ind, :, :] = np.zeros((res, res))
@@ -300,6 +297,9 @@ for f in filters:
                 smls.extend(this_smls)
                 fluxes.extend(this_flux)
                 subgrpids.extend(this_subgrpids)
+
+        print(failed, "have no sources above noise with a depth of",
+              depth, "nJy of", imgs.shape[0], end="\r")
 
         print(f, depth, imgs.shape)
 
