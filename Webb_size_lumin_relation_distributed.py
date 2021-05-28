@@ -78,26 +78,6 @@ depths = [1, 5, 10, 20, 50]
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
 
-# Define dictionaries and lists for results
-hlr_app_dict = {}
-hlr_pix_dict = {}
-flux_dict = {}
-img_dict = {}
-segm_dict = {}
-sig_dict = {}
-ngal_dict = {}
-sf_ngal_dict = {}
-grp_dict = {}
-star_pos = {}
-begin = {}
-Slen = {}
-smls = {}
-fluxes = {}
-subgrpids = {}
-grp_mass = {}
-gal_mass = {}
-gal_haloids = {}
-
 # Set mass limit
 masslim = 700
 
@@ -127,7 +107,13 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 ini_width_pkpc = 500
 ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
+hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
+                .format(reg, tag, Type, orientation), "w")
+print("Creating File...")
+
 for f in filters:
+
+    f_group = hdf[f]
 
     # --- initialise ImageCreator object
     image_creator = imagesim.Idealised(f, field)
@@ -191,26 +177,26 @@ for f in filters:
 
     image_keys = [k for k in reg_dict.keys() if type(k) is int]
 
-    gal_mass[f] = reg_dict["gal_ms"]
-    gal_haloids[f] = reg_dict["gal_haloids"]
+    gal_mass = reg_dict["gal_ms"]
+    gal_haloids = reg_dict["gal_haloids"]
 
     if len(image_keys) > 0:
         nimg = np.max(image_keys) + 1
 
-        begin.setdefault(f, np.zeros(nimg, dtype=int))
-        Slen.setdefault(f, np.zeros(nimg, dtype=int))
-        grp_mass.setdefault(f, np.zeros(nimg))
+        begin = np.zeros(nimg, dtype=int)
+        Slen = np.zeros(nimg, dtype=int)
+        grp_mass  = np.zeros(nimg)
 
     else:
         nimg = 0
-        begin.setdefault(f, np.zeros(nimg, dtype=int))
-        Slen.setdefault(f, np.zeros(nimg, dtype=int))
-        grp_mass.setdefault(f, np.zeros(nimg))
+        begin = np.zeros(nimg, dtype=int)
+        Slen  = np.zeros(nimg, dtype=int)
+        grp_mass  = np.zeros(nimg)
 
-    smls.setdefault(f, [])
-    fluxes.setdefault(f, [])
-    subgrpids.setdefault(f, [])
-    star_pos.setdefault(f, [])
+    smls = []
+    fluxes = []
+    subgrpids  = []
+    star_pos = []
 
     for num, depth in enumerate(depths):
 
@@ -224,9 +210,9 @@ for f in filters:
 
         fdepth = f + "." + str(depth)
 
-        img_dict.setdefault(fdepth, np.full((nimg, res, res), np.nan))
-        segm_dict.setdefault(fdepth, np.zeros((nimg, res, res)))
-        sig_dict.setdefault(fdepth, np.zeros((nimg, res, res)))
+        imgs = np.full((nimg, res, res), np.nan)
+        segms = np.zeros((nimg, res, res))
+        sigs = np.zeros((nimg, res, res))
 
         print()
         failed = 0
@@ -247,8 +233,8 @@ for f in filters:
             if np.nansum(this_flux) == 0:
 
                 if num == 0:
-                    begin[f][ind] = -1
-                    Slen[f][ind] = 0
+                    begin[ind] = -1
+                    Slen[ind] = 0
 
                 failed += 1
 
@@ -289,267 +275,113 @@ for f in filters:
                 segm = phut.deblend_sources(img, segm, npixels=5,
                                             nlevels=32, contrast=0.001)
 
-                img_dict[fdepth][ind, :, :] = img
-                segm_dict[fdepth][ind, :, :] = segm.data
-                sig_dict[fdepth][ind, :, :] = significance_image
+                imgs[ind, :, :] = img
+                segms[ind, :, :] = segm.data
+                sigs[ind, :, :] = significance_image
 
             except TypeError:
 
                 failed += 1
 
                 print(failed, "have no sources above noise with a depth of",
-                      depth, "nJy of", img_dict[fdepth].shape[0], end="\r")
+                      depth, "nJy of", imgs.shape[0], end="\r")
 
-                img_dict[fdepth][ind, :, :] = img
-                segm_dict[fdepth][ind, :, :] = np.zeros((res, res))
-                sig_dict[fdepth][ind, :, :] = np.zeros((res, res))
+                imgs[ind, :, :] = img
+                segms[ind, :, :] = np.zeros((res, res))
+                sigs[ind, :, :] = np.zeros((res, res))
 
             if num == 0:
 
-                begin[f][ind] = len(fluxes[f])
-                Slen[f][ind] = len(this_smls)
-                grp_mass[f][ind] = this_groupmass
+                begin[ind] = len(fluxes[f])
+                Slen[ind] = len(this_smls)
+                grp_mass[ind] = this_groupmass
 
-                star_pos[f].extend(this_pos)
-                smls[f].extend(this_smls)
-                fluxes[f].extend(this_flux)
-                subgrpids[f].extend(this_subgrpids)
+                star_pos.extend(this_pos)
+                smls.extend(this_smls)
+                fluxes.extend(this_flux)
+                subgrpids.extend(this_subgrpids)
 
+        print(f, depth, imgs.shape)
 
-try:
-    hdf = h5py.File("mock_data/"
-                    "flares_segm_{}_{}_Webb.hdf5".format(reg, tag), "r+")
-except OSError:
-    hdf = h5py.File("mock_data/"
-                    "flares_segm_{}_{}_Webb.hdf5".format(reg, tag), "w")
-    print("Creating File...")
+        fdepth_group = f_group[str(depth)]
 
-try:
-    type_group = hdf[Type]
-except KeyError:
-    print(Type, "Doesn't exists: Creating...")
-    type_group = hdf.create_group(Type)
+        dset = fdepth_group.create_dataset("Images", data=imgs,
+                                      dtype=imgs.dtype,
+                                      shape=imgs.shape,
+                                      compression="gzip")
+        dset.attrs["units"] = "$nJy$"
 
-try:
-    orientation_group = type_group[orientation]
-except KeyError:
-    print(orientation, "Doesn't exists: Creating...")
-    orientation_group = type_group.create_group(orientation)
-
-for f in filters:
-
-    try:
-        f_group = orientation_group[f]
-    except KeyError:
-        print(f, "Doesn't exists: Creating...")
-        f_group = orientation_group.create_group(f)
-
-    begin = begin[f]
-    grp_mass = grp_mass[f]
-    Slen = Slen[f]
-    fluxes = np.array(fluxes[f])
-    subgrpids = np.array(subgrpids[f])
-    smls = np.array(smls[f])
-    star_pos = np.array(star_pos[f])
-
-    try:
-        dset = f_group.create_dataset("Subgroup_IDs",
-                                                data=gal_haloids[f],
-                                                dtype=gal_haloids[f].dtype,
-                                                shape=gal_haloids[f].shape,
-                                                compression="gzip")
-        dset.attrs["units"] = "None"
-    except OSError:
-        print("Subgroup_IDs already exists: Overwriting...")
-        del f_group["Subgroup_IDs"]
-        dset = f_group.create_dataset("Subgroup_IDs",
-                                                data=gal_haloids[f],
-                                                dtype=gal_haloids[f].dtype,
-                                                shape=gal_haloids[f].shape,
-                                                compression="gzip")
+        dset = fdepth_group.create_dataset("Segmentation_Maps", data=segms,
+                                      dtype=segms.dtype,
+                                      shape=segms.shape,
+                                      compression="gzip")
         dset.attrs["units"] = "None"
 
-    try:
-        dset = f_group.create_dataset("Galaxy Mass",
-                                                data=gal_mass[f],
-                                                dtype=gal_mass[f].dtype,
-                                                shape=gal_mass[f].shape,
-                                                compression="gzip")
-        dset.attrs["units"] = "$M_\odot$"
-    except OSError:
-        print("Galaxy Mass already exists: Overwriting...")
-        del f_group["Galaxy Mass"]
-        dset = f_group.create_dataset("Galaxy Mass",
-                                                data=gal_mass[f],
-                                                dtype=gal_mass[f].dtype,
-                                                shape=gal_mass[f].shape,
-                                                compression="gzip")
-        dset.attrs["units"] = "$M_\odot$"
-
-    try:
-        dset = f_group.create_dataset("Start_Index", data=begin,
-                                        dtype=begin.dtype,
-                                        shape=begin.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "None"
-    except OSError:
-        print("Start_Index already exists: Overwriting...")
-        del f_group["Start_Index"]
-        dset = f_group.create_dataset("Start_Index", data=begin,
-                                        dtype=begin.dtype,
-                                        shape=begin.shape,
-                                        compression="gzip")
+        dset = fdepth_group.create_dataset("Significance_Images", data=sigs,
+                                      dtype=sigs.dtype,
+                                      shape=sigs.shape,
+                                      compression="gzip")
         dset.attrs["units"] = "None"
 
-    try:
-        dset = f_group.create_dataset("Group_Mass", data=grp_mass,
-                                        dtype=grp_mass.dtype,
-                                        shape=grp_mass.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "$M_\odot$"
-    except OSError:
-        print("Group_Mass already exists: Overwriting...")
-        del f_group["Group_Mass"]
-        dset = f_group.create_dataset("Group_Mass", data=grp_mass,
-                                        dtype=grp_mass.dtype,
-                                        shape=grp_mass.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "$M_\odot$"
+    fluxes = np.array(fluxes)
+    subgrpids = np.array(subgrpids)
+    smls = np.array(smls)
+    star_pos = np.array(star_pos)
 
-    try:
-        dset = f_group.create_dataset("Smoothing_Length", data=smls,
-                                        dtype=smls.dtype,
-                                        shape=smls.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "Mpc"
-    except OSError:
-        print("Smoothing_Length already exists: Overwriting...")
-        del f_group["Smoothing_Length"]
-        dset = f_group.create_dataset("Smoothing_Length", data=smls,
-                                        dtype=smls.dtype,
-                                        shape=smls.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "Mpc"
+    dset = f_group.create_dataset("Subgroup_IDs",
+                                            data=gal_haloids,
+                                            dtype=gal_haloids.dtype,
+                                            shape=gal_haloids.shape,
+                                            compression="gzip")
+    dset.attrs["units"] = "None"
 
-    try:
-        dset = f_group.create_dataset("Star_Pos", data=star_pos,
-                                        dtype=star_pos.dtype,
-                                        shape=star_pos.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "kpc"
-    except OSError:
-        print("Star_Pos already exists: Overwriting...")
-        del f_group["Star_Pos"]
-        dset = f_group.create_dataset("Star_Pos", data=star_pos,
-                                        dtype=star_pos.dtype,
-                                        shape=star_pos.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "kpc"
+    dset = f_group.create_dataset("Galaxy Mass",
+                                  data=gal_mass,
+                                  dtype=gal_mass.dtype,
+                                  shape=gal_mass.shape,
+                                  compression="gzip")
+    dset.attrs["units"] = "$M_\odot$"
 
-    try:
-        dset = f_group.create_dataset("Fluxes", data=fluxes,
-                                        dtype=fluxes.dtype,
-                                        shape=fluxes.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "nJy"
-    except OSError:
-        print("Fluxes already exists: Overwriting...")
-        del f_group["Fluxes"]
-        dset = f_group.create_dataset("Fluxes", data=fluxes,
-                                        dtype=fluxes.dtype,
-                                        shape=fluxes.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "nJy"
+    dset = f_group.create_dataset("Start_Index", data=begin,
+                                  dtype=begin.dtype,
+                                  shape=begin.shape,
+                                  compression="gzip")
+    dset.attrs["units"] = "None"
 
-    try:
-        dset = f_group.create_dataset("Part_subgrpids", data=subgrpids,
-                                        dtype=subgrpids.dtype,
-                                        shape=subgrpids.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "None"
-    except OSError:
-        print("Part_subgrpids already exists: Overwriting...")
-        del f_group["Part_subgrpids"]
-        dset = f_group.create_dataset("Part_subgrpids", data=subgrpids,
-                                        dtype=subgrpids.dtype,
-                                        shape=subgrpids.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "None"
+    dset = f_group.create_dataset("Group_Mass", data=grp_mass,
+                                  dtype=grp_mass.dtype,
+                                  shape=grp_mass.shape,
+                                  compression="gzip")
+    dset.attrs["units"] = "$M_\odot$"
 
-    try:
-        dset = f_group.create_dataset("Group_Length", data=Slen,
-                                        dtype=Slen.dtype,
-                                        shape=Slen.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "None"
-    except OSError:
-        print("Group_Length already exists: Overwriting...")
-        del f_group["Group_Length"]
-        dset = f_group.create_dataset("Group_Length", data=Slen,
-                                        dtype=Slen.dtype,
-                                        shape=Slen.shape,
-                                        compression="gzip")
-        dset.attrs["units"] = "None"
+    dset = f_group.create_dataset("Smoothing_Length", data=smls,
+                                  dtype=smls.dtype,
+                                  shape=smls.shape,
+                                  compression="gzip")
+    dset.attrs["units"] = "Mpc"
 
-    for num, depth in enumerate(depths):
+    dset = f_group.create_dataset("Star_Pos", data=star_pos,
+                                  dtype=star_pos.dtype,
+                                  shape=star_pos.shape,
+                                  compression="gzip")
+    dset.attrs["units"] = "kpc"
 
-        fdepth = f + "." + str(depth)
-        imgs = np.array(img_dict[fdepth])
-        segms = np.array(segm_dict[fdepth])
-        sigs = np.array(sig_dict[fdepth])
+    dset = f_group.create_dataset("Fluxes", data=fluxes,
+                                  dtype=fluxes.dtype,
+                                  shape=fluxes.shape,
+                                  compression="gzip")
+    dset.attrs["units"] = "nJy"
 
-        print(imgs.shape)
+    dset = f_group.create_dataset("Part_subgrpids", data=subgrpids,
+                                  dtype=subgrpids.dtype,
+                                  shape=subgrpids.shape,
+                                  compression="gzip")
+    dset.attrs["units"] = "None"
 
-        try:
-            fdepth_group = f_group[str(depth)]
-        except KeyError:
-            print(str(depth), "Doesn't exists: Creating...")
-            fdepth_group = f_group.create_group(str(depth))
-
-        try:
-            dset = fdepth_group.create_dataset("Images", data=imgs,
-                                          dtype=imgs.dtype,
-                                          shape=imgs.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "$nJy$"
-        except OSError:
-            print("Images already exists: Overwriting...")
-            del fdepth_group["Images"]
-            dset = fdepth_group.create_dataset("Images", data=imgs,
-                                          dtype=imgs.dtype,
-                                          shape=imgs.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "$nJy$"
-
-        try:
-            dset = fdepth_group.create_dataset("Segmentation_Maps", data=segms,
-                                          dtype=segms.dtype,
-                                          shape=segms.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
-        except OSError:
-            print("Segmentation_Maps already exists: Overwriting...")
-            del fdepth_group["Segmentation_Maps"]
-            dset = fdepth_group.create_dataset("Segmentation_Maps", data=segms,
-                                          dtype=segms.dtype,
-                                          shape=segms.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
-
-
-        try:
-            dset = fdepth_group.create_dataset("Significance_Images", data=sigs,
-                                          dtype=sigs.dtype,
-                                          shape=sigs.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
-        except OSError:
-            print("Significance_Images already exists: Overwriting...")
-            del fdepth_group["Significance_Images"]
-            dset = fdepth_group.create_dataset("Significance_Images", data=sigs,
-                                          dtype=sigs.dtype,
-                                          shape=sigs.shape,
-                                          compression="gzip")
-            dset.attrs["units"] = "None"
+    dset = f_group.create_dataset("Group_Length", data=Slen,
+                                  dtype=Slen.dtype,
+                                  shape=Slen.shape,
+                                  compression="gzip")
+    dset.attrs["units"] = "None"
 
 hdf.close()
