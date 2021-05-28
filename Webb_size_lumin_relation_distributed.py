@@ -299,7 +299,7 @@ for f in filters:
 
         print(failed, "have no sources above noise with a depth of",
               depth, "nJy of", imgs.shape[0], end="\r")
-
+        print(end="\r")
         print(f, depth, imgs.shape)
 
         fdepth_group = f_group.create_group(str(depth))
