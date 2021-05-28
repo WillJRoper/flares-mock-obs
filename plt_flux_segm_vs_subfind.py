@@ -57,6 +57,10 @@ lumin_segm_dict = {}
 
 for n_z in range(len(snaps)):
 
+    if len(sys.argv) > 3:
+        if n_z != int(sys.argv[3]):
+            continue
+
     for f in filters:
 
         snap = snaps[n_z]
