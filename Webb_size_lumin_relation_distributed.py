@@ -202,11 +202,11 @@ for f in filters:
 
         field.depths[f] = depth
 
-        print("Creating image for Filter, Noise, Depth:",
-              f, image_creator.pixel.noise, field.depths[f])
-
         # --- initialise ImageCreator object
         image_creator = imagesim.Idealised(f, field)
+
+        print("Creating image for Filter, Noise, Depth:",
+              f, image_creator.pixel.noise, field.depths[f])
 
         fdepth = f + "." + str(depth)
 
@@ -297,8 +297,10 @@ for f in filters:
                 fluxes.extend(this_flux)
                 subgrpids.extend(this_subgrpids)
 
-        print(failed, "have no sources above noise with a depth of",
-              depth, "nJy of", imgs.shape[0], end="\r")
+        print(failed, "images have no sources above noise with a depth of",
+              depth, "nJy of {},".format(imgs.shape[0]),
+              "SUBFIND finds {} sources".format(np.unique(subgrpids).size),
+              end="\r")
         print()
         print(f, depth, imgs.shape)
 
