@@ -77,16 +77,14 @@ for n_z in range(len(snaps)):
                   "snapshot {u}".format(o=orientation, t=Type, e=extinction,
                                         x=reg, u=snap))
             try:
-                hdf = h5py.File("mock_data/"
-                                "flares_segm_{}_{}_Webb.hdf5".format(reg, snap), "r")
+                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
+                                .format(reg, snap, Type, orientation), "r")
             except OSError as e:
                 print(e)
                 continue
 
             try:
-                type_group = hdf[Type]
-                orientation_group = type_group[orientation]
-                f_group = orientation_group[f]
+                f_group = hdf[f]
 
                 fluxes = f_group["Fluxes"][:]
                 subgrpids = f_group["Part_subgrpids"][:]
@@ -121,15 +119,12 @@ for n_z in range(len(snaps)):
 
             for depth in depths:
 
-                hdf = h5py.File("mock_data/"
-                                "flares_segm_{}_{}_Webb.hdf5".format(reg,
-                                                                     snap),
+                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
+                                .format(reg, snap, Type, orientation),
                                 "r")
 
                 try:
-                    type_group = hdf[Type]
-                    orientation_group = type_group[orientation]
-                    f_group = orientation_group[f]
+                    f_group = hdf[f]
                     fdepth_group = f_group[str(depth)]
 
                     imgs = fdepth_group["Images"][:]
