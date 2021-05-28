@@ -141,7 +141,7 @@ for n_z in range(len(snaps)):
                     hdf.close()
                     continue
 
-                print(segms.shape)
+                print(segms.shape, imgs.shape)
 
                 flux_segm = []
 
