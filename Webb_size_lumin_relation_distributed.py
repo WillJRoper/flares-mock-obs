@@ -124,7 +124,7 @@ kernel.normalize()
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
-ini_width_pkpc = 100
+ini_width_pkpc = 500
 ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
 for f in filters:
@@ -240,10 +240,6 @@ for f in filters:
 
             if np.nansum(this_flux) == 0:
 
-                img_dict[fdepth][ind, :, :] = np.full((res, res), np.nan)
-                segm_dict[fdepth][ind, :, :] = np.zeros((res, res))
-                sig_dict[fdepth][ind, :, :] = np.zeros((res, res))
-
                 if num == 0:
                     begin[f][ind] = -1
                     Slen[f][ind] = 0
@@ -281,7 +277,7 @@ for f in filters:
             significance_image = img / img_obj.noise
 
             try:
-                segm = phut.detect_sources(significance_image, 2.5, npixels=5)
+                segm = phut.detect_sources(significance_image, 2.0, npixels=5)
                 segm = phut.deblend_sources(img, segm, npixels=5,
                                             nlevels=32, contrast=0.001)
 
@@ -291,7 +287,7 @@ for f in filters:
 
             except TypeError:
 
-                print(ind, "had no sources above noise with a depth of",
+                print(ind, "found no sources above noise with a depth of",
                       depth, "nJy")
 
                 img_dict[fdepth][ind, :, :] = img
