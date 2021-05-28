@@ -139,6 +139,8 @@ for n_z in range(len(snaps)):
                     hdf.close()
                     continue
 
+                print(segms.shape)
+
                 for ind in range(segms.shape[0]):
 
                     segm = segms[ind, :, :]
@@ -149,6 +151,8 @@ for n_z in range(len(snaps)):
                     while len(source_ids) > 0:
 
                         sid = source_ids.pop()
+
+                        print(sid)
 
                         if sid == 0:
                             continue
