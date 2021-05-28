@@ -121,8 +121,6 @@ for n_z in range(len(snaps)):
 
             for depth in depths:
 
-                flux_segm = []
-
                 hdf = h5py.File("mock_data/"
                                 "flares_segm_{}_{}_Webb.hdf5".format(reg,
                                                                      snap),
@@ -145,6 +143,8 @@ for n_z in range(len(snaps)):
 
                 print(segms.shape)
 
+                flux_segm = []
+
                 for ind in range(segms.shape[0]):
 
                     segm = segms[ind, :, :]
@@ -155,8 +155,6 @@ for n_z in range(len(snaps)):
                     while len(source_ids) > 0:
 
                         sid = source_ids.pop()
-
-                        print(sid)
 
                         if sid == 0:
                             continue
@@ -262,9 +260,9 @@ for n_z in range(len(snaps)):
 
         for depth in depths:
 
-            print(f"Segmentation ({depth}):", flux_segm_dict[fdepth].size)
-
             fdepth = f + "." + str(depth)
+
+            print(f"Segmentation ({depth}):", flux_segm_dict[fdepth].size)
 
             H, bins = np.histogram(np.log10(flux_segm_dict[fdepth]), bins=bin_edges)
             bin_wid = bins[1] - bins[0]
