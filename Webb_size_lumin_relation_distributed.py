@@ -203,6 +203,9 @@ for f in filters:
 
     else:
         nimg = 0
+        begin.setdefault(f, np.zeros(nimg, dtype=int))
+        Slen.setdefault(f, np.zeros(nimg, dtype=int))
+        grp_mass.setdefault(f, np.zeros(nimg))
 
     smls.setdefault(f, [])
     fluxes.setdefault(f, [])
@@ -225,6 +228,9 @@ for f in filters:
         segm_dict.setdefault(fdepth, np.zeros((nimg, res, res)))
         sig_dict.setdefault(fdepth, np.zeros((nimg, res, res)))
 
+        print()
+        failed = 0
+
         for key in image_keys:
 
             ind = key
@@ -243,6 +249,8 @@ for f in filters:
                 if num == 0:
                     begin[f][ind] = -1
                     Slen[f][ind] = 0
+
+                failed += 1
 
                 continue
 
@@ -287,8 +295,10 @@ for f in filters:
 
             except TypeError:
 
-                print(ind, "found no sources above noise with a depth of",
-                      depth, "nJy")
+                failed += 1
+
+                print(failed, "have no sources above noise with a depth of",
+                      depth, "nJy of", img_dict[fdepth].shape[0], end="\r")
 
                 img_dict[fdepth][ind, :, :] = img
                 segm_dict[fdepth][ind, :, :] = np.zeros((res, res))
