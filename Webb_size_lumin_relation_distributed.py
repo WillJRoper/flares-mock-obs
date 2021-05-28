@@ -104,7 +104,7 @@ kernel.normalize()
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
-ini_width_pkpc = 500
+ini_width_pkpc = 150
 ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
 hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
@@ -214,7 +214,6 @@ for f in filters:
         segms = np.zeros((nimg, res, res))
         sigs = np.zeros((nimg, res, res))
 
-        print()
         failed = 0
 
         for key in image_keys:
