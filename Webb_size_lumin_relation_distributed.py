@@ -113,7 +113,7 @@ print("Creating File...")
 
 for f in filters:
 
-    f_group = hdf[f]
+    f_group = hdf.create_group(f)
 
     # --- initialise ImageCreator object
     image_creator = imagesim.Idealised(f, field)
@@ -303,7 +303,7 @@ for f in filters:
 
         print(f, depth, imgs.shape)
 
-        fdepth_group = f_group[str(depth)]
+        fdepth_group = f_group.create_group(str(depth))
 
         dset = fdepth_group.create_dataset("Images", data=imgs,
                                       dtype=imgs.dtype,
