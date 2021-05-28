@@ -204,11 +204,12 @@ for n_z in range(len(snaps)):
             H_segm, bins = np.histogram(lumin_segm, bins=bin_edges)
 
             # Plot each histogram
-            ax.plot(bin_cents, H_segm / interval, label="Segmentation map: " + str(depth) + " nJy")
+            ax.plot(bin_cents, H_segm / interval,
+                    label="Segmentation map: " + str(depth) + " nJy", zorder=3)
 
         H_sf, _ = np.histogram(np.log10(lumin_subfind), bins=bin_edges)
         ax.loglog(bin_cents, H_sf / interval, linestyle='--',
-                  label="SUBFIND")
+                  label="SUBFIND", zorder=0)
 
         ax.set_xlabel("$\log_{10}(L[\mathrm{erg} \mathrm{s}^{-1} \mathrm{Hz}^{-1}])$")
         ax.set_ylabel(r'$\mathrm{log}_{10}(\Phi/(\mathrm{cMpc}^{-3}\mathrm{dex}^{-1}))$')
