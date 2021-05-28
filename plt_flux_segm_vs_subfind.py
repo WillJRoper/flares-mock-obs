@@ -59,13 +59,12 @@ for n_z in range(len(snaps)):
 
     for f in filters:
 
-        flux_segm = []
-        flux_subfind = []
-
         snap = snaps[n_z]
 
         z_str = snap.split('z')[1].split('p')
         z = float(z_str[0] + '.' + z_str[1])
+
+        flux_subfind = []
 
         for reg in regions:
 
@@ -117,6 +116,8 @@ for n_z in range(len(snaps)):
                 flux_subfind.extend(this_flux)
 
             for depth in depths:
+
+                flux_segm = []
 
                 hdf = h5py.File("mock_data/"
                                 "flares_segm_{}_{}_Webb.hdf5".format(reg,
@@ -203,10 +204,10 @@ for n_z in range(len(snaps)):
             H_segm, bins = np.histogram(lumin_segm, bins=bin_edges)
 
             # Plot each histogram
-            ax.loglog(bin_cents, np.log10(H_segm / interval), label="Segmentation map: " + str(depth) + " nJy")
+            ax.loglog(bin_cents, H_segm / interval, label="Segmentation map: " + str(depth) + " nJy")
 
         H_sf, _ = np.histogram(lumin_subfind, bins=bin_edges)
-        ax.loglog(bin_cents, np.log10(H_sf / interval), linestyle='--',
+        ax.loglog(bin_cents, H_sf / interval, linestyle='--',
                   label="SUBFIND")
 
         ax.set_xlabel("$\log_{10}(L[\mathrm{erg} \mathrm{s}^{-1} \mathrm{Hz}^{-1}])$")
@@ -232,15 +233,15 @@ for n_z in range(len(snaps)):
             bin_edges = np.logspace(
                 np.log10(np.min((all_flux_segm.min(), flux_subfind.min()))),
                 np.log10(np.max((all_flux_segm.max(), flux_subfind.max()))),
-                75)
+                50)
         elif flux_subfind.size == 0 and all_flux_segm.size > 0:
             bin_edges = np.logspace(np.log10(all_flux_segm.min()),
                                     np.log10(all_flux_segm.max()),
-                                    75)
+                                    50)
         elif all_flux_segm.size == 0 and flux_subfind.size > 0:
             bin_edges = np.logspace(np.log10(flux_subfind.min()),
                                     np.log10(flux_subfind.max()),
-                                    75)
+                                    50)
         else:
             continue
 
