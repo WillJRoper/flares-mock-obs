@@ -292,7 +292,7 @@ for f in filters:
 
             if num == 0:
 
-                begin[ind] = len(fluxes[f])
+                begin[ind] = len(fluxes)
                 Slen[ind] = len(this_smls)
                 grp_mass[ind] = this_groupmass
 
