@@ -254,7 +254,7 @@ for n_z in range(len(snaps)):
 
         for depth in depths:
 
-            print(f"Segmentation ({depth}):", flux_subfind.size)
+            print(f"Segmentation ({depth}):", flux_segm_dict[fdepth].size)
 
             fdepth = f + "." + str(depth)
 
