@@ -138,8 +138,6 @@ for n_z in range(len(snaps)):
                     hdf.close()
                     continue
 
-                print(segms.shape[0])
-
                 for ind in range(segms.shape[0]):
 
                     segm = segms[ind, :, :]
@@ -261,10 +259,11 @@ for n_z in range(len(snaps)):
 
         ax.plot(bin_cents, H, label="Segmentation map: " + str(depth) + " nJy")
 
-    ax.set_xlabel("$\log_{10}(F/[\mathrm{nJy}])$")
+    ax.set_xlabel("$F/[\mathrm{nJy}]$")
     ax.set_ylabel("$N$")
 
     ax.set_yscale("log")
+    ax.set_xscale("log")
 
     ax.legend()
 
