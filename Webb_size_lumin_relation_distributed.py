@@ -281,7 +281,7 @@ for f in filters:
                 sigs[ind, :, :] = significance_image
 
                 util.plot_images(img, segm.data, significance_image, reg,
-                                 f, depth, tag, ind, ini_width_pkpc,
+                                 f, depth, tag, ind, imgextent, ini_width_pkpc,
                                  cutout_halfsize=int(0.1 * res))
 
             except TypeError as e:
