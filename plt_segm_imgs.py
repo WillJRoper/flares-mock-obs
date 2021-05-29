@@ -121,12 +121,11 @@ single_pixel_area = arc_res * arc_res \
 imgrange = ((-width / 2, width / 2), (-width / 2, width / 2))
 imgextent = [-width / 2, width / 2, -width / 2, width / 2]
 
-hdf = h5py.File("mock_data/"
-                "flares_segm_{}_{}_Webb.hdf5".format(reg, snap), "r")
+hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
+                .format(reg, snap, Type, orientation),
+                "r")
 
-type_group = hdf[Type]
-orientation_group = type_group[orientation]
-f_group = orientation_group[f]
+f_group = hdf[f]
 fdepth_group = f_group[str(depth)]
 
 imgs = fdepth_group["Images"][:]
