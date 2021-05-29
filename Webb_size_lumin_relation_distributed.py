@@ -215,6 +215,7 @@ for f in filters:
         sigs = np.zeros((nimg, res, res))
 
         failed = 0
+        segm_sources = 0
 
         for key in image_keys:
 
@@ -284,8 +285,12 @@ for f in filters:
                                  f, depth, tag, ind, imgextent, ini_width_pkpc,
                                  cutout_halfsize=int(0.1 * res))
 
+                segm_sources += np.unique(segm.data).size - 1
+
             except TypeError as e:
                 print(e)
+                print(img.min(), img.max(),
+                      significance_image.min(), significance_image.max())
 
                 failed += 1
 
@@ -307,6 +312,7 @@ for f in filters:
         print(failed, "images have no sources above noise with a depth of",
               depth, "nJy of {},".format(imgs.shape[0]),
               "SUBFIND finds {} sources".format(np.unique(subgrpids).size),
+              "Segmentation finds {} sources".format(segm_sources),
               end="\r")
         print()
         print(f, depth, imgs.shape)
