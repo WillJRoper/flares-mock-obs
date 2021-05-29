@@ -278,6 +278,10 @@ for f in filters:
                 segms[ind, :, :] = segm.data
                 sigs[ind, :, :] = significance_image
 
+                util.plot_images(img, segm.data, significance_image, reg,
+                                 f, depth, tag, ind, ini_width_pkpc,
+                                 cutout_halfsize=int(0.1 * res))
+
             except TypeError:
 
                 failed += 1

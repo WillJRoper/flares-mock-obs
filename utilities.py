@@ -5,11 +5,13 @@ import astropy.units as u
 import matplotlib
 import numba as nb
 import numpy as np
+import matplotlib.pyplot as plt
 from astropy.cosmology import Planck13 as cosmo
 from photutils import CircularAperture, RectangularAperture, \
     EllipticalAperture, aperture_photometry, detect_threshold, \
     detect_sources, deblend_sources
 from scipy.interpolate import interp1d
+import matplotlib.gridspec as gridspec
 from scipy.spatial import cKDTree
 import schwimmbad
 from functools import partial
@@ -701,3 +703,71 @@ def noisy_img(true_img, image_creator):
     noisy_img = true_img + img.bkg
 
     return noisy_img, img
+
+
+def plot_images(img, segm, sig, reg, f, depth, snap, ind, imgextent,
+                ini_width_pkpc, cutout_halfsize=50):
+
+    fig = plt.figure(figsize=(4, 6.4))
+    gs = gridspec.GridSpec(3, 2)
+    gs.update(wspace=0.0, hspace=0.0)
+    ax1 = fig.add_subplot(gs[0, 0])
+    ax2 = fig.add_subplot(gs[1, 0])
+    ax3 = fig.add_subplot(gs[2, 0])
+    ax4 = fig.add_subplot(gs[0, 1])
+    ax5 = fig.add_subplot(gs[1, 1])
+    ax6 = fig.add_subplot(gs[2, 1])
+
+    axes = [ax1, ax2, ax3, ax4, ax5, ax6]
+
+    for i, ax in enumerate(axes):
+        ax.grid(False)
+
+        if i < 2:
+            ax.tick_params(axis='x', top=False, bottom=False,
+                           labeltop=False, labelbottom=False)
+        elif i > 2 and i < 5:
+            ax.tick_params(axis='both', top=False, bottom=False,
+                           labeltop=False, labelbottom=False,
+                           left=False, right=False,
+                           labelleft=False, labelright=False)
+        elif i == 5:
+            ax.tick_params(axis='y', left=False, right=False,
+                           labelleft=False, labelright=False)
+
+    plt_img = np.zeros_like(img)
+    plt_img[img > 0] = np.log10(img[img > 0])
+    axes[0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
+    axes[1].imshow(segm, extent=imgextent, cmap="plasma")
+    cbar = axes[2].imshow(sig, extent=imgextent, cmap="jet")
+
+    max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
+    ind_slice = [np.max((0, max_ind[0] - cutout_halfsize)),
+                 np.min((plt_img.size, max_ind[0] + cutout_halfsize)),
+                 np.max((0, max_ind[1] - cutout_halfsize)),
+                 np.min((plt_img.size, max_ind[1] + cutout_halfsize))]
+    axes[3].imshow(plt_img[ind_slice[0]: ind_slice[1],
+                   ind_slice[2]: ind_slice[3]],
+                   extent=imgextent, cmap="Greys_r")
+    axes[4].imshow(segm[ind_slice[0]: ind_slice[1],
+                   ind_slice[2]: ind_slice[3]], extent=imgextent,
+                   cmap="plasma")
+    axes[5].imshow(sig[ind_slice[0]: ind_slice[1],
+                   ind_slice[2]: ind_slice[3]], extent=imgextent,
+                   cmap="gist_rainbow")
+
+    ax1.set_title(str(ini_width_pkpc) + " pkpc")
+    ax4.set_title("Brightest Source")
+
+    ax1.set_ylabel('y (")')
+    ax2.set_ylabel('y (")')
+    ax3.set_ylabel('y (")')
+    ax3.set_xlabel('x (")')
+    ax6.set_xlabel('x (")')
+
+    fig.colorbar(cbar)
+
+    fig.savefig("plots/gal_img_log_Filter-" + f + "_Depth-" + str(depth)
+                + "_Region-" + reg + "_Snap-" + snap + "_Group-"
+                + str(ind) + ".png", dpi=600)
+    plt.close(fig)
