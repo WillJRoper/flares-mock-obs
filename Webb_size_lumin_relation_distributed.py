@@ -237,6 +237,8 @@ for f in filters:
 
                 failed += 1
 
+                print(failed, ind)
+
                 continue
 
             if orientation == "sim" or orientation == "face-on":
@@ -282,7 +284,8 @@ for f in filters:
                                  f, depth, tag, ind, ini_width_pkpc,
                                  cutout_halfsize=int(0.1 * res))
 
-            except TypeError:
+            except TypeError as e:
+                print(e)
 
                 failed += 1
 
