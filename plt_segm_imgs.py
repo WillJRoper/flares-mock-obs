@@ -140,6 +140,8 @@ gal_ids = set(f_group["Subgroup_IDs"][:])
 
 hdf.close()
 
+print(imgs.shape)
+
 # Define x and y positions of pixels
 X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], res),
                    np.linspace(imgrange[1][0], imgrange[1][1], res))
