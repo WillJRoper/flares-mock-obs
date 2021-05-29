@@ -83,7 +83,7 @@ print("Making images for with orientation {o}, type {t}, "
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
-ini_width_pkpc = 100
+ini_width_pkpc = 150
 ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
 survey_id = 'XDF'  # the XDF (updated HUDF)
