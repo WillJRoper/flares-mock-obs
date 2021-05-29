@@ -274,7 +274,7 @@ for f in filters:
             significance_image[significance_image < 0] = 0
 
             try:
-                segm = phut.detect_sources(significance_image, 2.0, npixels=5)
+                segm = phut.detect_sources(significance_image, 2.5, npixels=5)
                 segm = phut.deblend_sources(img, segm, npixels=5,
                                             nlevels=32, contrast=0.001)
 
@@ -282,9 +282,9 @@ for f in filters:
                 segms[ind, :, :] = segm.data
                 sigs[ind, :, :] = significance_image
 
-                util.plot_images(img, segm.data, significance_image, reg,
-                                 f, depth, tag, ind, imgextent, ini_width_pkpc,
-                                 cutout_halfsize=int(0.1 * res))
+                # util.plot_images(img, segm.data, significance_image, reg,
+                #                  f, depth, tag, ind, imgextent, ini_width_pkpc,
+                #                  cutout_halfsize=int(0.1 * res))
 
                 segm_sources += np.unique(segm.data).size - 1
 
