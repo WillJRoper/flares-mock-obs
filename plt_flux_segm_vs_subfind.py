@@ -56,7 +56,7 @@ depths = [1, 5, 10, 20, 50]
 flux_segm_dict = {}
 lumin_segm_dict = {}
 
-thresh =  2.5
+thresh = 2.0
 
 for n_z in range(len(snaps)):
 
