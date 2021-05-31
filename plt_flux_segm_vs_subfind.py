@@ -144,9 +144,12 @@ for n_z in range(len(snaps)):
                     sig = sigs[ind, :, :]
                     img = imgs[ind, :, :]
 
-                    segm = phut.detect_sources(sig, 2.5, npixels=5)
-                    segm = phut.deblend_sources(img, segm, npixels=5,
-                                                nlevels=32, contrast=0.001)
+                    try:
+                        segm = phut.detect_sources(sig, 2.5, npixels=5)
+                        segm = phut.deblend_sources(img, segm, npixels=5,
+                                                    nlevels=32, contrast=0.001)
+                    except TypeError:
+                        continue
 
                     source_ids = np.unique(segm)
                     source_ids = set(list(source_ids))
