@@ -73,7 +73,7 @@ print("Computing HLRs with orientation {o}, type {t}, and extinction {e}"
 # Define filter
 filters = ('Hubble.WFC3.f160w', )
 
-depths = [1, 5, 10, 20, 50]
+depths = [0.1, 1, 5, 10, 20]
 
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
@@ -205,13 +205,13 @@ for f in filters:
         # --- initialise ImageCreator object
         image_creator = imagesim.Idealised(f, field)
 
-        print("Creating image for Filter, Noise, Depth:",
+        print("Creating image for Filter, Pixel noise, Depth:",
               f, image_creator.pixel.noise, field.depths[f])
 
         fdepth = f + "." + str(depth)
 
         imgs = np.full((nimg, res, res), np.nan)
-        segms = np.zeros((nimg, res, res))
+        # segms = np.zeros((nimg, res, res))
         sigs = np.zeros((nimg, res, res))
 
         failed = 0
@@ -274,19 +274,19 @@ for f in filters:
             significance_image[significance_image < 0] = 0
 
             try:
-                segm = phut.detect_sources(significance_image, 2.5, npixels=5)
-                segm = phut.deblend_sources(img, segm, npixels=5,
-                                            nlevels=32, contrast=0.001)
+                # segm = phut.detect_sources(significance_image, 2.5, npixels=5)
+                # segm = phut.deblend_sources(img, segm, npixels=5,
+                #                             nlevels=32, contrast=0.001)
 
                 imgs[ind, :, :] = img
-                segms[ind, :, :] = segm.data
+                # segms[ind, :, :] = segm.data
                 sigs[ind, :, :] = significance_image
 
                 # util.plot_images(img, segm.data, significance_image, reg,
                 #                  f, depth, tag, ind, imgextent, ini_width_pkpc,
                 #                  cutout_halfsize=int(0.1 * res))
 
-                segm_sources += np.unique(segm.data).size - 1
+                # segm_sources += np.unique(segm.data).size - 1
 
             except TypeError as e:
                 print(e)
@@ -296,7 +296,7 @@ for f in filters:
                 failed += 1
 
                 imgs[ind, :, :] = img
-                segms[ind, :, :] = np.zeros((res, res))
+                # segms[ind, :, :] = np.zeros((res, res))
                 sigs[ind, :, :] = np.zeros((res, res))
 
             if num == 0:
@@ -326,11 +326,11 @@ for f in filters:
                                       compression="gzip")
         dset.attrs["units"] = "$nJy$"
 
-        dset = fdepth_group.create_dataset("Segmentation_Maps", data=segms,
-                                      dtype=segms.dtype,
-                                      shape=segms.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
+        # dset = fdepth_group.create_dataset("Segmentation_Maps", data=segms,
+        #                               dtype=segms.dtype,
+        #                               shape=segms.shape,
+        #                               compression="gzip")
+        # dset.attrs["units"] = "None"
 
         dset = fdepth_group.create_dataset("Significance_Images", data=sigs,
                                       dtype=sigs.dtype,

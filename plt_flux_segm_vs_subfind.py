@@ -12,6 +12,7 @@ matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
 import seaborn as sns
 from matplotlib.colors import LogNorm
+import photutils as phut
 import h5py
 import sys
 from astropy.cosmology import Planck13 as cosmo
@@ -128,7 +129,7 @@ for n_z in range(len(snaps)):
                     fdepth_group = f_group[str(depth)]
 
                     imgs = fdepth_group["Images"][:]
-                    segms = fdepth_group["Segmentation_Maps"][:]
+                    sigs = fdepth_group["Significance_Images"][:]
 
                     hdf.close()
                 except KeyError as e:
@@ -136,14 +137,17 @@ for n_z in range(len(snaps)):
                     hdf.close()
                     continue
 
-                print(segms.shape, imgs.shape)
-
                 flux_segm = []
 
-                for ind in range(segms.shape[0]):
+                for ind in range(imgs.shape[0]):
 
-                    segm = segms[ind, :, :]
+                    sig = sigs[ind, :, :]
                     img = imgs[ind, :, :]
+
+                    segm = phut.detect_sources(sig, 2.5, npixels=5)
+                    segm = phut.deblend_sources(img, segm, npixels=5,
+                                                nlevels=32, contrast=0.001)
+
                     source_ids = np.unique(segm)
                     source_ids = set(list(source_ids))
 
