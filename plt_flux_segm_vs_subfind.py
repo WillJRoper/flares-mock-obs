@@ -56,6 +56,8 @@ depths = [1, 5, 10, 20, 50]
 flux_segm_dict = {}
 lumin_segm_dict = {}
 
+thresh =  2.5
+
 for n_z in range(len(snaps)):
 
     if len(sys.argv) > 3:
@@ -139,13 +141,19 @@ for n_z in range(len(snaps)):
 
                 flux_segm = []
 
+                if sigs.max() < thresh:
+                    continue
+
                 for ind in range(imgs.shape[0]):
 
                     sig = sigs[ind, :, :]
                     img = imgs[ind, :, :]
 
+                    if sig.max() < thresh:
+                        continue
+
                     try:
-                        segm = phut.detect_sources(sig, 2.5, npixels=5)
+                        segm = phut.detect_sources(sig, thresh, npixels=5)
                         segm = phut.deblend_sources(img, segm, npixels=5,
                                                     nlevels=32, contrast=0.001)
                     except TypeError:
