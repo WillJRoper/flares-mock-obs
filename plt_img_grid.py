@@ -17,6 +17,7 @@ from astropy.cosmology import Planck13 as cosmo
 import h5py
 import sys
 import eritlux.simulations.imagesim as imagesim
+import flare.surveys
 import flare.plots.image
 
 sns.set_context("paper")
