@@ -133,21 +133,17 @@ while ind < n_img:
         f_group = hdf[f]
         fdepth_group = f_group[str(depth)]
 
-        imgs = fdepth_group["Images"][:]
-
-        hdf.close()
-
-        print(imgs.shape)
+        imgs = fdepth_group["Images"]
 
         if ind > imgs.shape[0]:
             ind += 1
-            break
+            continue
 
-        sinds = np.argsort(np.sum(imgs, axis=0))[::-1]
-        imgs = imgs[sinds]
         img_dict[depth] = imgs[ind, :, :]
         print(img_dict[depth].min(), img_dict[depth].max(),
               np.std(img_dict[depth]))
+
+        hdf.close()
 
     all_imgs = np.array(list(img_dict.values()))
     img_norm = LogNorm(vmin=0, vmax=np.percentile(all_imgs, 99))
