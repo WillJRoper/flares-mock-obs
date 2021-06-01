@@ -129,55 +129,32 @@ while ind < n_img:
             continue
 
         img_dict[depth] = imgs[ind, :, :]
-        print(img_dict[depth].min(), img_dict[depth].max(),
-              np.std(img_dict[depth]))
 
         hdf.close()
 
     all_imgs = np.array(list(img_dict.values()))
     img_norm = LogNorm(vmin=np.percentile(all_imgs, 31.75),
                        vmax=np.percentile(all_imgs, 99))
-    resi_norm = LogNorm(vmin=-5, vmax=5)
     
     print(np.percentile(all_imgs, 99), np.std(all_imgs))
 
-    fig = plt.figure(figsize=(6, 6))
-    gs = gridspec.GridSpec(len(depths), len(depths))
+    fig = plt.figure(figsize=(3, 6))
+    gs = gridspec.GridSpec(len(depths), 1)
     gs.update(wspace=0.0, hspace=0.0)
     axes = []
-    combos = []
-    ijs = []
     for i in range(len(depths)):
-        for j in range(len(depths)):
-            if j > i:
-                continue
-            axes.append(fig.add_subplot(gs[i, j]))
-            combos.append((depths[i], depths[j]))
-            ijs.append((i, j))
+        axes.append(fig.add_subplot(gs[i, j]))
 
-    for combo, ax, (i, j) in zip(combos, axes, ijs):
+    for ax, depth in zip(axes, depths):
         ax.tick_params(axis='both', top=False, bottom=False,
                        labeltop=False, labelbottom=False,
                        left=False, right=False,
                        labelleft=False, labelright=False)
 
-        if combo[0] == combo[1]:
+        plt_img = img_dict[depth]
+        ax.imshow(plt_img, extent=imgextent, cmap="Greys_r", norm=img_norm)
 
-            plt_img = img_dict[combo[0]]
-            ax.imshow(plt_img, extent=imgextent, cmap="Greys_r", norm=img_norm)
-
-        else:
-            img1 = img_dict[combo[0]]
-            img2 = img_dict[combo[1]]
-            var1 = np.var(img1)
-            var2 = np.var(img2)
-            plt_img = (img1 - img2) / np.sqrt(var1 + var2)
-            ax.imshow(plt_img, extent=imgextent, cmap="plasma", norm=resi_norm)
-
-        if i == 0:
-            ax.set_xlabel("Depth {} nJY".format(combo[i]))
-        if j == 0:
-            ax.set_ylabel("Depth {} nJY".format(combo[j]))
+        ax.set_title("Depth {} nJY".format(depth))
 
     fig.savefig("plots/gal_img_comp_Filter-" + f
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
