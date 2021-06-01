@@ -75,11 +75,6 @@ z = float(z_str[0] + '.' + z_str[1])
 
 n_img = int(sys.argv[5])
 
-print("Making images for with orientation {o}, type {t}, "
-      "and extinction {e} for region {x} and "
-      "snapshot {u}".format(o=orientation, t=Type, e=extinction,
-                            x=reg, u=snap))
-
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
@@ -121,87 +116,84 @@ single_pixel_area = arc_res * arc_res \
 imgrange = ((-width / 2, width / 2), (-width / 2, width / 2))
 imgextent = [-width / 2, width / 2, -width / 2, width / 2]
 
-hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
-                .format(reg, snap, Type, orientation),
-                "r")
-
-f_group = hdf[f]
-fdepth_group = f_group[str(depth)]
-
-imgs = fdepth_group["Images"][:]
-
-hdf.close()
-
-print(imgs.shape)
-
-sinds = np.argsort(np.sum(imgs, axis=0))[::-1]
-imgs = imgs[sinds]
-
 ind = 0
-while ind < n_img and ind < imgs.shape[0]:
+
+while ind < n_img:
 
     print("Creating image", ind)
 
-    img = imgs[ind, :, :]
+    img_dict = {}
+
+    for depth in depths:
+
+        hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
+                        .format(reg, snap, Type, orientation),
+                        "r")
+
+        f_group = hdf[f]
+        fdepth_group = f_group[str(depth)]
+
+        imgs = fdepth_group["Images"][:]
+
+        hdf.close()
+
+        print(imgs.shape)
+
+        if ind > imgs.shape[0]:
+            ind += 1
+            break
+
+        sinds = np.argsort(np.sum(imgs, axis=0))[::-1]
+        imgs = imgs[sinds]
+        img_dict[depth] = imgs[ind, :, :]
+        print(img_dict[depth].min(), img_dict[depth].max(),
+              np.std(img_dict[depth]))
+
+    all_imgs = np.array(list(img_dict.values()))
+    img_norm = LogNorm(vmin=0, vmax=np.percentile(all_imgs, 99))
+    resi_norm = LogNorm(vmin=-5, vmax=5)
+    
+    print(np.percentile(all_imgs, 99), np.std(all_imgs))
 
     fig = plt.figure(figsize=(6, 6))
-    gs = gridspec.GridSpec(3, 2)
+    gs = gridspec.GridSpec(len(depths), len(depths))
     gs.update(wspace=0.0, hspace=0.0)
-    ax1 = fig.add_subplot(gs[0, 0])
-    ax2 = fig.add_subplot(gs[1, 0])
-    ax3 = fig.add_subplot(gs[2, 0])
-    ax4 = fig.add_subplot(gs[0, 1])
-    ax5 = fig.add_subplot(gs[1, 1])
-    ax6 = fig.add_subplot(gs[2, 1])
+    axes = []
+    combos = []
+    ijs = []
+    for i in range(len(depths)):
+        for j in range(len(depths)):
+            if j > i:
+                continue
+            axes.append(fig.add_subplot(gs[i, j]))
+            combos.append((depths[i], depths[j]))
+            ijs.append((i, j))
 
-    axes = [ax1, ax2, ax3, ax4, ax5, ax6]
+    for combo, ax, (i, j) in zip(combos, axes, ijs):
+        ax.tick_params(axis='both', top=False, bottom=False,
+                       labeltop=False, labelbottom=False,
+                       left=False, right=False,
+                       labelleft=False, labelright=False)
 
-    for i, ax in enumerate(axes):
-        ax.grid(False)
+        if combo[0] == combo[1]:
 
-        if i < 2:
-            ax.tick_params(axis='x', top=False, bottom=False,
-                        labeltop=False, labelbottom=False)
-        elif i > 2 and i < 5:
-            ax.tick_params(axis='both', top=False, bottom=False,
-                           labeltop=False, labelbottom=False,
-                           left=False, right=False,
-                           labelleft=False, labelright=False)
-        elif i == 5:
-            ax.tick_params(axis='y', left=False, right=False,
-                           labelleft=False, labelright=False)
+            plt_img = img_dict[combo[0]]
+            ax.imshow(plt_img, extent=imgextent, cmap="Greys_r", norm=img_norm)
 
-    plt_img = np.zeros_like(img)
-    plt_img[img > 0] = np.log10(img[img > 0])
-    axes[0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
-    axes[1].imshow(segm, extent=imgextent, cmap="plasma")
-    axes[2].imshow(subfind_img, extent=imgextent, cmap="gist_rainbow")
+        else:
+            img1 = img_dict[combo[0]]
+            img2 = img_dict[combo[1]]
+            var1 = np.var(img1)
+            var2 = np.var(img2)
+            plt_img = (img1 - img2) / np.sqrt(var1 + var2)
+            ax.imshow(plt_img, extent=imgextent, cmap="plasma", norm=resi_norm)
 
-    max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
-    ind_slice = [np.max((0, max_ind[0] - cutout_halfsize)),
-                 np.min((plt_img.size, max_ind[0] + cutout_halfsize)),
-                 np.max((0, max_ind[1] - cutout_halfsize)),
-                 np.min((plt_img.size, max_ind[1] + cutout_halfsize))]
-    axes[3].imshow(plt_img[ind_slice[0]: ind_slice[1],
-                   ind_slice[2]: ind_slice[3]],
-                   extent=imgextent, cmap="Greys_r")
-    axes[4].imshow(segm[ind_slice[0]: ind_slice[1],
-                   ind_slice[2]: ind_slice[3]], extent=imgextent,
-                   cmap="plasma")
-    axes[5].imshow(subfind_img[ind_slice[0]: ind_slice[1],
-                   ind_slice[2]: ind_slice[3]], extent=imgextent,
-                   cmap="gist_rainbow")
+        if i == 0:
+            ax.set_ylabel("Depth {} nJY".format(combo[i]))
+        if j == 0:
+            ax.set_xlabel("Depth {} nJY".format(combo[j]))
 
-    ax1.set_title(str(ini_width_pkpc) + " pkpc")
-    ax4.set_title("Brightest Source")
-
-    ax1.set_ylabel('y (")')
-    ax2.set_ylabel('y (")')
-    ax3.set_ylabel('y (")')
-    ax3.set_xlabel('x (")')
-    ax6.set_xlabel('x (")')
-
-    fig.savefig("plots/gal_img_log_Filter-" + f + "_Depth-" + str(depth)
+    fig.savefig("plots/gal_img_comp_Filter-" + f
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
                 + str(ind) + ".png", dpi=600)
     plt.close(fig)
