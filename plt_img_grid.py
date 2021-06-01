@@ -10,7 +10,6 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
-import seaborn as sns
 import matplotlib as mpl
 from matplotlib.colors import LogNorm
 import matplotlib.gridspec as gridspec
@@ -186,9 +185,9 @@ while ind < n_img:
             ax.imshow(plt_img, extent=imgextent, cmap="plasma", norm=resi_norm)
 
         if i == 0:
-            ax.set_ylabel("Depth {} nJY".format(combo[i]))
+            ax.set_xlabel("Depth {} nJY".format(combo[i]))
         if j == 0:
-            ax.set_xlabel("Depth {} nJY".format(combo[j]))
+            ax.set_ylabel("Depth {} nJY".format(combo[j]))
 
     fig.savefig("plots/gal_img_comp_Filter-" + f
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
