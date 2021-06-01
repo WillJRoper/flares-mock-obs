@@ -10,28 +10,17 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
-import matplotlib as mpl
+import seaborn as sns
 from matplotlib.colors import LogNorm
 import matplotlib.gridspec as gridspec
-from scipy.stats import binned_statistic
-from matplotlib.lines import Line2D
 from astropy.cosmology import Planck13 as cosmo
-import astropy.units as u
-from flare.photom import lum_to_M, M_to_lum, lum_to_flux, m_to_flux
-import flare.photom as photconv
-from scipy.spatial import cKDTree
 import h5py
 import sys
-import pandas as pd
-import utilities as util
-import phot_modules as phot
-import utilities as util
 import eritlux.simulations.imagesim as imagesim
-import flare.surveys
 import flare.plots.image
 
 sns.set_context("paper")
-sns.set_style('whitegrid')
+sns.set_style('white')
 
 
 regions = []
