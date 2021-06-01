@@ -143,7 +143,7 @@ while ind < n_img:
     gs.update(wspace=0.0, hspace=0.0)
     axes = []
     for i in range(len(depths)):
-        axes.append(fig.add_subplot(gs[i, j]))
+        axes.append(fig.add_subplot(gs[i, 0]))
 
     for ax, depth in zip(axes, depths):
         ax.tick_params(axis='both', top=False, bottom=False,
