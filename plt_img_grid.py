@@ -134,12 +134,13 @@ while ind < n_img:
         hdf.close()
 
     all_imgs = np.array(list(img_dict.values()))
-    img_norm = LogNorm(vmin=0,
+    img_norm = LogNorm(vmin=np.percentile(all_imgs, 31.75),
                        vmax=np.percentile(all_imgs, 99))
 
     # np.percentile(all_imgs, 31.75)
     
-    print(np.percentile(all_imgs, 31.75), np.percentile(all_imgs, 99), np.std(all_imgs))
+    print(np.percentile(all_imgs, 31.75), np.percentile(all_imgs, 99),
+          np.std(all_imgs))
 
     fig = plt.figure(figsize=(6, 2.5))
     gs = gridspec.GridSpec(2, len(depths), height_ratios=[4, 1])
