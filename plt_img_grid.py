@@ -139,11 +139,11 @@ while ind < n_img:
     print(np.percentile(all_imgs, 99), np.std(all_imgs))
 
     fig = plt.figure(figsize=(3, 6))
-    gs = gridspec.GridSpec(len(depths), 1)
+    gs = gridspec.GridSpec(1, len(depths))
     gs.update(wspace=0.0, hspace=0.0)
     axes = []
     for i in range(len(depths)):
-        axes.append(fig.add_subplot(gs[i, 0]))
+        axes.append(fig.add_subplot(gs[0, i]))
 
     for ax, depth in zip(axes, depths):
         ax.tick_params(axis='both', top=False, bottom=False,
