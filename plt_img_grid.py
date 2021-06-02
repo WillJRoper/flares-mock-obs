@@ -143,7 +143,7 @@ while ind < n_img:
           np.std(all_imgs))
 
     fig = plt.figure(figsize=(6, 2))
-    gs = gridspec.GridSpec(2, len(depths), height_ratios=[10, 1])
+    gs = gridspec.GridSpec(2, len(depths), height_ratios=[20, 1])
     gs.update(wspace=0.0, hspace=0.0)
     cax = fig.add_subplot(gs[1, :])
     axes = []
