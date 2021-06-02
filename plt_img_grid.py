@@ -13,6 +13,7 @@ warnings.filterwarnings('ignore')
 import seaborn as sns
 from matplotlib.colors import LogNorm
 import matplotlib.gridspec as gridspec
+import matplotlib as mpl
 from astropy.cosmology import Planck13 as cosmo
 import h5py
 import sys
@@ -153,11 +154,13 @@ while ind < n_img:
                        labelleft=False, labelright=False)
 
         plt_img = img_dict[depth]
-        cimg = ax.imshow(plt_img, extent=imgextent, cmap="plasma", norm=img_norm)
+        ax.imshow(plt_img, extent=imgextent, cmap="plasma", norm=img_norm)
 
         ax.set_title("Depth {} nJY".format(depth))
 
-    cbar = fig.colorbar(cimg, cax=cax)
+    cbar = mpl.colorbar.ColorbarBase(cax, cmap="plasma",
+                                     norm=img_norm,
+                                     orientation='horizontal')
 
     cbar.set_label("$\log_{10}(F/[\mathrm{nJy}])$", orientation="horizontal")
 
