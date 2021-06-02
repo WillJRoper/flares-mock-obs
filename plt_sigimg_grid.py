@@ -123,7 +123,7 @@ while ind < n_img:
         f_group = hdf[f]
         fdepth_group = f_group[str(depth)]
 
-        imgs = fdepth_group["Images"]
+        imgs = fdepth_group["Significance_Images"]
 
         if ind > imgs.shape[0]:
             ind += 1
@@ -134,7 +134,7 @@ while ind < n_img:
         hdf.close()
 
     all_imgs = np.array(list(img_dict.values()))
-    img_norm = LogNorm(vmin=-np.percentile(all_imgs, 31.75),
+    img_norm = LogNorm(vmin=0,
                        vmax=np.percentile(all_imgs, 99))
 
     # np.percentile(all_imgs, 31.75)
@@ -166,9 +166,9 @@ while ind < n_img:
                                      norm=img_norm,
                                      orientation='horizontal')
 
-    cbar.set_label("$F/[\mathrm{nJy}]$")
+    cbar.set_label("SNR")
 
-    fig.savefig("plots/gal_img_comp_Filter-" + f + "_Orientation-"
+    fig.savefig("plots/gal_sigimg_comp_Filter-" + f + "_Orientation-"
                 + orientation + "_Type-" + Type
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
                 + str(ind) + ".png", dpi=600, bbox_inches="tight")
