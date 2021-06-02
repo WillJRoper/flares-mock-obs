@@ -168,7 +168,8 @@ while ind < n_img:
 
     cbar.set_label("$F/[\mathrm{nJy}]")
 
-    fig.savefig("plots/gal_img_comp_Filter-" + f
+    fig.savefig("plots/gal_img_comp_Filter-" + f + "_Orientation-"
+                + orientation + "_Type-" + Type
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
                 + str(ind) + ".png", dpi=600, bbox_inches="tight")
     plt.close(fig)
