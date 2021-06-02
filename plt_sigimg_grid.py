@@ -134,7 +134,8 @@ while ind < n_img:
         hdf.close()
 
     all_imgs = np.array(list(img_dict.values()))
-    img_norm = mpl.colors.Normalize(vmin=0, vmax=np.percentile(all_imgs, 99))
+    img_norm = mpl.colors.TwoSlopeNorm(vmin=0, vcenter=2.5,
+                                       vmax=np.percentile(all_imgs, 99))
     
     print(0, np.percentile(all_imgs, 99), np.std(all_imgs))
 
@@ -153,7 +154,7 @@ while ind < n_img:
                        labelleft=False, labelright=False)
 
         plt_img = img_dict[depth]
-        ax.imshow(plt_img, extent=imgextent, cmap="plasma", norm=img_norm)
+        ax.imshow(plt_img, extent=imgextent, cmap="bwr", norm=img_norm)
 
         ax.set_title("Depth {} (nJy)".format(depth))
 

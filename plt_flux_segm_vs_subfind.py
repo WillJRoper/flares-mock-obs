@@ -130,10 +130,9 @@ for n_z in range(len(snaps)):
                     f_group = hdf[f]
                     fdepth_group = f_group[str(depth)]
 
-                    imgs = fdepth_group["Images"][:]
-                    sigs = fdepth_group["Significance_Images"][:]
+                    imgs = fdepth_group["Images"]
+                    sigs = fdepth_group["Significance_Images"]
 
-                    hdf.close()
                 except KeyError as e:
                     print(e)
                     hdf.close()
@@ -170,6 +169,8 @@ for n_z in range(len(snaps)):
                             continue
 
                         flux_segm.append(np.sum(img[segm == sid]))
+
+                hdf.close()
 
                 flux_segm_dict[f + "." + str(depth)] = np.array(flux_segm)
                 lumin_segm_dict[f + "." + str(depth)] = (4 * np.pi
