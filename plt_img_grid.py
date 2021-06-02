@@ -134,8 +134,10 @@ while ind < n_img:
         hdf.close()
 
     all_imgs = np.array(list(img_dict.values()))
-    img_norm = LogNorm(vmin=np.percentile(all_imgs, 31.75),
+    img_norm = LogNorm(vmin=0,
                        vmax=np.percentile(all_imgs, 99))
+
+    # np.percentile(all_imgs, 31.75)
     
     print(np.percentile(all_imgs, 31.75), np.percentile(all_imgs, 99), np.std(all_imgs))
 
