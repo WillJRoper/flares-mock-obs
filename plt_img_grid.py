@@ -139,8 +139,8 @@ while ind < n_img:
     print(np.percentile(all_imgs, 99), np.std(all_imgs))
 
     fig = plt.figure(figsize=(6, 2.5))
-    gs = gridspec.GridSpec(2, len(depths))
-    gs.update(wspace=0.0, hspace=0.0, height_ratios=[4, 1])
+    gs = gridspec.GridSpec(2, len(depths), height_ratios=[4, 1])
+    gs.update(wspace=0.0, hspace=0.0)
     cax = fig.add_subplot(gs[1, :])
     axes = []
     for i in range(len(depths)):
