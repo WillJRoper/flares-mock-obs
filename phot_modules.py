@@ -67,16 +67,16 @@ def get_data(reg, snap, r):
     all_grp_ms = E.read_array('SUBFIND', path, snap, 'FOF/Group_M_Mean200',
                               numThreads=8) * 10**10
 
-    okinds = all_grp_ms > 10**10
+    okinds = all_grp_ms > 10**11
     grp_cops = grp_cops[okinds]
     r_200 = r_200[okinds]
     all_grp_ms = all_grp_ms[okinds]
 
-    okinds = gal_ms > 10**8
-    gal_cops = gal_cops[okinds]
-    gal_ms = gal_ms[okinds]
-    gal_grpid = gal_grpid[okinds]
-    gal_subgrpid = gal_subgrpid[okinds]
+    # okinds = gal_ms > 10**8
+    # gal_cops = gal_cops[okinds]
+    # gal_ms = gal_ms[okinds]
+    # gal_grpid = gal_grpid[okinds]
+    # gal_subgrpid = gal_subgrpid[okinds]
 
     # Convert to group.subgroup ID format
     gal_haloids = np.zeros(gal_grpid.size, dtype=float)
@@ -397,6 +397,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     for ind, cop in enumerate(cops):
 
         okinds = star_tree.query_ball_point(cop, r=r)
+
         g_okinds = gas_tree.query_ball_point(cop, r=r)
 
         Fnus[ind] = {f: {} for f in filters}
