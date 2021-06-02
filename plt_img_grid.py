@@ -137,7 +137,7 @@ while ind < n_img:
     img_norm = LogNorm(vmin=np.percentile(all_imgs, 31.75),
                        vmax=np.percentile(all_imgs, 99))
     
-    print(np.percentile(all_imgs, 99), np.std(all_imgs))
+    print(np.percentile(all_imgs, 31.75), np.percentile(all_imgs, 99), np.std(all_imgs))
 
     fig = plt.figure(figsize=(6, 2.5))
     gs = gridspec.GridSpec(2, len(depths), height_ratios=[4, 1])
@@ -163,7 +163,8 @@ while ind < n_img:
                                      norm=img_norm,
                                      orientation='horizontal')
 
-    cbar.set_label("$\log_{10}(F/[\mathrm{nJy}])$", orientation="horizontal")
+    cbar.set_label("$\log_{10}(F/[\mathrm{nJy}])$",
+                   orientation="horizontal")
 
     fig.savefig("plots/gal_img_comp_Filter-" + f
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
