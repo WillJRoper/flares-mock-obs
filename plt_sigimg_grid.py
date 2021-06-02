@@ -158,7 +158,7 @@ while ind < n_img:
 
         ax.set_title("Depth {} (nJy)".format(depth))
 
-    cmap = mpl.cm.plasma
+    cmap = mpl.cm.bwr
     cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
                                      norm=img_norm,
                                      orientation='horizontal')
