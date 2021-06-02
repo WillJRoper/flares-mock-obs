@@ -138,9 +138,10 @@ while ind < n_img:
     
     print(np.percentile(all_imgs, 99), np.std(all_imgs))
 
-    fig = plt.figure(figsize=(6, 2))
-    gs = gridspec.GridSpec(1, len(depths))
-    gs.update(wspace=0.0, hspace=0.0)
+    fig = plt.figure(figsize=(6, 2.5))
+    gs = gridspec.GridSpec(2, len(depths))
+    gs.update(wspace=0.0, hspace=0.0, height_ratios=[4, 1])
+    cax = fig.add_subplot(gs[1, :])
     axes = []
     for i in range(len(depths)):
         axes.append(fig.add_subplot(gs[0, i]))
@@ -152,9 +153,13 @@ while ind < n_img:
                        labelleft=False, labelright=False)
 
         plt_img = img_dict[depth]
-        ax.imshow(plt_img, extent=imgextent, cmap="Greys_r", norm=img_norm)
+        cimg = ax.imshow(plt_img, extent=imgextent, cmap="plasma", norm=img_norm)
 
         ax.set_title("Depth {} nJY".format(depth))
+
+    cbar = fig.colorbar(cimg, cax=cax)
+
+    cbar.set_label("$\log_{10}(F/[\mathrm{nJy}])$", orientation="horizontal")
 
     fig.savefig("plots/gal_img_comp_Filter-" + f
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
