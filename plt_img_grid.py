@@ -138,7 +138,7 @@ while ind < n_img:
     
     print(np.percentile(all_imgs, 99), np.std(all_imgs))
 
-    fig = plt.figure(figsize=(3, 6))
+    fig = plt.figure(figsize=(6, 2))
     gs = gridspec.GridSpec(1, len(depths))
     gs.update(wspace=0.0, hspace=0.0)
     axes = []
@@ -158,7 +158,7 @@ while ind < n_img:
 
     fig.savefig("plots/gal_img_comp_Filter-" + f
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
-                + str(ind) + ".png", dpi=600)
+                + str(ind) + ".png", dpi=600, bbox_inches="tight")
     plt.close(fig)
 
     ind += 1
