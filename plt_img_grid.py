@@ -134,7 +134,7 @@ while ind < n_img:
         hdf.close()
 
     all_imgs = np.array(list(img_dict.values()))
-    img_norm = LogNorm(vmin=np.percentile(all_imgs, 31.75),
+    img_norm = LogNorm(vmin=-np.percentile(all_imgs, 31.75),
                        vmax=np.percentile(all_imgs, 99))
 
     # np.percentile(all_imgs, 31.75)
@@ -159,7 +159,7 @@ while ind < n_img:
         plt_img = img_dict[depth]
         ax.imshow(plt_img, extent=imgextent, cmap="plasma", norm=img_norm)
 
-        ax.set_title("Depth {} nJY".format(depth))
+        ax.set_title("Depth {} (nJy)".format(depth))
 
     cmap = mpl.cm.plasma
     cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
