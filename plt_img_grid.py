@@ -166,8 +166,7 @@ while ind < n_img:
                                      norm=img_norm,
                                      orientation='horizontal')
 
-    cbar.set_label("$\log_{10}(F/[\mathrm{nJy}])$",
-                   orientation="horizontal")
+    cbar.set_label("$\log_{10}(F/[\mathrm{nJy}])$")
 
     fig.savefig("plots/gal_img_comp_Filter-" + f
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
