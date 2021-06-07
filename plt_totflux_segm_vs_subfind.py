@@ -111,7 +111,7 @@ for n_z in range(len(snaps)):
                     imgs = fdepth_group["Images"]
                     sigs = fdepth_group["Significance_Images"]
 
-                    flux_segm_dict.setdefault(f + "." + str(depth)).append(np.sum(imgs[ind, :, :][sigs[ind, :, :] >= thresh]))
+                    flux_segm_dict.setdefault(f + "." + str(depth),[]).append(np.sum(imgs[ind, :, :][sigs[ind, :, :] >= thresh]))
 
             hdf.close()
 
