@@ -220,6 +220,9 @@ for n_z in range(len(snaps)):
 
             fdepth = f + "." + str(depth)
 
+            if not fdepth in flux_segm_dict.keys():
+                continue
+            
             print(f"Segmentation ({depth}):", flux_segm_dict[fdepth].size)
 
             H, bins = np.histogram(np.log10(flux_segm_dict[fdepth]), bins=bin_edges)
