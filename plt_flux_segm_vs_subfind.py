@@ -185,7 +185,7 @@ for n_z in range(len(snaps)):
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        bin_edges = np.logspace(-5,
+        bin_edges = np.logspace(-2,
                                 5,
                                 50)
         bin_wid = bin_edges[1] - bin_edges[0]
@@ -214,8 +214,8 @@ for n_z in range(len(snaps)):
 
         H, bins = np.histogram(flux_subfind, bins=bin_edges)
 
-        ax.bar(bin_cents, H, width=np.diff(bin_edges), color="b",
-               edgecolor="b", label="SUBFIND", align="edge")
+        ax.bar(bin_cents, H, width=np.diff(bin_edges), color="grey",
+               edgecolor="grey", label="SUBFIND")
 
         for depth in depths:
 
