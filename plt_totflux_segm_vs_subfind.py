@@ -154,8 +154,8 @@ for n_z in range(len(snaps)):
                     linestyle="none", marker="^",
                     label="Segmentation map: " + str(depth) + " nJy")
 
-        ax.set_xlabel("$F_{\mathrm{SUBFIND}/[\mathrm{nJy}]$")
-        ax.set_ylabel("$_{\mathrm{segm}F/[\mathrm{nJy}]$")
+        ax.set_xlabel("$F_{\mathrm{SUBFIND}}/[\mathrm{nJy}]$")
+        ax.set_ylabel("$F_{\mathrm{segm}}/[\mathrm{nJy}]$")
 
         ax.set_yscale("log")
         ax.set_xscale("log")
