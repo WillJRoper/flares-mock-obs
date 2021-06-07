@@ -128,7 +128,7 @@ for n_z in range(len(snaps)):
             if not fdepth in flux_segm_dict.keys():
                 continue
 
-            flux_segm_dict = np.array(flux_segm_dict[fdepth])
+            flux_segm_dict[fdepth] = np.array(flux_segm_dict[fdepth])
 
             print(f"Segmentation ({depth}):", flux_segm_dict[fdepth].size)
 
