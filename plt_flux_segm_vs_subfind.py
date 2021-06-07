@@ -185,8 +185,8 @@ for n_z in range(len(snaps)):
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        bin_edges = np.logspace(10**-5,
-                                10**5,
+        bin_edges = np.logspace(-5,
+                                5,
                                 50)
 
         # try:
