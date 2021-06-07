@@ -185,8 +185,8 @@ for n_z in range(len(snaps)):
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        bin_edges = np.linspace(-5,
-                                5,
+        bin_edges = np.logspace(10**-5,
+                                10**5,
                                 50)
 
         # try:
@@ -210,7 +210,7 @@ for n_z in range(len(snaps)):
         # else:
         #     continue
 
-        H, bins = np.histogram(np.log10(flux_subfind), bins=bin_edges)
+        H, bins = np.histogram(flux_subfind, bins=bin_edges)
         bin_wid = bins[1] - bins[0]
         bin_cents = bins[1:] - (bin_wid / 2)
 
@@ -222,16 +222,16 @@ for n_z in range(len(snaps)):
 
             if not fdepth in flux_segm_dict.keys():
                 continue
-            
+
             print(f"Segmentation ({depth}):", flux_segm_dict[fdepth].size)
 
-            H, bins = np.histogram(np.log10(flux_segm_dict[fdepth]), bins=bin_edges)
+            H, bins = np.histogram(flux_segm_dict[fdepth], bins=bin_edges)
             bin_wid = bins[1] - bins[0]
             bin_cents = bins[1:] - (bin_wid / 2)
 
             ax.plot(bin_cents, H, label="Segmentation map: " + str(depth) + " nJy")
 
-        ax.set_xlabel("$\log_{10}(F/[\mathrm{nJy}])$")
+        ax.set_xlabel("$F/[\mathrm{nJy}]$")
         ax.set_ylabel("$N$")
 
         ax.set_yscale("log")
