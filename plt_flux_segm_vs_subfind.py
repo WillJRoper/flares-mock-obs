@@ -140,6 +140,9 @@ for n_z in range(len(snaps)):
 
                 flux_segm = []
 
+                if sigs.shape[0] == 0:
+                    continue
+
                 if sigs[:].max() < thresh:
                     continue
 
