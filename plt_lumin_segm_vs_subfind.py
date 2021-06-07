@@ -56,7 +56,7 @@ depths = [0.1, 1, 5, 10, 20]
 flux_segm_dict = {}
 lumin_segm_dict = {}
 
-thresh = 2.5
+thresh = 2.0
 
 for n_z in range(len(snaps)):
 
@@ -161,8 +161,6 @@ for n_z in range(len(snaps)):
                     source_ids = np.unique(segm)
                     source_ids = set(list(source_ids))
 
-                    print(len(source_ids))
-
                     while len(source_ids) > 0:
 
                         sid = source_ids.pop()
@@ -175,43 +173,101 @@ for n_z in range(len(snaps)):
                 hdf.close()
 
                 flux_segm_dict[f + "." + str(depth)] = np.array(flux_segm)
+                lumin_segm_dict[f + "." + str(depth)] = (4 * np.pi
+                                                        * cosmo.luminosity_distance(z) ** 2
+                                                        * flux_segm_dict[f + "." + str(depth)] * u.nJy).to(u.erg)
 
         flux_subfind = np.array(flux_subfind)
         print("SUBFIND:", flux_subfind.size)
+        lumin_subfind = (4 * np.pi * cosmo.luminosity_distance(z)**2
+                         * flux_subfind * u.nJy).to(u.erg).value
 
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        bin_edges = np.linspace(-5,
-                                5,
-                                50)
+        try:
+            all_lumin_segm = np.concatenate(list(lumin_segm_dict.values())).value
+        except ValueError:
+            all_lumin_segm = np.array([])
 
-        # try:
-        #     all_flux_segm = np.concatenate(list(flux_segm_dict.values()))
-        # except ValueError:
-        #     all_flux_segm = np.array([])
-        #
-        # if all_flux_segm.size > 0 and flux_subfind.size > 0:
-        #     bin_edges = np.linspace(
-        #         np.log10(np.min((all_flux_segm.min(), flux_subfind.min()))),
-        #         np.log10(np.max((all_flux_segm.max(), flux_subfind.max()))),
-        #         50)
-        # elif flux_subfind.size == 0 and all_flux_segm.size > 0:
-        #     bin_edges = np.linspace(np.log10(all_flux_segm.min()),
-        #                             np.log10(all_flux_segm.max()),
-        #                             50)
-        # elif all_flux_segm.size == 0 and flux_subfind.size > 0:
-        #     bin_edges = np.linspace(np.log10(flux_subfind.min()),
-        #                             np.log10(flux_subfind.max()),
-        #                             50)
-        # else:
-        #     continue
+        if all_lumin_segm.size > 0 and lumin_subfind.size > 0:
+            bin_edges = np.linspace(
+                np.log10(np.min((all_lumin_segm.min(), lumin_subfind.min()))),
+                np.log10(np.max((all_lumin_segm.max(), lumin_subfind.max()))),
+                75)
+        elif lumin_subfind.size == 0 and all_lumin_segm.size > 0:
+            bin_edges = np.linspace(np.log10(all_lumin_segm.min()),
+                                    np.log10(all_lumin_segm.max()),
+                                    75)
+        elif all_lumin_segm.size == 0 and lumin_subfind.size > 0:
+            bin_edges = np.linspace(np.log10(lumin_subfind.min()),
+                                    np.log10(lumin_subfind.max()),
+                                    75)
+        else:
+            continue
+
+        interval = bin_edges[1:] - bin_edges[:-1]
+
+        # Compute bin centres
+        bin_cents = bin_edges[1:] - ((bin_edges[1] - bin_edges[0]) / 2)
+
+        for depth in depths:
+
+            fdepth = f + "." + str(depth)
+
+            lumin_segm = np.log10(lumin_segm_dict[fdepth].value)
+
+            # Histogram the LF
+            H_segm, bins = np.histogram(lumin_segm, bins=bin_edges)
+
+            # Plot each histogram
+            ax.plot(bin_cents, H_segm / interval,
+                    label="Segmentation map: " + str(depth) + " nJy", zorder=3)
+
+        H_sf, _ = np.histogram(np.log10(lumin_subfind), bins=bin_edges)
+        ax.loglog(bin_cents, H_sf / interval, linestyle='--',
+                  label="SUBFIND", zorder=0)
+
+        ax.set_xlabel("$\log_{10}(L[\mathrm{erg} \mathrm{s}^{-1} \mathrm{Hz}^{-1}])$")
+        ax.set_ylabel(r'$\mathrm{log}_{10}(\Phi/(\mathrm{cMpc}^{-3}\mathrm{dex}^{-1}))$')
+
+        ax.legend()
+
+        fig.savefig("plots/LF_Type-" + Type + "_Snap-"
+                    + snaps[n_z] + "_Filter-" + f + ".png",
+                    bbox_inches="tight")
+
+        plt.close(fig)
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+
+        try:
+            all_flux_segm = np.concatenate(list(flux_segm_dict.values()))
+        except ValueError:
+            all_flux_segm = np.array([])
+
+        if all_flux_segm.size > 0 and flux_subfind.size > 0:
+            bin_edges = np.linspace(
+                np.log10(np.min((all_flux_segm.min(), flux_subfind.min()))),
+                np.log10(np.max((all_flux_segm.max(), flux_subfind.max()))),
+                50)
+        elif flux_subfind.size == 0 and all_flux_segm.size > 0:
+            bin_edges = np.linspace(np.log10(all_flux_segm.min()),
+                                    np.log10(all_flux_segm.max()),
+                                    50)
+        elif all_flux_segm.size == 0 and flux_subfind.size > 0:
+            bin_edges = np.linspace(np.log10(flux_subfind.min()),
+                                    np.log10(flux_subfind.max()),
+                                    50)
+        else:
+            continue
 
         H, bins = np.histogram(np.log10(flux_subfind), bins=bin_edges)
         bin_wid = bins[1] - bins[0]
         bin_cents = bins[1:] - (bin_wid / 2)
 
-        ax.bar(bin_cents, H, width=bin_wid, color="b", edgecolor="b", label="SUBFIND")
+        # ax.bar(bin_cents, H, width=bin_wid, color="b", edgecolor="b", label="SUBFIND")
 
         for depth in depths:
 
@@ -233,8 +289,8 @@ for n_z in range(len(snaps)):
 
         ax.legend()
 
-        fig.savefig("plots/flux_hist_Filter-" + f + "_Orientation-"
-                + orientation + "_Type-" + Type + "_Snap-" + snap + ".png",
+        fig.savefig("plots/flux_hist_Type-" + Type + "_Snap-"
+                    + snaps[n_z] + "_Filter-" + f + ".png",
                     bbox_inches="tight")
 
         plt.close(fig)
