@@ -53,9 +53,6 @@ filters = ('Hubble.WFC3.f160w', )
 
 depths = [0.1, 1, 5, 10, 20]
 
-flux_segm_dict = {}
-lumin_segm_dict = {}
-
 thresh = 2.5
 
 for n_z in range(len(snaps)):
@@ -63,6 +60,9 @@ for n_z in range(len(snaps)):
     if len(sys.argv) > 3:
         if n_z != int(sys.argv[3]):
             continue
+
+    flux_segm_dict = {}
+    lumin_segm_dict = {}
 
     for f in filters:
 
