@@ -210,7 +210,7 @@ for n_z in range(len(snaps)):
         # else:
         #     continue
 
-        H, bins = np.histogram(flux_subfind, bins=bin_edges)
+        H, bins = np.histogram(flux_subfind, bins=50)
         bin_wid = bins[1] - bins[0]
         bin_cents = bins[1:] - (bin_wid / 2)
 
