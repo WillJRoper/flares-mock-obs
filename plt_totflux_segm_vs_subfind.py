@@ -101,24 +101,7 @@ for n_z in range(len(snaps)):
                 hdf.close()
                 continue
 
-            for beg, img_len in zip(begin, group_len):
-
-                this_subgrpids = subgrpids[beg: beg + img_len]
-
-                subgrps, inverse_inds = np.unique(this_subgrpids,
-                                                  return_inverse=True)
-
-                this_flux = np.zeros(subgrps.size)
-
-                for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
-                                             inverse_inds, this_subgrpids):
-
-                    if subgrpid in gal_ids:
-
-                        this_flux[i] += flux
-
-                this_flux = this_flux[this_flux > 0]
-                flux_subfind.extend(this_flux)
+            flux_subfind.append(np.sum(fluxes))
 
             for depth in depths:
 
@@ -140,44 +123,12 @@ for n_z in range(len(snaps)):
 
                 flux_segm = []
 
-                if sigs.shape[0] == 0:
-                    continue
-
-                if sigs[:].max() < thresh:
-                    continue
-
                 for ind in range(imgs.shape[0]):
 
                     sig = sigs[ind, :, :]
                     img = imgs[ind, :, :]
 
-                    if sig.max() < thresh:
-                        continue
-
-                    try:
-                        segm = phut.detect_sources(sig, thresh, npixels=5)
-                        segm = phut.deblend_sources(img, segm, npixels=5,
-                                                    nlevels=32, contrast=0.001)
-                    except TypeError as e:
-                        print(e)
-                        plt.imshow(img)
-                        plt.savefig("plots/failed_{}_{}.png".format(reg, snap))
-                        plt.close()
-                        plt.imshow(sig)
-                        plt.savefig("plots/failed_sig_{}_{}.png".format(reg, snap))
-                        continue
-
-                    source_ids = np.unique(segm)
-                    source_ids = set(list(source_ids))
-
-                    print(len(source_ids))
-
-                    for sid in source_ids:
-
-                        if sid == 0:
-                            continue
-
-                        flux_segm.append(np.sum(img[segm == sid]))
+                    flux_segm.append(np.sum(img[sig >= thresh]))
 
                 hdf.close()
 
@@ -189,35 +140,6 @@ for n_z in range(len(snaps)):
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        try:
-            all_flux_segm = np.concatenate(list(flux_segm_dict.values()))
-        except ValueError:
-            all_flux_segm = np.array([])
-
-        if all_flux_segm.size > 0 and flux_subfind.size > 0:
-            bin_edges = np.logspace(
-                np.log10(np.min((all_flux_segm.min(), flux_subfind.min()))) - 0.5,
-                np.log10(np.max((all_flux_segm.max(), flux_subfind.max()))) + 0.5,
-                50)
-        elif flux_subfind.size == 0 and all_flux_segm.size > 0:
-            bin_edges = np.logspace(np.log10(all_flux_segm.min()) - 0.5,
-                                    np.log10(all_flux_segm.max()) + 0.5,
-                                    50)
-        elif all_flux_segm.size == 0 and flux_subfind.size > 0:
-            bin_edges = np.logspace(np.log10(flux_subfind.min()) - 0.5,
-                                    np.log10(flux_subfind.max()) + 0.5,
-                                    50)
-        else:
-            continue
-
-        bin_wid = bin_edges[1] - bin_edges[0]
-        bin_cents = bin_edges[:-1] + (bin_wid / 2)
-
-        H, bins = np.histogram(flux_subfind, bins=bin_edges)
-
-        ax.bar(bin_edges[:-1], H, width=np.diff(bin_edges), color="grey",
-               edgecolor="grey", label="SUBFIND", alpha=0.8, align="edge")
-
         for depth in depths:
 
             fdepth = f + "." + str(depth)
@@ -227,20 +149,19 @@ for n_z in range(len(snaps)):
 
             print(f"Segmentation ({depth}):", flux_segm_dict[fdepth].size)
 
-            H, bins = np.histogram(flux_segm_dict[fdepth], bins=bin_edges)
-
-            ax.plot(bin_cents, H,
+            ax.plot(flux_subfind, flux_segm_dict[fdepth],
+                    linestyle="none", marker="^",
                     label="Segmentation map: " + str(depth) + " nJy")
 
-        ax.set_xlabel("$F/[\mathrm{nJy}]$")
-        ax.set_ylabel("$N$")
+        ax.set_xlabel("$F_{\mathrm{SUBFIND}/[\mathrm{nJy}]$")
+        ax.set_ylabel("$_{\mathrm{segm}F/[\mathrm{nJy}]$")
 
         ax.set_yscale("log")
         ax.set_xscale("log")
 
         ax.legend()
 
-        fig.savefig("plots/flux_hist_Filter-" + f + "_Orientation-"
+        fig.savefig("plots/totflux_Filter-" + f + "_Orientation-"
                 + orientation + "_Type-" + Type + "_Snap-" + snap + ".png",
                     bbox_inches="tight")
 
