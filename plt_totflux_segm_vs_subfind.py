@@ -95,45 +95,25 @@ for n_z in range(len(snaps)):
                 group_len = f_group["Group_Length"][:]
                 gal_ids = set(f_group["Subgroup_IDs"][:])
 
-                hdf.close()
             except KeyError as e:
                 print(e)
                 hdf.close()
                 continue
-            for beg, img_len in zip(begin, group_len):
+
+            for (ind, beg), img_len in zip(enumerate(begin), group_len):
 
                 flux_subfind.append(np.sum(fluxes[beg: beg + img_len]))
 
-            for depth in depths:
+                for depth in depths:
 
-                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
-                                .format(reg, snap, Type, orientation),
-                                "r")
-
-                try:
-                    f_group = hdf[f]
                     fdepth_group = f_group[str(depth)]
 
                     imgs = fdepth_group["Images"]
                     sigs = fdepth_group["Significance_Images"]
 
-                except KeyError as e:
-                    print(e)
-                    hdf.close()
-                    continue
+                    flux_segm_dict.setdefault(f + "." + str(depth)).append(np.sum(imgs[ind, :, :][sigs[ind, :, :] >= thresh]))
 
-                flux_segm = []
-
-                for ind in range(imgs.shape[0]):
-
-                    sig = sigs[ind, :, :]
-                    img = imgs[ind, :, :]
-
-                    flux_segm.append(np.sum(img[sig >= thresh]))
-
-                hdf.close()
-
-                flux_segm_dict[f + "." + str(depth)] = np.array(flux_segm)
+            hdf.close()
 
         flux_subfind = np.array(flux_subfind)
         print("SUBFIND:", flux_subfind.size)
