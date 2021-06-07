@@ -185,37 +185,38 @@ for n_z in range(len(snaps)):
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        bin_edges = np.logspace(-2,
-                                5,
-                                50)
-        bin_wid = bin_edges[1] - bin_edges[0]
-        bin_cents = bin_edges[1:] - (bin_wid / 2)
+        # bin_edges = np.logspace(-2,
+        #                         5,
+        #                         50)
 
-        # try:
-        #     all_flux_segm = np.concatenate(list(flux_segm_dict.values()))
-        # except ValueError:
-        #     all_flux_segm = np.array([])
-        #
-        # if all_flux_segm.size > 0 and flux_subfind.size > 0:
-        #     bin_edges = np.linspace(
-        #         np.log10(np.min((all_flux_segm.min(), flux_subfind.min()))),
-        #         np.log10(np.max((all_flux_segm.max(), flux_subfind.max()))),
-        #         50)
-        # elif flux_subfind.size == 0 and all_flux_segm.size > 0:
-        #     bin_edges = np.linspace(np.log10(all_flux_segm.min()),
-        #                             np.log10(all_flux_segm.max()),
-        #                             50)
-        # elif all_flux_segm.size == 0 and flux_subfind.size > 0:
-        #     bin_edges = np.linspace(np.log10(flux_subfind.min()),
-        #                             np.log10(flux_subfind.max()),
-        #                             50)
-        # else:
-        #     continue
+        try:
+            all_flux_segm = np.concatenate(list(flux_segm_dict.values()))
+        except ValueError:
+            all_flux_segm = np.array([])
+
+        if all_flux_segm.size > 0 and flux_subfind.size > 0:
+            bin_edges = np.logspace(
+                np.log10(np.min((all_flux_segm.min(), flux_subfind.min()))),
+                np.log10(np.max((all_flux_segm.max(), flux_subfind.max()))),
+                50)
+        elif flux_subfind.size == 0 and all_flux_segm.size > 0:
+            bin_edges = np.logspace(np.log10(all_flux_segm.min()),
+                                    np.log10(all_flux_segm.max()),
+                                    50)
+        elif all_flux_segm.size == 0 and flux_subfind.size > 0:
+            bin_edges = np.logspace(np.log10(flux_subfind.min()),
+                                    np.log10(flux_subfind.max()),
+                                    50)
+        else:
+            continue
+
+        bin_wid = bin_edges[1] - bin_edges[0]
+        bin_cents = bin_edges[:-1] + (bin_wid / 2)
 
         H, bins = np.histogram(flux_subfind, bins=bin_edges)
 
-        ax.bar(bin_cents, H, width=np.diff(bin_edges), color="grey",
-               edgecolor="grey", label="SUBFIND")
+        ax.bar(bin_edges[:-1], H, width=np.diff(bin_edges), color="grey",
+               edgecolor="grey", label="SUBFIND", alpha=0.8, align="edge")
 
         for depth in depths:
 
