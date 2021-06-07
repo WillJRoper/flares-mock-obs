@@ -100,8 +100,9 @@ for n_z in range(len(snaps)):
                 print(e)
                 hdf.close()
                 continue
+            for beg, img_len in zip(begin, group_len):
 
-            flux_subfind.append(np.sum(fluxes))
+                flux_subfind.append(np.sum(fluxes[beg: beg + img_len]))
 
             for depth in depths:
 
