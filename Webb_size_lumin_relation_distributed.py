@@ -252,6 +252,7 @@ for f in filters:
                 img_psf = signal.fftconvolve(img, psf, mode="same")
 
                 img, img_obj = util.noisy_img(img_psf, image_creator)
+                print(np.sum(img_obj.bkg))
 
             else:
 
@@ -269,7 +270,6 @@ for f in filters:
                 img_psf = signal.fftconvolve(img, psf, mode="same")
 
                 img, img_obj = util.noisy_img(img_psf, image_creator)
-                print(np.sum(img_obj.bkg))
 
             significance_image = img / img_obj.noise
             significance_image[significance_image < 0] = 0
@@ -310,14 +310,6 @@ for f in filters:
                 smls.extend(this_smls)
                 fluxes.extend(this_flux)
                 subgrpids.extend(this_subgrpids)
-
-        print(failed, "images have no sources above noise with a depth of",
-              depth, "nJy of {},".format(imgs.shape[0]),
-              "SUBFIND finds {} sources".format(np.unique(subgrpids).size),
-              "Segmentation finds {} sources".format(segm_sources),
-              end="\r")
-        print()
-        print(f, depth, imgs.shape)
 
         fdepth_group = f_group.create_group(str(depth))
 
