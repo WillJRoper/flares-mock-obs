@@ -103,18 +103,18 @@ for n_z in range(len(snaps)):
 
                 flux_subfind.append(np.sum(fluxes[beg: beg + img_len]))
 
-                for depth in depths:
+            for depth in depths:
 
-                    fdepth_group = f_group[str(depth)]
+                fdepth_group = f_group[str(depth)]
 
-                    imgs = fdepth_group["Images"]
-                    sigs = fdepth_group["Significance_Images"]
+                imgs = fdepth_group["Images"]
+                sigs = fdepth_group["Significance_Images"]
 
-                    for img, sig in zip(imgs, sigs):
+                for img, sig in zip(imgs, sigs):
 
-                        segm = phut.detect_sources(sig, thresh, npixels=5)
+                    segm = phut.detect_sources(sig, thresh, npixels=5)
 
-                        flux_segm_dict.setdefault(f + "." + str(depth), []).append(np.sum(img[segm.data > 0]))
+                    flux_segm_dict.setdefault(f + "." + str(depth), []).append(np.sum(img[segm.data > 0]))
 
             hdf.close()
 
