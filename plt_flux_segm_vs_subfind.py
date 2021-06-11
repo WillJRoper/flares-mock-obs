@@ -223,8 +223,9 @@ for n_z in range(len(snaps)):
 
             H, bins = np.histogram(flux_segm_dict[fdepth], bins=bin_edges)
 
-            ax.plot(bin_cents, H,
-                    label="Segmentation map: " + str(depth) + " nJy")
+            ax.plot(bin_edges[:-1], H,
+                    label="Segm: {} nJy ({} Sources)"
+                    .format(depth, len(flux_segm_dict[fdepth])))
 
         ax.set_xlabel("$F/[\mathrm{nJy}]$")
         ax.set_ylabel("$N$")
