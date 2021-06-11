@@ -114,7 +114,7 @@ for n_z in range(len(snaps)):
 
                         segm = phut.detect_sources(sig, thresh, npixels=5)
 
-                        flux_segm_dict.setdefault(f + "." + str(depth), []).append(np.sum(img[segm > 0]))
+                        flux_segm_dict.setdefault(f + "." + str(depth), []).append(np.sum(img[segm.data > 0]))
 
             hdf.close()
 

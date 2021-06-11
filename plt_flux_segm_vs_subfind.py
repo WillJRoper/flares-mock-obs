@@ -104,8 +104,6 @@ for n_z in range(len(snaps)):
 
                 if depth == depths[0]:
 
-                    print(depth)
-
                     flux_subfind = []
 
                     for beg, img_len in zip(begin, group_len):
