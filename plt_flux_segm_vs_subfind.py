@@ -163,15 +163,7 @@ for n_z in range(len(snaps)):
 
                     source_cat = SourceCatalog(img, segm, error=None, mask=None,  kernel=None, background=None, wcs=None, localbkg_width=0, apermask_method='correct', kron_params=(2.5, 0.0), detection_cat=None)
 
-                    source_ids = np.unique(segm)
-                    source_ids = set(list(source_ids))
-
-                    print(source_cat.labels)
-                    print(source_cat.kron_flux)
-
-                    for sid in source_cat.labels:
-
-                        flux_segm.append(source_cat.kron_flux[source_cat.labels == sid])
+                    flux_segm.extend(source_cat.kron_flux)
 
                 hdf.close()
 
