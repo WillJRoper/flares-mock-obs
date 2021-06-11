@@ -124,7 +124,7 @@ for n_z in range(len(snaps)):
 
                         this_flux = this_flux[this_flux > 0]
                         flux_subfind.extend(this_flux)
-    
+
                     flux_subf_dict.setdefault(f + "." + str(depth), []).extend(flux_subfind)
 
                 hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
@@ -174,7 +174,7 @@ for n_z in range(len(snaps)):
 
                 flux_segm_dict.setdefault(f + "." + str(depth), []).extend(flux_segm)
 
-        flux_subfind = np.array(flux_subf_dict[filters[0] + str(depths[0])])
+        flux_subfind = np.array(flux_subf_dict[filters[0] + "." + str(depths[0])])
         print("SUBFIND:", flux_subfind.size)
 
         fig = plt.figure()
