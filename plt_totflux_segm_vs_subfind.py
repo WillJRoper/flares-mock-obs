@@ -117,7 +117,7 @@ for n_z in range(len(snaps)):
                     try:
                         flux_segm_dict.setdefault(f + "." + str(depth),
                                                   []).append(np.sum(img[segm.data > 0]))
-                    except ValueError:
+                    except AttributeError:
                         flux_segm_dict.setdefault(f + "." + str(depth),
                                                   []).append(0)
 
