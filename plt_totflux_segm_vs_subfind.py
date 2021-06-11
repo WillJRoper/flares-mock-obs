@@ -143,6 +143,12 @@ for n_z in range(len(snaps)):
             ax.scatter(flux_subfind, flux_segm_dict[fdepth], marker="^",
                     label="Segmentation map: " + str(depth) + " nJy")
 
+        ax.plot((np.min((ax.get_xlim()[0], ax.get_ylim()[0])),
+                 np.max((ax.get_xlim()[1], ax.get_ylim()[1]))),
+                (np.min((ax.get_xlim()[0], ax.get_ylim()[0])),
+                 np.max((ax.get_xlim()[1], ax.get_ylim()[1]))),
+                linestyle="--", color="k", alpha=0.8, zorder=0)
+
         ax.set_xlabel("$F_{\mathrm{SUBFIND}}/[\mathrm{nJy}]$")
         ax.set_ylabel("$F_{\mathrm{segm}}/[\mathrm{nJy}]$")
 
