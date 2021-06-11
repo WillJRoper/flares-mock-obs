@@ -13,6 +13,7 @@ warnings.filterwarnings('ignore')
 import seaborn as sns
 from matplotlib.colors import LogNorm
 import photutils as phut
+fromm photutils.segmentation import SourceCatalog
 import h5py
 import sys
 from astropy.cosmology import Planck13 as cosmo
@@ -97,7 +98,6 @@ for n_z in range(len(snaps)):
 
                 hdf.close()
             except KeyError as e:
-                print(e)
                 hdf.close()
                 continue
 
@@ -159,25 +159,19 @@ for n_z in range(len(snaps)):
                         segm = phut.deblend_sources(img, segm, npixels=5,
                                                     nlevels=32, contrast=0.001)
                     except TypeError as e:
-                        print(e)
-                        plt.imshow(img)
-                        plt.savefig("plots/failed_{}_{}.png".format(reg, snap))
-                        plt.close()
-                        plt.imshow(sig)
-                        plt.savefig("plots/failed_sig_{}_{}.png".format(reg, snap))
                         continue
+
+                    source_cat = SourceCatalog(img, segm, error=None, mask=None,  kernel=None, background=None, wcs=None, localbkg_width=0, apermask_method='correct', kron_params=(2.5, 0.0), detection_cat=None)
 
                     source_ids = np.unique(segm)
                     source_ids = set(list(source_ids))
 
-                    print(len(source_ids))
+                    print(source_cat.labels)
+                    print(source_cat.kron_flux)
 
-                    for sid in source_ids:
+                    for sid in source_cat.labels:
 
-                        if sid == 0:
-                            continue
-
-                        flux_segm.append(np.sum(img[segm == sid]))
+                        flux_segm.append(source_cat.kron_flux[source_cat.labels == sid])
 
                 hdf.close()
 

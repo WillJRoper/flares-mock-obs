@@ -96,7 +96,6 @@ for n_z in range(len(snaps)):
                 gal_ids = set(f_group["Subgroup_IDs"][:])
 
             except KeyError as e:
-                print(e)
                 hdf.close()
                 continue
 
@@ -111,7 +110,11 @@ for n_z in range(len(snaps)):
                     imgs = fdepth_group["Images"]
                     sigs = fdepth_group["Significance_Images"]
 
-                    flux_segm_dict.setdefault(f + "." + str(depth), []).append(np.sum(imgs[ind, :, :][sigs[ind, :, :] >= thresh]))
+                    for img, sig in zip(imgs, sigs):
+
+                        segm = phut.detect_sources(sig, thresh, npixels=5)
+
+                        flux_segm_dict.setdefault(f + "." + str(depth), []).append(np.sum(img[segm > 0]))
 
             hdf.close()
 
@@ -132,7 +135,7 @@ for n_z in range(len(snaps)):
 
             print(f"Segmentation ({depth}):", flux_segm_dict[fdepth].size)
 
-            ax.plot(flux_subfind, flux_segm_dict[fdepth], 
+            ax.plot(flux_subfind, flux_segm_dict[fdepth],
                     label="Segmentation map: " + str(depth) + " nJy")
 
         ax.set_xlabel("$F_{\mathrm{SUBFIND}}/[\mathrm{nJy}]$")
