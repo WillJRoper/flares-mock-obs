@@ -173,8 +173,10 @@ for n_z in range(len(snaps)):
                 hdf.close()
 
                 flux_segm_dict.setdefault(f + "." + str(depth), []).extend(flux_segm)
-
-        flux_subfind = np.array(flux_subf_dict[filters[0] + "." + str(depths[0])])
+        if filters[0] + "." + str(depths[0]) in flux_subf_dict.keys():
+            flux_subfind = np.array(flux_subf_dict[filters[0] + "." + str(depths[0])])
+        else:
+            flux_subfind = np.array([])
         print("SUBFIND:", flux_subfind.size)
 
         fig = plt.figure()
