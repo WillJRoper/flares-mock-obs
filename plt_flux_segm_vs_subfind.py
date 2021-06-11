@@ -13,7 +13,7 @@ warnings.filterwarnings('ignore')
 import seaborn as sns
 from matplotlib.colors import LogNorm
 import photutils as phut
-fromm photutils.segmentation import SourceCatalog
+from photutils.segmentation import SourceCatalog
 import h5py
 import sys
 from astropy.cosmology import Planck13 as cosmo
