@@ -269,6 +269,7 @@ for f in filters:
                 img_psf = signal.fftconvolve(img, psf, mode="same")
 
                 img, img_obj = util.noisy_img(img_psf, image_creator)
+                print(np.sum(img_obj.bkg))
 
             significance_image = img / img_obj.noise
             significance_image[significance_image < 0] = 0
