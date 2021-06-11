@@ -102,7 +102,7 @@ for n_z in range(len(snaps)):
 
             for depth in depths:
 
-                if depths == depths[0]:
+                if depth == depths[0]:
 
                     print(depth)
 
