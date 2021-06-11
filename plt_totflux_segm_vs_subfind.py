@@ -135,7 +135,7 @@ for n_z in range(len(snaps)):
 
             print(f"Segmentation ({depth}):", flux_segm_dict[fdepth].size)
 
-            ax.plot(flux_subfind, flux_segm_dict[fdepth],
+            ax.scatter(flux_subfind, flux_segm_dict[fdepth], marker="^",
                     label="Segmentation map: " + str(depth) + " nJy")
 
         ax.set_xlabel("$F_{\mathrm{SUBFIND}}/[\mathrm{nJy}]$")

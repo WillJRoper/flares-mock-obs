@@ -63,6 +63,7 @@ for n_z in range(len(snaps)):
             continue
 
     flux_segm_dict = {}
+    flux_subf_dict = {}
     lumin_segm_dict = {}
 
     for f in filters:
@@ -71,8 +72,6 @@ for n_z in range(len(snaps)):
 
         z_str = snap.split('z')[1].split('p')
         z = float(z_str[0] + '.' + z_str[1])
-
-        flux_subfind = []
 
         for reg in regions:
 
@@ -101,26 +100,32 @@ for n_z in range(len(snaps)):
                 hdf.close()
                 continue
 
-            for beg, img_len in zip(begin, group_len):
-
-                this_subgrpids = subgrpids[beg: beg + img_len]
-
-                subgrps, inverse_inds = np.unique(this_subgrpids,
-                                                  return_inverse=True)
-
-                this_flux = np.zeros(subgrps.size)
-
-                for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
-                                             inverse_inds, this_subgrpids):
-
-                    if subgrpid in gal_ids:
-
-                        this_flux[i] += flux
-
-                this_flux = this_flux[this_flux > 0]
-                flux_subfind.extend(this_flux)
-
             for depth in depths:
+
+                if depths == depths[0]:
+
+                    flux_subfind = []
+
+                    for beg, img_len in zip(begin, group_len):
+
+                        this_subgrpids = subgrpids[beg: beg + img_len]
+
+                        subgrps, inverse_inds = np.unique(this_subgrpids,
+                                                          return_inverse=True)
+
+                        this_flux = np.zeros(subgrps.size)
+
+                        for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
+                                                     inverse_inds, this_subgrpids):
+
+                            if subgrpid in gal_ids:
+
+                                this_flux[i] += flux
+
+                        this_flux = this_flux[this_flux > 0]
+                        flux_subfind.extend(this_flux)
+    
+                    flux_subf_dict.setdefault(f + "." + str(depth), []).extend(flux_subfind)
 
                 hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
                                 .format(reg, snap, Type, orientation),
@@ -167,9 +172,9 @@ for n_z in range(len(snaps)):
 
                 hdf.close()
 
-                flux_segm_dict[f + "." + str(depth)] = np.array(flux_segm)
+                flux_segm_dict.setdefault(f + "." + str(depth), []).extend(flux_segm)
 
-        flux_subfind = np.array(flux_subfind)
+        flux_subfind = np.array(flux_subf_dict[filters[0] + str(depths[0])])
         print("SUBFIND:", flux_subfind.size)
 
         fig = plt.figure()
