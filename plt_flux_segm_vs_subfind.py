@@ -104,6 +104,8 @@ for n_z in range(len(snaps)):
 
                 if depths == depths[0]:
 
+                    print(depth)
+
                     flux_subfind = []
 
                     for beg, img_len in zip(begin, group_len):
@@ -118,9 +120,7 @@ for n_z in range(len(snaps)):
                         for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
                                                      inverse_inds, this_subgrpids):
 
-                            if subgrpid in gal_ids:
-
-                                this_flux[i] += flux
+                            this_flux[i] += flux
 
                         this_flux = this_flux[this_flux > 0]
                         flux_subfind.extend(this_flux)
