@@ -130,8 +130,8 @@ for n_z in range(len(snaps)):
                                                kron_params=(2.5, 0.0),
                                                detection_cat=None)
 
-                    flux_segm_dict.setdefault(f + "." + str(depth),
-                                              []).append(np.sum(source_cat.segment_flux))
+                    flux_segm_dict.setdefault(f + "." + str(depth), 
+                                              []).append(np.sum(source_cat.kron_flux))
 
             hdf.close()
 
@@ -153,7 +153,7 @@ for n_z in range(len(snaps)):
             print(f"Segmentation ({depth}):", flux_segm_dict[fdepth].size)
 
             ax.scatter(flux_subfind, flux_segm_dict[fdepth], marker="^",
-                    label="Segm: " + str(depth) + " (nJy)")
+                    label="Kron: " + str(depth) + " (nJy)")
 
         ax.plot((np.min((ax.get_xlim()[0], ax.get_ylim()[0])),
                  np.max((ax.get_xlim()[1], ax.get_ylim()[1]))),
@@ -162,7 +162,7 @@ for n_z in range(len(snaps)):
                 linestyle="--", color="k", alpha=0.8, zorder=0)
 
         ax.set_xlabel("$F_{\mathrm{SUBFIND}}/[\mathrm{nJy}]$")
-        ax.set_ylabel("$F_{\mathrm{Segm}}/[\mathrm{nJy}]$")
+        ax.set_ylabel("$F_{\mathrm{Kron}}/[\mathrm{nJy}]$")
 
         ax.set_yscale("log")
         ax.set_xscale("log")

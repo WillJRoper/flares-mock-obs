@@ -168,8 +168,8 @@ for n_z in range(len(snaps)):
 
                     source_cat = SourceCatalog(img, segm, error=None, mask=None,  kernel=None, background=None, wcs=None, localbkg_width=0, apermask_method='correct', kron_params=(2.5, 0.0), detection_cat=None)
 
-                    flux_segm.extend(source_cat.segment_flux)
-                    flux_segm_err.extend(source_cat.segment_fluxerr)
+                    flux_segm.extend(source_cat.kron_flux)
+                    flux_segm_err.extend(source_cat.kron_fluxerr)
 
                 hdf.close()
 
@@ -219,7 +219,6 @@ for n_z in range(len(snaps)):
                label="SUBFIND ({})".format(len(flux_subfind)),
                alpha=0.8, align="edge")
 
-
         for depth in depths:
 
             fdepth = f + "." + str(depth)
@@ -227,14 +226,14 @@ for n_z in range(len(snaps)):
             if not fdepth in flux_segm_dict.keys():
                 continue
 
-            print(f"Segmentation ({depth}):", len(flux_segm_dict[fdepth]))
+            print(f"Kron ({depth}):", len(flux_segm_dict[fdepth]))
 
             H, bins = np.histogram(flux_segm_dict[fdepth], bins=bin_edges,
                                    weights=flux_segmerr_dict[fdepth],
                                    density=True)
 
             ax.plot(bin_edges[:-1], H,
-                    label="Segm: {} nJy ({})"
+                    label="Kron: {} nJy ({})"
                     .format(depth, len(flux_segm_dict[fdepth])))
 
         ax.set_xlabel("$F/[\mathrm{nJy}]$")
@@ -245,7 +244,7 @@ for n_z in range(len(snaps)):
 
         ax.legend()
 
-        fig.savefig("plots/flux_segm_hist_Filter-" + f + "_Orientation-"
+        fig.savefig("plots/flux_kron_hist_Filter-" + f + "_Orientation-"
                 + orientation + "_Type-" + Type + "_Snap-" + snap + ".png",
                     bbox_inches="tight")
 
