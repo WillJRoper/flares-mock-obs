@@ -160,10 +160,8 @@ for n_z in range(len(snaps)):
             print(f"Segmentation ({depth}):", len(flux_segm_dict[fdepth]))
             print(f"Kron ({depth}):", len(flux_kron_dict[fdepth]))
 
-            ax.errorbar(flux_segm_dict[fdepth], flux_kron_dict[fdepth],
-                        xerr=flux_segmerr_dict[fdepth],
-                        yerr=flux_kronerr_dict[fdepth],
-                        marker="+", capsize=100, linestyle="none",
+            ax.scatter(flux_segm_dict[fdepth], flux_kron_dict[fdepth],
+                        marker="^",
                         label="{} nJy ({})".format(depth,
                                                    len(flux_segm_dict[fdepth])))
 

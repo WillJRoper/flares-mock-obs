@@ -161,8 +161,7 @@ for n_z in range(len(snaps)):
 
             print(f"Kron ({depth}):", len(kron_radii_dict[fdepth]))
 
-            H, bin_edges = np.histogram(kron_radii_dict[fdepth], bins=100,
-                                   density=True)
+            H, bin_edges = np.histogram(kron_radii_dict[fdepth], bins=100)
 
             bin_wid = bin_edges[1] - bin_edges[0]
             bin_cents = bin_edges[:-1] + (bin_wid / 2)
@@ -172,7 +171,7 @@ for n_z in range(len(snaps)):
                     .format(depth, len(kron_radii_dict[fdepth])))
 
         ax.set_xlabel("$R_{\mathrm{Kron}}/[\mathrm{kpc}]$")
-        ax.set_ylabel("$P$")
+        ax.set_ylabel("$N$")
 
         ax.set_yscale("log")
         ax.set_xscale("log")
