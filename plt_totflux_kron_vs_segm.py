@@ -163,7 +163,7 @@ for n_z in range(len(snaps)):
             ax.errorbar(flux_segm_dict[fdepth], flux_kron_dict[fdepth],
                         xerr=flux_segmerr_dict[fdepth],
                         yerr=flux_kronerr_dict[fdepth],
-                        marker="+", capsize=10,
+                        marker="+", capsize=10, linestyle="none",
                         label="{} nJy ({})".format(depth,
                                                    len(flux_segm_dict[fdepth])))
 

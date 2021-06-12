@@ -230,7 +230,7 @@ for n_z in range(len(snaps)):
             print(f"Segmentation ({depth}):", len(flux_segm_dict[fdepth]))
 
             H, bins = np.histogram(flux_segm_dict[fdepth], bins=bin_edges,
-                                   weights=flux_segmerr_dict[fdepth],
+                                   #weights=flux_segmerr_dict[fdepth],
                                    density=True)
 
             ax.plot(bin_edges[:-1], H,
