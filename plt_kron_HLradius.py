@@ -144,51 +144,17 @@ for n_z in range(len(snaps)):
 
                     source_cat = SourceCatalog(img, segm, error=None, mask=None,  kernel=None, background=None, wcs=None, localbkg_width=0, apermask_method='correct', kron_params=(2.5, 0.0), detection_cat=None)
 
-                    kron_radii.extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
-                    fluxes.extend(source_cat.kron_flux)
+                    try:
+                        kron_radii.extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
+                        fluxes.extend(source_cat.kron_flux)
+                    except ValueError:
+                        continue
 
                 hdf.close()
 
                 kron_radii_dict.setdefault(f + "." + str(depth), []).extend(kron_radii)
                 kron_flux_dict.setdefault(f + "." + str(depth), []).extend(
                     fluxes)
-
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-
-        # bin_edges = np.logspace(-3, 4, 75)
-
-        for depth in depths:
-
-            fdepth = f + "." + str(depth)
-
-            if not fdepth in kron_radii_dict.keys():
-                continue
-
-            print(f"Kron ({depth}):", len(kron_radii_dict[fdepth]))
-
-            H, bin_edges = np.histogram(kron_radii_dict[fdepth], bins=100)
-
-            bin_wid = bin_edges[1] - bin_edges[0]
-            bin_cents = bin_edges[:-1] + (bin_wid / 2)
-
-            ax.plot(bin_cents, H,
-                    label="Kron: {} nJy ({})"
-                    .format(depth, len(kron_radii_dict[fdepth])))
-
-        ax.set_xlabel("$R_{\mathrm{Kron}}/[\mathrm{kpc}]$")
-        ax.set_ylabel("$N$")
-
-        ax.set_yscale("log")
-        ax.set_xscale("log")
-
-        ax.legend()
-
-        fig.savefig("plots/kron_radius_hist_Filter-" + f + "_Orientation-"
-                + orientation + "_Type-" + Type + "_Snap-" + snap + ".png",
-                    bbox_inches="tight")
-
-        plt.close(fig)
 
         fig = plt.figure(figsize=(4, 10))
         gs = gridspec.GridSpec(len(depths), 1)
@@ -225,6 +191,8 @@ for n_z in range(len(snaps)):
         axes[-1].set_xlabel(r'$F/$ [nJy]')
         for ax in axes:
             ax.set_ylabel('$R_{1/2}/ [pkpc]$')
+            ax.set_ylim(10**-1.5, 10**2)
+            ax.set_ylim(10 ** 0, 10 ** 3.5)
 
         axes[-1].tick_params(axis='x', which='minor', bottom=True)
 
