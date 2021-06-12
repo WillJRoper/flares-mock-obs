@@ -192,7 +192,7 @@ for n_z in range(len(snaps)):
         for ax in axes:
             ax.set_ylabel('$R_{1/2}/ [pkpc]$')
             ax.set_ylim(10**-1.5, 10**2)
-            ax.set_xlim(10 ** 0, 10 ** 3.5)
+            ax.set_xlim(10 ** -3, 10 ** 4)
 
         axes[-1].tick_params(axis='x', which='minor', bottom=True)
 
