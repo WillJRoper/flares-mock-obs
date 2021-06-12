@@ -151,9 +151,6 @@ for n_z in range(len(snaps)):
         ax = fig.add_subplot(111)
 
         # bin_edges = np.logspace(-3, 4, 75)
-        #
-        # bin_wid = bin_edges[1] - bin_edges[0]
-        # bin_cents = bin_edges[:-1] + (bin_wid / 2)
 
         for depth in depths:
 
@@ -164,10 +161,13 @@ for n_z in range(len(snaps)):
 
             print(f"Kron ({depth}):", len(kron_radii_dict[fdepth]))
 
-            H, bins = np.histogram(kron_radii_dict[fdepth], bins=100,
+            H, bin_edges = np.histogram(kron_radii_dict[fdepth], bins=100,
                                    density=True)
 
-            ax.plot(bin_edges[:-1], H,
+            bin_wid = bin_edges[1] - bin_edges[0]
+            bin_cents = bin_edges[:-1] + (bin_wid / 2)
+
+            ax.plot(bin_cents, H,
                     label="Kron: {} nJy ({})"
                     .format(depth, len(kron_radii_dict[fdepth])))
 
