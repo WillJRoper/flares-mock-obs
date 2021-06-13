@@ -194,6 +194,10 @@ for n_z in range(len(snaps)):
             ax.set_ylim(10**-1.5, 10**2)
             ax.set_xlim(10 ** -3, 10 ** 4)
 
+        for ax in axes[:-1]:
+            ax.tick_params(axis='x', top=False, bottom=False,
+                           labeltop=False, labelbottom=False)
+
         axes[-1].tick_params(axis='x', which='minor', bottom=True)
 
         fig.savefig("plots/HalfLightRadius_Filter-" + f + "_Orientation-" + orientation + "_Type-" + Type + "_Snap-" + snap + ".png", bbox_inches="tight")
