@@ -242,6 +242,9 @@ for n_z in range(len(snaps)):
                 continue
 
             try:
+                print(kron_flux_dict[fdepth].shape, kron_radii_dict[fdepth].shape)
+                print(kron_flux_dict[fdepth])
+                print(kron_radii_dict[fdepth])
                 cbar = ax.hexbin(kron_flux_dict[fdepth],
                                  kron_radii_dict[fdepth],
                                  gridsize=50, mincnt=1,
