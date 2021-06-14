@@ -218,8 +218,10 @@ for n_z in range(len(snaps)):
                         this_ids = np.unique(subfind_img[segm.data == i])
 
                         for ii in this_ids:
-                            kron_radii.append(r)
-                            fluxes.extend(gal_ms[gal_ids == ii])
+
+                            if ii in gal_ids:   # bug here!! this should not be possible
+                                kron_radii.append(r)
+                                fluxes.append(gal_ms[gal_ids == ii][0])
 
                 hdf.close()
 
