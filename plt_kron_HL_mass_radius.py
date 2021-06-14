@@ -69,7 +69,7 @@ field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
 field = flare.surveys.surveys[survey_id].fields[field_id]
 
 # Define width
-ini_width_pkpc = 150
+ini_width_pkpc = 500
 
 for n_z in range(len(snaps)):
 
