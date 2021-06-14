@@ -36,7 +36,7 @@ sns.set_context("paper")
 sns.set_style('whitegrid')
 
 regions = []
-for reg in range(39, -1, -1):
+for reg in range(10, -1, -1):
     if reg < 10:
         regions.append('0' + str(reg))
     else:
@@ -210,20 +210,23 @@ for tag in snaps:
                     segm = phut.deblend_sources(img, segm, npixels=5,
                                                 nlevels=32, contrast=0.001)
 
-                    util.plot_images(img, segm.data, significance_image, reg,
-                                     f, depth, tag, reg, imgextent,
-                                     ini_width_pkpc,
-                                     cutout_halfsize=int(0.1 * res))
-
                     fig = plt.figure()
                     ax = fig.add_subplot(111)
 
-                    ax.imshow(img, norm=LogNorm())
+                    ax.imshow(img, norm=LogNorm(vmin=-np.percentile(img, 31.75),
+                                                vmax=np.percentile(img, 99)))
+
+                    ax.grid(False)
 
                     fig.savefig(
                         "plots/region_img_log_Filter-" + f + "_Depth-"
                         + str(depth) + "_Region-" + reg + "_Snap-"
                         + tag + ".png", dpi=600)
+
+                    util.plot_images(img, segm.data, significance_image, reg,
+                                     f, depth, tag, reg, imgextent,
+                                     ini_width_pkpc,
+                                     cutout_halfsize=int(0.1 * res))
 
                 except TypeError as e:
                     print(e)
