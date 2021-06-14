@@ -249,10 +249,10 @@ for f in filters:
                 img = util.make_spline_img(this_pos, res, 0, 1, tree,
                                            this_flux, this_smls)
 
-                img_psf = signal.fftconvolve(img, psf, mode="same")
+                if Type != "Intrinsic":
+                    img = signal.fftconvolve(img, psf, mode="same")
 
-                img, img_obj = util.noisy_img(img_psf, image_creator)
-                print(np.sum(img_obj.bkg))
+                img, img_obj = util.noisy_img(img, image_creator)
 
             else:
 
@@ -267,9 +267,10 @@ for f in filters:
                 img = util.make_spline_img(this_pos, res, 2, 0, tree,
                                            this_flux, this_smls)
 
-                img_psf = signal.fftconvolve(img, psf, mode="same")
+                if Type != "Intrinsic":
+                    img = signal.fftconvolve(img, psf, mode="same")
 
-                img, img_obj = util.noisy_img(img_psf, image_creator)
+                img, img_obj = util.noisy_img(img, image_creator)
 
             significance_image = img / img_obj.noise
             significance_image[significance_image < 0] = 0
