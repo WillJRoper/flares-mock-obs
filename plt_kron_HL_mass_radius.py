@@ -21,6 +21,8 @@ from astropy.cosmology import Planck13 as cosmo
 import eritlux.simulations.imagesim as imagesim
 import flare.surveys
 import flare.plots.image
+import utilities as util
+from scipy.spatial import cKDTree
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
@@ -66,6 +68,9 @@ field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
 # image location etc. (if real image)
 field = flare.surveys.surveys[survey_id].fields[field_id]
 
+# Define width
+ini_width_pkpc = 150
+
 for n_z in range(len(snaps)):
 
     if len(sys.argv) > 3:
@@ -84,11 +89,48 @@ for n_z in range(len(snaps)):
 
         arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
+        ini_width = ini_width_pkpc * arcsec_per_kpc_proper
+
         # --- initialise ImageCreator object
         image_creator = imagesim.Idealised(f, field)
 
         arc_res = image_creator.pixel_scale
         kpc_res = arc_res / arcsec_per_kpc_proper
+
+        # Compute the resolution
+        ini_res = ini_width / arc_res
+        res = int(np.ceil(ini_res))
+        cutout_halfsize = int(res * 0.1)
+
+        # Compute the new width
+        width = arc_res * res
+
+        print("Filter:", f)
+        print("Image width and resolution (in arcseconds):", width, arc_res)
+        print("Image width and resolution (in pkpc):",
+              width / arcsec_per_kpc_proper,
+              arc_res / arcsec_per_kpc_proper)
+        print("Image width (in pixels):", res)
+
+        # Define pixel area in pkpc
+        single_pixel_area = arc_res * arc_res \
+                            / (arcsec_per_kpc_proper * arcsec_per_kpc_proper)
+
+        # Define range and extent for the images in arc seconds
+        imgrange = ((-width / 2, width / 2), (-width / 2, width / 2))
+        imgextent = [-width / 2, width / 2, -width / 2, width / 2]
+
+        # Define x and y positions of pixels
+        X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], res),
+                           np.linspace(imgrange[1][0], imgrange[1][1], res))
+
+        # Define pixel position array for the KDTree
+        pix_pos = np.zeros((X.size, 2))
+        pix_pos[:, 0] = X.ravel()
+        pix_pos[:, 1] = Y.ravel()
+
+        # Build KDTree
+        tree = cKDTree(pix_pos)
 
         for reg in regions:
 
@@ -112,6 +154,13 @@ for n_z in range(len(snaps)):
 
                     imgs = fdepth_group["Images"]
                     sigs = fdepth_group["Significance_Images"]
+                    subfind_spos = f_group["Star_Pos"][:]
+                    all_smls = f_group["Smoothing_Length"][:]
+                    subgrpids = f_group["Part_subgrpids"][:]
+                    begin = f_group["Start_Index"][:]
+                    group_len = f_group["Group_Length"][:]
+                    gal_ids = f_group["Subgroup_IDs"][:]
+                    gal_ms = f_group["Galaxy Mass"][:]
 
                 except KeyError as e:
                     print(e)
@@ -129,6 +178,10 @@ for n_z in range(len(snaps)):
 
                 for ind in range(imgs.shape[0]):
 
+                    poss = subfind_spos[
+                           begin[ind]: begin[ind] + group_len[ind], (0, 1)]
+                    subgrp = subgrpids[begin[ind]: begin[ind] + group_len[ind]]
+                    smooth = all_smls[begin[ind]: begin[ind] + group_len[ind]]
                     sig = sigs[ind, :, :]
                     img = imgs[ind, :, :]
 
@@ -142,6 +195,11 @@ for n_z in range(len(snaps)):
                     except TypeError as e:
                         continue
 
+                    subfind_img = util.make_uni_subfind_spline_img(poss, res, 0, 1,
+                                                               tree, subgrp,
+                                                               smooth, gal_ids, subgrp,
+                                                               spline_cut_off=5 / 2)
+
                     source_cat = SourceCatalog(img, segm, error=None,
                                                mask=None,  kernel=None,
                                                background=None, wcs=None,
@@ -151,11 +209,17 @@ for n_z in range(len(snaps)):
                                                detection_cat=None)
 
                     try:
-                        kron_radii.extend(source_cat.fluxfrac_radius(0.5)
-                                          * kpc_res)
-                        fluxes.extend(source_cat.kron_flux)
+                        labels = source_cat.labels()
+                        radii = source_cat.fluxfrac_radius(0.5) * kpc_res
                     except ValueError:
                         continue
+
+                    for i, r in zip(labels, radii):
+                        this_ids = np.unique(subfind_img[segm.data == i])
+
+                        for ii in this_ids:
+                            kron_radii.extend(r)
+                            fluxes.extend(gal_ms[gal_ids == ii])
 
                 hdf.close()
 
@@ -195,7 +259,7 @@ for n_z in range(len(snaps)):
                      fontsize=8)
 
         # Label axes
-        axes[-1].set_xlabel(r'$F/$ [nJy]')
+        axes[-1].set_xlabel(r'$M_\star/$ M_\odot')
         for ax in axes:
             ax.set_ylabel('$R_{1/2}/ [pkpc]$')
             ax.set_ylim(10**-1.5, 10**2)
@@ -207,7 +271,7 @@ for n_z in range(len(snaps)):
 
         axes[-1].tick_params(axis='x', which='minor', bottom=True)
 
-        fig.savefig("plots/HalfLightRadius_Filter-" + f + "_Orientation-" + orientation + "_Type-" + Type + "_Snap-" + snap + ".png", bbox_inches="tight")
+        fig.savefig("plots/HalfLightRadiusvsMass_Filter-" + f + "_Orientation-" + orientation + "_Type-" + Type + "_Snap-" + snap + ".png", bbox_inches="tight")
 
         plt.close(fig)
 
