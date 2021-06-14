@@ -112,11 +112,18 @@ for tag in snaps:
             print("Image width (in pixels):", res)
 
             # Kappa with DTM 0.0795, BC_fac=1., without 0.0063 BC_fac=1.25
-            reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
-                                 IMF='Chabrier_300',
-                                 filters=(f, ), Type=Type, log10t_BC=7.,
-                                 extinction=extinction, orientation=orientation,
-                                 r=width / arcsec_per_kpc_proper / 1000 / 2)
+            try:
+                reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
+                                     IMF='Chabrier_300',
+                                     filters=(f, ), Type=Type, log10t_BC=7.,
+                                     extinction=extinction, orientation=orientation,
+                                     r=width / arcsec_per_kpc_proper / 1000 / 2)
+            except KeyError:
+                continue
+            except ValueError:
+                continue
+            except OSError:
+                continue
 
             print("Got the dictionary for the region's groups")
 
