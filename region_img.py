@@ -211,8 +211,19 @@ for tag in snaps:
                                                 nlevels=32, contrast=0.001)
 
                     util.plot_images(img, segm.data, significance_image, reg,
-                                     f, depth, tag, reg, imgextent, ini_width_pkpc,
+                                     f, depth, tag, reg, imgextent,
+                                     ini_width_pkpc,
                                      cutout_halfsize=int(0.1 * res))
+
+                    fig = plt.figure()
+                    ax = fig.add_subplot(111)
+
+                    ax.imshow(img, norm=LogNorm())
+
+                    fig.savefig(
+                        "plots/region_img_log_Filter-" + f + "_Depth-"
+                        + str(depth) + "_Region-" + reg + "_Snap-"
+                        + tag + ".png", dpi=600)
 
                 except TypeError as e:
                     print(e)

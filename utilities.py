@@ -803,7 +803,7 @@ def plot_images(img, segm, sig, reg, f, depth, snap, ind, imgextent,
     ax3.set_xlabel('x (")')
     ax6.set_xlabel('x (")')
 
-    fig.colorbar(cbar)
+    # fig.colorbar(cbar)
 
     fig.savefig("plots/gal_img_log_Filter-" + f + "_Depth-" + str(depth)
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
