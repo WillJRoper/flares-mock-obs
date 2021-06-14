@@ -54,29 +54,29 @@ def get_data(reg, snap, r):
 
     S_sml = E.read_array('PARTDATA', path, snap,
                          'PartType4/SmoothingLength', noH=True,
-                         physicalUnits=True, numThreads=8)[s_okinds]
+                         physicalUnits=True, numThreads=8)
     G_sml = E.read_array('PARTDATA', path, snap,
                          'PartType0/SmoothingLength', noH=True,
-                         physicalUnits=True, numThreads=8)[g_okinds]
+                         physicalUnits=True, numThreads=8)
     a_born = E.read_array('PARTDATA', path, snap,
                           'PartType4/StellarFormationTime', noH=True,
-                          physicalUnits=True, numThreads=8)[s_okinds]
+                          physicalUnits=True, numThreads=8)
     S_Z = E.read_array('PARTDATA', path, snap,
                        'PartType4/SmoothedMetallicity', noH=True,
-                       physicalUnits=True, numThreads=8)[s_okinds]
+                       physicalUnits=True, numThreads=8)
     G_Z = E.read_array('PARTDATA', path, snap,
                        'PartType0/SmoothedMetallicity', noH=True,
-                       physicalUnits=True, numThreads=8)[g_okinds]
+                       physicalUnits=True, numThreads=8)
     S_mass_ini = E.read_array('PARTDATA', path, snap,
                               'PartType4/InitialMass',
                               noH=True, physicalUnits=True,
-                              numThreads=8)[s_okinds] * 10 ** 10
+                              numThreads=8) * 10 ** 10
     S_mass = E.read_array('PARTDATA', path, snap, 'PartType4/Mass',
                           noH=True, physicalUnits=True,
-                          numThreads=8)[s_okinds] * 10 ** 10
+                          numThreads=8) * 10 ** 10
     G_mass = E.read_array('PARTDATA', path, snap, 'PartType0/Mass',
                           noH=True, physicalUnits=True,
-                          numThreads=8)[g_okinds] * 10 ** 10
+                          numThreads=8) * 10 ** 10
 
     # Calculate ages
     if len(a_born) > 0:
