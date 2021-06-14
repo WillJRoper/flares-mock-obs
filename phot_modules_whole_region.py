@@ -268,6 +268,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     Masses, Metallicities, Ages, gasMetallicities, gasSML, Smls, \
     gasMasses, starCoords, gasCoords, S_mass = get_data(sim, tag, r)
 
+    print("Got Data")
+
     model = models.define_model(
         F'BPASSv2.2.1.binary/{IMF}')  # DEFINE SED GRID -
     if extinction == 'default':
@@ -313,6 +315,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
                                                  lkernel, kbins)
 
             Fnus["coords"] = starCoords - np.mean(starCoords, axis=0)
+
+            print("Calculated surface densities")
 
         # elif orientation == "face-on":
         #
@@ -390,6 +394,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         # --- calculate rest-frame Luminosity. In units of erg/s/Hz
         for f in filters:
+
             # --- calculate rest-frame flux of each object in nJy
             Fnu = models.generate_Fnu_array(model, Masses, Ages, Metallicities,
                                             tauVs_ISM, tauVs_BC, F, f,
