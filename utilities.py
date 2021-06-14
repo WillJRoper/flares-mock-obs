@@ -361,7 +361,7 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
     print(part_pos.shape[0])
     for ipos, l, sml in zip(part_pos, ls, smooth):
 
-        print(ii, end="\r")
+        print(ii)
 
         # Query the tree for this particle
         dist, inds = tree.query(ipos, k=pos.shape[0],
