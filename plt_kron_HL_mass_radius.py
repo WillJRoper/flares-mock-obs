@@ -209,7 +209,7 @@ for n_z in range(len(snaps)):
                                                detection_cat=None)
 
                     try:
-                        labels = source_cat.labels()
+                        labels = source_cat.labels
                         radii = source_cat.fluxfrac_radius(0.5) * kpc_res
                     except ValueError:
                         continue
