@@ -219,7 +219,7 @@ for n_z in range(len(snaps)):
 
                         for ii in this_ids:
                             kron_radii.append(r)
-                            fluxes.append(gal_ms[gal_ids == ii])
+                            fluxes.extend(gal_ms[gal_ids == ii])
 
                 hdf.close()
 
@@ -242,9 +242,9 @@ for n_z in range(len(snaps)):
                 continue
 
             try:
-                print(len(kron_flux_dict[fdepth]), len(kron_radii_dict[fdepth]))
-                print(kron_flux_dict[fdepth])
-                print(kron_radii_dict[fdepth])
+                # print(len(kron_flux_dict[fdepth]), len(kron_radii_dict[fdepth]))
+                # print(kron_flux_dict[fdepth])
+                # print(kron_radii_dict[fdepth])
                 cbar = ax.hexbin(kron_flux_dict[fdepth],
                                  kron_radii_dict[fdepth],
                                  gridsize=50, mincnt=1,
