@@ -91,7 +91,7 @@ for tag in snaps:
         arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
         # Define width
-        ini_width_pkpc = 30 * 1000
+        ini_width_pkpc = 2 * 1000
         ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
         for f in filters:
@@ -129,7 +129,7 @@ for tag in snaps:
             except OSError:
                 continue
 
-            print("Got the dictionary for the region's groups")
+            print("Got the dictionary for the region")
 
             # Define pixel area in pkpc
             single_pixel_area = arc_res * arc_res \
