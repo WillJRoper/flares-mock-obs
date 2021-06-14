@@ -36,7 +36,7 @@ sns.set_context("paper")
 sns.set_style('whitegrid')
 
 regions = []
-for reg in range(0, 40):
+for reg in range(39, -1, -1):
     if reg < 10:
         regions.append('0' + str(reg))
     else:
@@ -57,7 +57,7 @@ extinction = 'default'
 # Define filter
 filters = ('Hubble.WFC3.f160w',)
 
-depths = [0.1, 1, 5, 10, 20]
+depths = [5, ]
 
 survey_id = 'XDF'  # the XDF (updated HUDF)
 field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
