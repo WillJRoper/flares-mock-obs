@@ -13,8 +13,6 @@ matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
 import seaborn as sns
 from matplotlib.colors import LogNorm
-import matplotlib.gridspec as gridspec
-from scipy.stats import binned_statistic
 import phot_modules_whole_region as phot
 import utilities as util
 import flare
@@ -31,6 +29,15 @@ import time
 import eritlux.simulations.imagesim as imagesim
 import flare.surveys
 import flare.plots.image
+import mpi4py
+from mpi4py import MPI
+
+mpi4py.rc.recv_mprobe = False
+
+# Initializations and preliminaries
+comm = MPI.COMM_WORLD  # get MPI communicator object
+size = comm.size  # total number of processes
+rank = comm.rank  # rank of this process
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
@@ -58,8 +65,6 @@ extinction = 'default'
 
 # Define filter
 filters = ('Hubble.WFC3.f160w',)
-
-depths = [5, ]
 
 survey_id = 'XDF'  # the XDF (updated HUDF)
 field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
@@ -151,80 +156,77 @@ for tag in snaps:
 
             print("Pixel tree built")
 
+            # Create rank bins for poss
+            rank_inds = np.linspace(0, reg_dict["coords"].shape[0], size + 1)
+
             psf = imagesim.create_PSF(f, field, res)
 
-            for num, depth in enumerate(depths):
+            print("Creating image for Filter, Pixel noise, Depth:",
+                  f, image_creator.pixel.noise, field.depths[f])
 
-                field.depths[f] = depth
+            beg, end = rank_inds[rank], rank_inds[rank + 1]
 
-                # --- initialise ImageCreator object
-                image_creator = imagesim.Idealised(f, field)
+            this_pos = reg_dict["coords"][beg: end]
+            this_pos *= 10 ** 3 * arcsec_per_kpc_proper
+            this_smls = reg_dict["smls"][beg: end]
+            this_smls *= 10 ** 3 * arcsec_per_kpc_proper
 
-                print("Creating image for Filter, Pixel noise, Depth:",
-                      f, image_creator.pixel.noise, field.depths[f])
+            this_flux = reg_dict[f][beg: end]
 
-                this_pos = reg_dict["coords"] * 10 ** 3 * arcsec_per_kpc_proper
-                this_smls = reg_dict["smls"] * 10 ** 3 * arcsec_per_kpc_proper
+            if np.nansum(this_flux) != 0:
 
-                this_flux = reg_dict[f]
+                this_radii = util.calc_rad(this_pos, i=0, j=1)
 
-                if np.nansum(this_flux) == 0:
+                img = util.make_spline_img(this_pos, res, 0, 1, tree,
+                                           this_flux, this_smls)
 
-                    continue
+                if Type != "Intrinsic":
+                    img = signal.fftconvolve(img, psf, mode="same")
+            else:
+                img = np.zeros((res, res))
 
-                if orientation == "sim" or orientation == "face-on":
+            if comm.rank == 0:
+                full_image = np.zeros_like(img)
+            else:
+                full_image = None
 
-                    this_radii = util.calc_rad(this_pos, i=0, j=1)
+            # use MPI to get the totals
+            comm.Reduce(
+                [img, MPI.DOUBLE],
+                [full_image, MPI.DOUBLE],
+                op=MPI.SUM,
+                root=0
+            )
 
-                    img = util.make_spline_img(this_pos, res, 0, 1, tree,
-                                               this_flux, this_smls)
+            if rank == 0:
 
-                    if Type != "Intrinsic":
-                        img = signal.fftconvolve(img, psf, mode="same")
-
-                    img, img_obj = util.noisy_img(img, image_creator)
-
-                else:
-
-                    # # Centre positions on fluxosity weighted centre
-                    # flux_cent = util.flux_weighted_centre(this_pos,
-                    #                                         this_flux,
-                    #                                         i=2, j=0)
-                    # this_pos[:, (2, 0)] -= flux_cent
-
-                    this_radii = util.calc_rad(this_pos, i=2, j=0)
-
-                    img = util.make_spline_img(this_pos, res, 2, 0, tree,
-                                               this_flux, this_smls)
-
-                    if Type != "Intrinsic":
-                        img = signal.fftconvolve(img, psf, mode="same")
-
-                    img, img_obj = util.noisy_img(img, image_creator)
+                img, img_obj = util.noisy_img(full_image, image_creator)
 
                 significance_image = img / img_obj.noise
                 significance_image[significance_image < 0] = 0
 
                 try:
-                    segm = phut.detect_sources(significance_image, 2.5, npixels=5)
+                    segm = phut.detect_sources(significance_image, 2.5,
+                                               npixels=5)
                     segm = phut.deblend_sources(img, segm, npixels=5,
                                                 nlevels=32, contrast=0.001)
 
                     fig = plt.figure()
                     ax = fig.add_subplot(111)
 
-                    ax.imshow(img, norm=LogNorm(vmin=-np.percentile(img, 31.75),
-                                                vmax=np.percentile(img, 99)))
+                    ax.imshow(img,
+                              norm=LogNorm(vmin=-np.percentile(img, 31.75),
+                                           vmax=np.percentile(img, 99)))
 
                     ax.grid(False)
 
                     fig.savefig(
-                        "plots/region_img_log_Filter-" + f + "_Depth-"
-                        + str(depth) + "_Region-" + reg + "_Snap-"
+                        "plots/region_img_log_Filter-" + f
+                        + "_Region-" + reg + "_Snap-"
                         + tag + ".png", dpi=600)
 
                     util.plot_images(img, segm.data, significance_image, reg,
-                                     f, depth, tag, reg, imgextent,
+                                     f, "XDF", tag, reg, imgextent,
                                      ini_width_pkpc,
                                      cutout_halfsize=int(0.1 * res))
 
