@@ -73,15 +73,20 @@ field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
 # image location etc. (if real image)
 field = flare.surveys.surveys[survey_id].fields[field_id]
 
+print("Rank", rank, "of", size)
+
 for tag in snaps:
+
+    print(tag)
 
     for reg in regions:
 
-        print(
-            "Computing HLRs with orientation {o}, type {t}, and extinction {e}"
-            " for region {x} and snapshot {u}".format(o=orientation, t=Type,
-                                                      e=extinction, x=reg,
-                                                      u=tag))
+        if rank == 0:
+            print(
+                "Computing HLRs with orientation {o}, type {t}, and extinction {e}"
+                " for region {x} and snapshot {u}".format(o=orientation, t=Type,
+                                                          e=extinction, x=reg,
+                                                          u=tag))
 
         z_str = tag.split('z')[1].split('p')
         z = float(z_str[0] + '.' + z_str[1])
@@ -111,19 +116,22 @@ for tag in snaps:
             # Compute the new width
             width = arc_res * res
 
-            print("Filter:", f)
-            print("Image width and resolution (in arcseconds):", width, arc_res)
-            print("Image width and resolution (in pkpc):",
-                  width / arcsec_per_kpc_proper,
-                  arc_res / arcsec_per_kpc_proper)
-            print("Image width (in pixels):", res)
+            if rank == 0:
+                print("Filter:", f)
+                print("Image width and resolution (in arcseconds):",
+                      width, arc_res)
+                print("Image width and resolution (in pkpc):",
+                      width / arcsec_per_kpc_proper,
+                      arc_res / arcsec_per_kpc_proper)
+                print("Image width (in pixels):", res)
 
             # Kappa with DTM 0.0795, BC_fac=1., without 0.0063 BC_fac=1.25
             try:
                 reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
                                      IMF='Chabrier_300',
                                      filters=(f, ), Type=Type, log10t_BC=7.,
-                                     extinction=extinction, orientation=orientation,
+                                     extinction=extinction,
+                                     orientation=orientation,
                                      r=width / arcsec_per_kpc_proper / 1000 / 2)
             except KeyError:
                 continue
