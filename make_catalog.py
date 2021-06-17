@@ -216,9 +216,6 @@ for f in filters:
                 hdf.close()
                 continue
 
-            flux_segm = []
-            flux_segm_err = []
-
             if sigs.shape[0] == 0:
                 continue
 
@@ -226,6 +223,8 @@ for f in filters:
                 continue
 
             for ind in range(imgs.shape[0]):
+
+                print(ind)
 
                 sig = sigs[ind, :, :]
                 img = imgs[ind, :, :]
