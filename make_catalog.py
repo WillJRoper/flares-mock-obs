@@ -113,8 +113,8 @@ ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
 thresh = 2.5
 
-hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
-                    .format(reg, tag, Type, orientation), "w")
+hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}_{}.hdf5"
+                    .format(reg, tag, Type, orientation, f), "w")
 print("Creating File...")
 
 for f in filters:
