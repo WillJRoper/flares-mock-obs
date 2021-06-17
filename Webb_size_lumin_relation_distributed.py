@@ -111,17 +111,11 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 ini_width_pkpc = 500
 ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
-try:
-    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
-                    .format(reg, tag, Type, orientation), "r+")
-except OSError:
-    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
-                    .format(reg, tag, Type, orientation), "w")
-print("Creating File...")
-
 f = filters[filter_ind]
 
-f_group = hdf.create_group(f)
+hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                .format(reg, tag, Type, orientation, f), "w")
+print("Creating File...")
 
 # --- initialise ImageCreator object
 image_creator = imagesim.Idealised(f, field)
@@ -320,7 +314,7 @@ for num, depth in enumerate(depths):
             fluxes.extend(this_flux)
             subgrpids.extend(this_subgrpids)
 
-    fdepth_group = f_group.create_group(str(depth))
+    fdepth_group = hdf.create_group(str(depth))
 
     dset = fdepth_group.create_dataset("Images", data=imgs,
                                   dtype=imgs.dtype,
@@ -345,57 +339,57 @@ subgrpids = np.array(subgrpids)
 smls = np.array(smls)
 star_pos = np.array(star_pos)
 
-dset = f_group.create_dataset("Subgroup_IDs",
+dset = hdf.create_dataset("Subgroup_IDs",
                                         data=gal_haloids,
                                         dtype=gal_haloids.dtype,
                                         shape=gal_haloids.shape,
                                         compression="gzip")
 dset.attrs["units"] = "None"
 
-dset = f_group.create_dataset("Galaxy Mass",
+dset = hdf.create_dataset("Galaxy Mass",
                               data=gal_mass,
                               dtype=gal_mass.dtype,
                               shape=gal_mass.shape,
                               compression="gzip")
 dset.attrs["units"] = "$M_\odot$"
 
-dset = f_group.create_dataset("Start_Index", data=begin,
+dset = hdf.create_dataset("Start_Index", data=begin,
                               dtype=begin.dtype,
                               shape=begin.shape,
                               compression="gzip")
 dset.attrs["units"] = "None"
 
-dset = f_group.create_dataset("Group_Mass", data=grp_mass,
+dset = hdf.create_dataset("Group_Mass", data=grp_mass,
                               dtype=grp_mass.dtype,
                               shape=grp_mass.shape,
                               compression="gzip")
 dset.attrs["units"] = "$M_\odot$"
 
-dset = f_group.create_dataset("Smoothing_Length", data=smls,
+dset = hdf.create_dataset("Smoothing_Length", data=smls,
                               dtype=smls.dtype,
                               shape=smls.shape,
                               compression="gzip")
 dset.attrs["units"] = "Mpc"
 
-dset = f_group.create_dataset("Star_Pos", data=star_pos,
+dset = hdf.create_dataset("Star_Pos", data=star_pos,
                               dtype=star_pos.dtype,
                               shape=star_pos.shape,
                               compression="gzip")
 dset.attrs["units"] = "kpc"
 
-dset = f_group.create_dataset("Fluxes", data=fluxes,
+dset = hdf.create_dataset("Fluxes", data=fluxes,
                               dtype=fluxes.dtype,
                               shape=fluxes.shape,
                               compression="gzip")
 dset.attrs["units"] = "nJy"
 
-dset = f_group.create_dataset("Part_subgrpids", data=subgrpids,
+dset = hdf.create_dataset("Part_subgrpids", data=subgrpids,
                               dtype=subgrpids.dtype,
                               shape=subgrpids.shape,
                               compression="gzip")
 dset.attrs["units"] = "None"
 
-dset = f_group.create_dataset("Group_Length", data=Slen,
+dset = hdf.create_dataset("Group_Length", data=Slen,
                               dtype=Slen.dtype,
                               shape=Slen.shape,
                               compression="gzip")
