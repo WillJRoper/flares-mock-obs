@@ -111,8 +111,12 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 ini_width_pkpc = 500
 ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
-hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
-                .format(reg, tag, Type, orientation), "w")
+try:
+    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
+                    .format(reg, tag, Type, orientation), "r+")
+except OSError:
+    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
+                    .format(reg, tag, Type, orientation), "w")
 print("Creating File...")
 
 f = filters[filter_ind]
