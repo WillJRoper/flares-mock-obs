@@ -173,7 +173,7 @@ for f in filters:
 
         for depth in depths:
 
-            if depth == depths[0]:
+            # if depth == depths[0]:
 
                 # flux_subfind = []
                 #
