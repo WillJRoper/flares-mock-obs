@@ -20,6 +20,7 @@ import utilities as util
 import flare
 from flare.photom import lum_to_M, M_to_lum
 from astropy.cosmology import Planck13 as cosmo
+from photutils.segmentation import SourceCatalog
 import h5py
 import photutils as phut
 from astropy.convolution import Gaussian2DKernel
@@ -120,44 +121,44 @@ for f in filters:
 
     for num, depth in enumerate(depths):
 
-        segm_flux = []
-        segm_flux_err = []
-        kron_flux = []
-        kron_flux_err = []
-        kron_rad = []
-        kron_hlr = []
-        gini = []
-        xs = []
-        ys = []
-        labels = []
-        obs_img_num = []
-        obs_begin = []
-        obs_len = []
+        # segm_flux = {}
+        # segm_flux_err = {}
+        # kron_flux = {}
+        # kron_flux_err = {}
+        # kron_rad = {}
+        # kron_hlr = {}
+        # gini = {}
+        # xs = {}
+        # ys = {}
+        # labels = {}
+        obs_data = {}
+        obs_img_num = {}
+        obs_begin = {}
+        obs_len = {}
 
-        subf_flux = []
-        subf_img_num = []
-        subf_begin = []
-        subf_len = []
+        subf_flux = {}
+        subf_img_num = {}
+        subf_begin = {}
+        subf_len = {}
 
         print("Getting SUBFIND occupancy with orientation {o}, type {t}, "
               "and extinction {e} for region {x} and "
               "snapshot {u}".format(o=orientation, t=Type, e=extinction,
                                     x=reg, u=snap))
         try:
-            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
-                            .format(reg, snap, Type, orientation), "r")
+            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                            .format(reg, snap, Type, orientation, f), "r")
         except OSError as e:
             print(e)
             continue
 
         try:
-            f_group = hdf[f]
 
-            fluxes = f_group["Fluxes"][:]
-            subgrpids = f_group["Part_subgrpids"][:]
-            begin = f_group["Start_Index"][:]
-            group_len = f_group["Group_Length"][:]
-            gal_ids = set(f_group["Subgroup_IDs"][:])
+            fluxes = hdf["Fluxes"][:]
+            subgrpids = hdf["Part_subgrpids"][:]
+            begin = hdf["Start_Index"][:]
+            group_len = hdf["Group_Length"][:]
+            gal_ids = set(hdf["Subgroup_IDs"][:])
 
             hdf.close()
         except KeyError as e:
@@ -170,7 +171,7 @@ for f in filters:
 
                 flux_subfind = []
 
-                for beg, img_len in zip(begin, group_len):
+                for (img_num, beg), img_len in zip(enumerate(begin), group_len):
 
                     this_subgrpids = subgrpids[beg: beg + img_len]
 
@@ -186,16 +187,16 @@ for f in filters:
                     this_flux = this_flux[this_flux > 0]
                     flux_subfind.extend(this_flux)
 
-                flux_subf_dict.setdefault(f + "." + str(depth), []).extend(
-                    flux_subfind)
+                    subf_flux.setdefault(f + "." + str(depth), []).extend(this_flux)
+                    subf_img_num.setdefault(f + "." + str(depth), []).extend(
+                        np.full_like(this_flux, img_num))
 
             hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation),
                             "r")
 
             try:
-                f_group = hdf[f]
-                fdepth_group = f_group[str(depth)]
+                fdepth_group = hdf[str(depth)]
 
                 imgs = fdepth_group["Images"]
                 sigs = fdepth_group["Significance_Images"]
@@ -236,7 +237,10 @@ for f in filters:
                                            kron_params=(2.5, 0.0),
                                            detection_cat=None)
 
-                flux_segm.extend(source_cat.kron_flux)
+                tab = source_cat.to_table()
+                print(tab.colnames)
+
+                flux_segm.extend(source_cat.kron_fluxs)
                 flux_segm_err.extend(source_cat.kron_fluxerr)
 
             hdf.close()
