@@ -36,8 +36,10 @@ mpi4py.rc.recv_mprobe = False
 
 # Initializations and preliminaries
 comm = MPI.COMM_WORLD  # get MPI communicator object
-size = comm.size  # total number of processes
-rank = comm.rank  # rank of this process
+size = comm.Get_size()  # total number of processes
+rank = comm.Get_rank()  # rank of this process
+
+print(rank, "of", size)
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
