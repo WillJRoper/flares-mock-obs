@@ -113,8 +113,8 @@ ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
 thresh = 2.5
 
-hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}_{}.hdf5"
-                    .format(reg, tag, Type, orientation, f), "w")
+hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
+                    .format(reg, tag, Type, orientation), "w")
 print("Creating File...")
 
 for f in filters:
@@ -202,9 +202,8 @@ for f in filters:
                     subf_img_num.setdefault(f + "." + str(depth), []).extend(
                         np.full_like(this_flux, img_num))
 
-            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
-                            .format(reg, snap, Type, orientation),
-                            "r")
+            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                            .format(reg, snap, Type, orientation, f), "r")
 
             try:
                 fdepth_group = hdf[str(depth)]
