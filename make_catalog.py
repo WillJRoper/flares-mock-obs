@@ -224,19 +224,20 @@ for f in filters:
 
             for ind in range(imgs.shape[0]):
 
-                print(ind)
-
                 sig = sigs[ind, :, :]
                 img = imgs[ind, :, :]
 
                 if sig.max() < thresh:
                     continue
 
+                print(ind)
+
                 try:
                     segm = phut.detect_sources(sig, thresh, npixels=5)
                     segm = phut.deblend_sources(img, segm, npixels=5,
                                                 nlevels=32, contrast=0.001)
                 except TypeError as e:
+                    print(e)
                     continue
 
                 source_cat = SourceCatalog(img, segm, error=None, mask=None,
