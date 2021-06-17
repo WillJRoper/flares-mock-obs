@@ -270,65 +270,65 @@ for f in filters:
                                       compression="gzip")
         dset.attrs["units"] = "None"
 
-    fluxes = np.array(fluxes)
-    subgrpids = np.array(subgrpids)
-    smls = np.array(smls)
-    star_pos = np.array(star_pos)
-
-    dset = f_group.create_dataset("Subgroup_IDs",
-                                            data=gal_haloids,
-                                            dtype=gal_haloids.dtype,
-                                            shape=gal_haloids.shape,
-                                            compression="gzip")
-    dset.attrs["units"] = "None"
-
-    dset = f_group.create_dataset("Galaxy Mass",
-                                  data=gal_mass,
-                                  dtype=gal_mass.dtype,
-                                  shape=gal_mass.shape,
-                                  compression="gzip")
-    dset.attrs["units"] = "$M_\odot$"
-
-    dset = f_group.create_dataset("Start_Index", data=begin,
-                                  dtype=begin.dtype,
-                                  shape=begin.shape,
-                                  compression="gzip")
-    dset.attrs["units"] = "None"
-
-    dset = f_group.create_dataset("Group_Mass", data=grp_mass,
-                                  dtype=grp_mass.dtype,
-                                  shape=grp_mass.shape,
-                                  compression="gzip")
-    dset.attrs["units"] = "$M_\odot$"
-
-    dset = f_group.create_dataset("Smoothing_Length", data=smls,
-                                  dtype=smls.dtype,
-                                  shape=smls.shape,
-                                  compression="gzip")
-    dset.attrs["units"] = "Mpc"
-
-    dset = f_group.create_dataset("Star_Pos", data=star_pos,
-                                  dtype=star_pos.dtype,
-                                  shape=star_pos.shape,
-                                  compression="gzip")
-    dset.attrs["units"] = "kpc"
-
-    dset = f_group.create_dataset("Fluxes", data=fluxes,
-                                  dtype=fluxes.dtype,
-                                  shape=fluxes.shape,
-                                  compression="gzip")
-    dset.attrs["units"] = "nJy"
-
-    dset = f_group.create_dataset("Part_subgrpids", data=subgrpids,
-                                  dtype=subgrpids.dtype,
-                                  shape=subgrpids.shape,
-                                  compression="gzip")
-    dset.attrs["units"] = "None"
-
-    dset = f_group.create_dataset("Group_Length", data=Slen,
-                                  dtype=Slen.dtype,
-                                  shape=Slen.shape,
-                                  compression="gzip")
-    dset.attrs["units"] = "None"
-
+#     fluxes = np.array(fluxes)
+#     subgrpids = np.array(subgrpids)
+#     smls = np.array(smls)
+#     star_pos = np.array(star_pos)
+#
+#     dset = f_group.create_dataset("Subgroup_IDs",
+#                                             data=gal_haloids,
+#                                             dtype=gal_haloids.dtype,
+#                                             shape=gal_haloids.shape,
+#                                             compression="gzip")
+#     dset.attrs["units"] = "None"
+#
+#     dset = f_group.create_dataset("Galaxy Mass",
+#                                   data=gal_mass,
+#                                   dtype=gal_mass.dtype,
+#                                   shape=gal_mass.shape,
+#                                   compression="gzip")
+#     dset.attrs["units"] = "$M_\odot$"
+#
+#     dset = f_group.create_dataset("Start_Index", data=begin,
+#                                   dtype=begin.dtype,
+#                                   shape=begin.shape,
+#                                   compression="gzip")
+#     dset.attrs["units"] = "None"
+#
+#     dset = f_group.create_dataset("Group_Mass", data=grp_mass,
+#                                   dtype=grp_mass.dtype,
+#                                   shape=grp_mass.shape,
+#                                   compression="gzip")
+#     dset.attrs["units"] = "$M_\odot$"
+#
+#     dset = f_group.create_dataset("Smoothing_Length", data=smls,
+#                                   dtype=smls.dtype,
+#                                   shape=smls.shape,
+#                                   compression="gzip")
+#     dset.attrs["units"] = "Mpc"
+#
+#     dset = f_group.create_dataset("Star_Pos", data=star_pos,
+#                                   dtype=star_pos.dtype,
+#                                   shape=star_pos.shape,
+#                                   compression="gzip")
+#     dset.attrs["units"] = "kpc"
+#
+#     dset = f_group.create_dataset("Fluxes", data=fluxes,
+#                                   dtype=fluxes.dtype,
+#                                   shape=fluxes.shape,
+#                                   compression="gzip")
+#     dset.attrs["units"] = "nJy"
+#
+#     dset = f_group.create_dataset("Part_subgrpids", data=subgrpids,
+#                                   dtype=subgrpids.dtype,
+#                                   shape=subgrpids.shape,
+#                                   compression="gzip")
+#     dset.attrs["units"] = "None"
+#
+#     dset = f_group.create_dataset("Group_Length", data=Slen,
+#                                   dtype=Slen.dtype,
+#                                   shape=Slen.shape,
+#                                   compression="gzip")
+#     dset.attrs["units"] = "None"
+#
 hdf.close()
