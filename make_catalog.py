@@ -113,11 +113,17 @@ ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
 thresh = 2.5
 
-hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
-                .format(reg, tag, Type, orientation), "w")
+hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
+                    .format(reg, tag, Type, orientation), "w")
 print("Creating File...")
 
 for f in filters:
+
+    # --- initialise ImageCreator object
+    image_creator = imagesim.Idealised(f, field)
+
+    arc_res = image_creator.pixel_scale
+    kpc_res = arc_res / arcsec_per_kpc_proper
 
     for num, depth in enumerate(depths):
 
@@ -187,7 +193,12 @@ for f in filters:
                     this_flux = this_flux[this_flux > 0]
                     flux_subfind.extend(this_flux)
 
-                    subf_flux.setdefault(f + "." + str(depth), []).extend(this_flux)
+                    subf_begin.setdefault(f + "." + str(depth), []).append(
+                        len(subf_flux.setdefault(f + "." + str(depth), [])))
+                    subf_len.setdefault(f + "." + str(depth), []).append(
+                        len(this_flux))
+                    subf_flux.setdefault(f + "." + str(depth), []).extend(
+                        this_flux)
                     subf_img_num.setdefault(f + "." + str(depth), []).extend(
                         np.full_like(this_flux, img_num))
 
@@ -239,36 +250,34 @@ for f in filters:
 
                 tab = source_cat.to_table()
                 print(tab.colnames)
-
-                flux_segm.extend(source_cat.kron_fluxs)
-                flux_segm_err.extend(source_cat.kron_fluxerr)
+                for key in tab.colnames:
+                    obs_data.setdefault(f + "." + str(depth), {}).setdefault(key, []).extend(tab[key])
+                obs_data[f + "." + str(depth)].setdefault("Kron_HLR", []).extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
+                obs_begin.setdefault(f + "." + str(depth), []).append(len(obs_img_num.setdefault(f + "." + str(depth), [])))
+                obs_len.setdefault(f + "." + str(depth), []).append(tab["labels"].size)
+                obs_img_num.setdefault(f + "." + str(depth), []).extend(np.full(tab["labels"].size, ind))
 
             hdf.close()
 
-            flux_segm_dict.setdefault(f + "." + str(depth), []).extend(
-                flux_segm)
-            flux_segmerr_dict.setdefault(f + "." + str(depth), []).extend(
-                flux_segm_err)
-
-        fdepth_group = f_group.create_group(str(depth))
-
-        dset = fdepth_group.create_dataset("Images", data=imgs,
-                                      dtype=imgs.dtype,
-                                      shape=imgs.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "$nJy$"
-
-        # dset = fdepth_group.create_dataset("Segmentation_Maps", data=segms,
-        #                               dtype=segms.dtype,
-        #                               shape=segms.shape,
+        # fdepth_group = f_group.create_group(str(depth))
+        #
+        # dset = fdepth_group.create_dataset("Images", data=imgs,
+        #                               dtype=imgs.dtype,
+        #                               shape=imgs.shape,
+        #                               compression="gzip")
+        # dset.attrs["units"] = "$nJy$"
+        #
+        # # dset = fdepth_group.create_dataset("Segmentation_Maps", data=segms,
+        # #                               dtype=segms.dtype,
+        # #                               shape=segms.shape,
+        # #                               compression="gzip")
+        # # dset.attrs["units"] = "None"
+        #
+        # dset = fdepth_group.create_dataset("Significance_Images", data=sigs,
+        #                               dtype=sigs.dtype,
+        #                               shape=sigs.shape,
         #                               compression="gzip")
         # dset.attrs["units"] = "None"
-
-        dset = fdepth_group.create_dataset("Significance_Images", data=sigs,
-                                      dtype=sigs.dtype,
-                                      shape=sigs.shape,
-                                      compression="gzip")
-        dset.attrs["units"] = "None"
 
 #     fluxes = np.array(fluxes)
 #     subgrpids = np.array(subgrpids)
@@ -331,4 +340,4 @@ for f in filters:
 #                                   compression="gzip")
 #     dset.attrs["units"] = "None"
 #
-hdf.close()
+hdf_cat.close()
