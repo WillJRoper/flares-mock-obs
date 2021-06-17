@@ -71,7 +71,9 @@ print("Computing HLRs with orientation {o}, type {t}, and extinction {e}"
                                                e=extinction, x=reg, u=tag))
 
 # Define filter
-filters = ('Hubble.WFC3.f160w', )
+filters = [f'Hubble.ACS.{f}'
+           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
+          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 depths = [0.1, 1, 5, 10, 20]
 
