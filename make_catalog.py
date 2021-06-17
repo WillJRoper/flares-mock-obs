@@ -175,32 +175,32 @@ for f in filters:
 
             if depth == depths[0]:
 
-                flux_subfind = []
-
-                for (img_num, beg), img_len in zip(enumerate(begin), group_len):
-
-                    this_subgrpids = subgrpids[beg: beg + img_len]
-
-                    subgrps, inverse_inds = np.unique(this_subgrpids,
-                                                      return_inverse=True)
-
-                    this_flux = np.zeros(subgrps.size)
-
-                    for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
-                                                 inverse_inds, this_subgrpids):
-                        this_flux[i] += flux
-
-                    this_flux = this_flux[this_flux > 0]
-                    flux_subfind.extend(this_flux)
-
-                    subf_begin.setdefault(f + "." + str(depth), []).append(
-                        len(subf_flux.setdefault(f + "." + str(depth), [])))
-                    subf_len.setdefault(f + "." + str(depth), []).append(
-                        len(this_flux))
-                    subf_flux.setdefault(f + "." + str(depth), []).extend(
-                        this_flux)
-                    subf_img_num.setdefault(f + "." + str(depth), []).extend(
-                        np.full_like(this_flux, img_num))
+                # flux_subfind = []
+                #
+                # for (img_num, beg), img_len in zip(enumerate(begin), group_len):
+                #
+                #     this_subgrpids = subgrpids[beg: beg + img_len]
+                #
+                #     subgrps, inverse_inds = np.unique(this_subgrpids,
+                #                                       return_inverse=True)
+                #
+                #     this_flux = np.zeros(subgrps.size)
+                #
+                #     for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
+                #                                  inverse_inds, this_subgrpids):
+                #         this_flux[i] += flux
+                #
+                #     this_flux = this_flux[this_flux > 0]
+                #     flux_subfind.extend(this_flux)
+                #
+                #     subf_begin.setdefault(f + "." + str(depth), []).append(
+                #         len(subf_flux.setdefault(f + "." + str(depth), [])))
+                #     subf_len.setdefault(f + "." + str(depth), []).append(
+                #         len(this_flux))
+                #     subf_flux.setdefault(f + "." + str(depth), []).extend(
+                #         this_flux)
+                #     subf_img_num.setdefault(f + "." + str(depth), []).extend(
+                #         np.full_like(this_flux, img_num))
 
             hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
