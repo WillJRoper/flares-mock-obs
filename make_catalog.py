@@ -113,6 +113,17 @@ ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
 thresh = 2.5
 
+quantities = ('label', 'xcentroid', 'ycentroid', 'area',
+              "eccentricity", "ellipticity", "gini",
+              'segment_flux', 'segment_fluxerr', 'kron_flux', 'kron_fluxerr',
+              "inertia_tensor", "kron_radius")
+units = {'label': None, 'xcentroid': "pixels", 'ycentroid': "pixels",
+         'area': "pixels$^2$", "eccentricity": None, "ellipticity": None,
+         "gini": None, 'segment_flux': "nJy", 'segment_fluxerr': "nJy",
+         'kron_flux': "nJy", 'kron_fluxerr': "nJy",
+         "inertia_tensor": None, "kron_radius": "pixels",
+         "Kron_HLR": "pkpc"}
+
 hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                     .format(reg, tag, Type, orientation), "w")
 print("Creating File...")
@@ -124,6 +135,8 @@ for f in filters:
 
     arc_res = image_creator.pixel_scale
     kpc_res = arc_res / arcsec_per_kpc_proper
+
+    f_cat_group = hdf_cat.create_group(f)
 
     for num, depth in enumerate(depths):
 
@@ -173,34 +186,32 @@ for f in filters:
 
         for depth in depths:
 
-            # if depth == depths[0]:
+            if depth == depths[0]:
 
-                # flux_subfind = []
-                #
-                # for (img_num, beg), img_len in zip(enumerate(begin), group_len):
-                #
-                #     this_subgrpids = subgrpids[beg: beg + img_len]
-                #
-                #     subgrps, inverse_inds = np.unique(this_subgrpids,
-                #                                       return_inverse=True)
-                #
-                #     this_flux = np.zeros(subgrps.size)
-                #
-                #     for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
-                #                                  inverse_inds, this_subgrpids):
-                #         this_flux[i] += flux
-                #
-                #     this_flux = this_flux[this_flux > 0]
-                #     flux_subfind.extend(this_flux)
-                #
-                #     subf_begin.setdefault(f + "." + str(depth), []).append(
-                #         len(subf_flux.setdefault(f + "." + str(depth), [])))
-                #     subf_len.setdefault(f + "." + str(depth), []).append(
-                #         len(this_flux))
-                #     subf_flux.setdefault(f + "." + str(depth), []).extend(
-                #         this_flux)
-                #     subf_img_num.setdefault(f + "." + str(depth), []).extend(
-                #         np.full_like(this_flux, img_num))
+                for (img_num, beg), img_len in zip(enumerate(begin), group_len):
+
+                    this_subgrpids = subgrpids[beg: beg + img_len]
+
+                    subgrps, inverse_inds = np.unique(this_subgrpids,
+                                                      return_inverse=True)
+
+                    this_flux = np.zeros(subgrps.size)
+
+                    for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
+                                                 inverse_inds, this_subgrpids):
+                        this_flux[i] += flux
+
+                    this_flux = this_flux[this_flux > 0]
+                    flux_subfind.extend(this_flux)
+
+                    subf_begin.setdefault(f + "." + str(depth), []).append(
+                        len(subf_flux.setdefault(f + "." + str(depth), [])))
+                    subf_len.setdefault(f + "." + str(depth), []).append(
+                        len(this_flux))
+                    subf_flux.setdefault(f + "." + str(depth), []).extend(
+                        this_flux)
+                    subf_img_num.setdefault(f + "." + str(depth), []).extend(
+                        np.full_like(this_flux, img_num))
 
             hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
@@ -247,48 +258,37 @@ for f in filters:
                                            kron_params=(2.5, 0.0),
                                            detection_cat=None)
 
-                tab = source_cat.to_table()
-                print(tab.colnames)
+                tab = source_cat.to_table(columns=quantities)
                 for key in tab.colnames:
                     obs_data.setdefault(f + "." + str(depth), {}).setdefault(key, []).extend(tab[key])
                 obs_data[f + "." + str(depth)].setdefault("Kron_HLR", []).extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
                 obs_begin.setdefault(f + "." + str(depth), []).append(len(obs_img_num.setdefault(f + "." + str(depth), [])))
-                obs_len.setdefault(f + "." + str(depth), []).append(tab["labels"].size)
-                obs_img_num.setdefault(f + "." + str(depth), []).extend(np.full(tab["labels"].size, ind))
+                obs_len.setdefault(f + "." + str(depth), []).append(tab["label"].size)
+                obs_img_num.setdefault(f + "." + str(depth), []).extend(np.full(tab["label"].size, ind))
 
             hdf.close()
 
-        # fdepth_group = f_group.create_group(str(depth))
-        #
-        # dset = fdepth_group.create_dataset("Images", data=imgs,
-        #                               dtype=imgs.dtype,
-        #                               shape=imgs.shape,
-        #                               compression="gzip")
-        # dset.attrs["units"] = "$nJy$"
-        #
-        # # dset = fdepth_group.create_dataset("Segmentation_Maps", data=segms,
-        # #                               dtype=segms.dtype,
-        # #                               shape=segms.shape,
-        # #                               compression="gzip")
-        # # dset.attrs["units"] = "None"
-        #
-        # dset = fdepth_group.create_dataset("Significance_Images", data=sigs,
-        #                               dtype=sigs.dtype,
-        #                               shape=sigs.shape,
-        #                               compression="gzip")
-        # dset.attrs["units"] = "None"
+        fdepth_cat_group = f_cat_group.create_group(str(depth))
 
-#     fluxes = np.array(fluxes)
-#     subgrpids = np.array(subgrpids)
-#     smls = np.array(smls)
-#     star_pos = np.array(star_pos)
-#
-#     dset = f_group.create_dataset("Subgroup_IDs",
-#                                             data=gal_haloids,
-#                                             dtype=gal_haloids.dtype,
-#                                             shape=gal_haloids.shape,
-#                                             compression="gzip")
-#     dset.attrs["units"] = "None"
+        for key, val in obs_data[f + "." + str(depth)].items():
+
+            val = np.array(val)
+
+            dset = fdepth_cat_group.create_dataset(key,
+                                                    data=val,
+                                                    dtype=val.dtype,
+                                                    shape=val.shape,
+                                                    compression="gzip")
+            dset.attrs["units"] = units[key]
+
+        obs_begin_arr = np.array(obs_begin[f + "." + str(depth)])
+        obs_len_arr = np.array(obs_len[f + "." + str(depth)])
+        obs_img_num_arr = np.array(obs_img_num[f + "." + str(depth)])
+
+        subf_begin_arr = np.array(subf_begin[f + "." + str(depth)])
+        subf_len_arr = np.array(subf_len[f + "." + str(depth)])
+        subf_flux_arr = np.array(subf_flux[f + "." + str(depth)])
+        subf_img_num_arr = np.array(subf_img_num[f + "." + str(depth)])
 #
 #     dset = f_group.create_dataset("Galaxy Mass",
 #                                   data=gal_mass,
