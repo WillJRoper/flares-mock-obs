@@ -14,6 +14,7 @@ from scipy.interpolate import interp1d
 import matplotlib.gridspec as gridspec
 from scipy.spatial import ConvexHull
 from scipy.optimize import curve_fit
+import eagle_IO.eagle_IO as E
 from scipy.spatial import cKDTree
 import schwimmbad
 from functools import partial
