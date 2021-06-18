@@ -344,6 +344,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     gal_cops, gal_ms, gal_grpid, gal_subgrpid, gal_haloids = get_data(sim,
                                                                       tag, r)
 
+    print(r)
+
     Fnus = {}
     Fnus["gal_cop"] = gal_cops
     Fnus["gal_ms"] = gal_ms
@@ -422,8 +424,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         gasMetallicities = G_Z[g_okinds]
         gasSML = G_sml[g_okinds]
         gasMasses = G_mass[g_okinds]
-        
-        print(cop, Masses.size)
 
         Fnus[ind] = {f: {} for f in filters}
 
