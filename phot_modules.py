@@ -325,13 +325,15 @@ def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
 
 def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         filters=('FAKE.TH.FUV',), Type='Total', log10t_BC=7.,
-        extinction='default', orientation="sim", masslim=None, r=1):
+        extinction='default', orientation="sim", masslim=None, width=1):
     kinp = np.load('/cosma7/data/dp004/dc-payy1/my_files/'
                    'los/kernel_sph-anarchy.npz',
                    allow_pickle=True)
     lkernel = kinp['kernel']
     header = kinp['header']
     kbins = header.item()['bins']
+
+    r = np.sqrt(width**2/2)
 
     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
     G_coords, S_mass, cops, r_200, all_gal_ms, S_subgrpid,\
@@ -392,9 +394,9 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     reg_width = 2 * radius
     print(int(reg_width / r), "images along each axis,",
           int(reg_width / r)**3, "total, with a width of", reg_width)
-    xcents = np.linspace(mins[0] + (r / 2), maxs[0] - (r / 2), int(reg_width / r))
-    ycents = np.linspace(mins[1] + (r / 2), maxs[1] - (r / 2), int(reg_width / r))
-    zcents = np.linspace(mins[2] + (r / 2), maxs[2] - (r / 2), int(reg_width / r))
+    xcents = np.linspace(mins[0], maxs[0], int(reg_width / r) * 2)[::2]
+    ycents = np.linspace(mins[1], maxs[1], int(reg_width / r) * 2)[::2]
+    zcents = np.linspace(mins[2], maxs[2], int(reg_width / r) * 2)[::2]
     print(np.diff(xcents))
     cents = []
     for i, x in enumerate(xcents):

@@ -142,7 +142,7 @@ reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
                      filters=(f, ), Type=Type, log10t_BC=7.,
                      extinction=extinction, orientation=orientation,
                      masslim=masslim,
-                     r=np.sqrt((width / arcsec_per_kpc_proper / 1000)**2/2))
+                     r=width / arcsec_per_kpc_proper / 1000)
 
 print("Got the dictionary for the region's groups:",
       len(reg_dict) - 4, "groups to  test")
