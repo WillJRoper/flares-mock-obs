@@ -357,7 +357,6 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
 
     # Define k constant for 3 dimensions
     k3 = 7 / (478 * np.pi)
-    print(part_pos.shape[0])
     for ipos, l, sml in zip(part_pos, ls, smooth):
 
         # Query the tree for this particle

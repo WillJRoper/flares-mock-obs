@@ -230,6 +230,9 @@ for num, depth in enumerate(depths):
 
         this_flux = reg_dict[key][f]
 
+        if np.sum(this_flux) < image_creator.depth:
+            continue
+
         subfind_ids = np.unique(this_subgrpids)
 
         if np.nansum(this_flux) == 0:
