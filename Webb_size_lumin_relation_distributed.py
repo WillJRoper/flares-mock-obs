@@ -182,18 +182,9 @@ image_keys = [k for k in reg_dict.keys() if type(k) is int]
 gal_mass = reg_dict["gal_ms"]
 gal_haloids = reg_dict["gal_haloids"]
 
-if len(image_keys) > 0:
-    nimg = np.max(image_keys) + 1
-
-    begin = np.zeros(nimg, dtype=int)
-    Slen = np.zeros(nimg, dtype=int)
-    grp_mass  = np.zeros(nimg)
-
-else:
-    nimg = 0
-    begin = np.zeros(nimg, dtype=int)
-    Slen  = np.zeros(nimg, dtype=int)
-    grp_mass  = np.zeros(nimg)
+begin = []
+Slen = []
+grp_mass  = []
 
 smls = []
 fluxes = []
@@ -212,9 +203,8 @@ for num, depth in enumerate(depths):
 
     fdepth = f + "." + str(depth)
 
-    imgs = np.full((nimg, res, res), np.nan)
-    # segms = np.zeros((nimg, res, res))
-    sigs = np.zeros((nimg, res, res))
+    imgs = []
+    sigs = []
 
     failed = 0
     segm_sources = 0
@@ -230,12 +220,9 @@ for num, depth in enumerate(depths):
 
         this_flux = reg_dict[key][f]
 
-        if np.sum(this_flux) < image_creator.depth:
-            continue
-
         subfind_ids = np.unique(this_subgrpids)
 
-        if np.nansum(this_flux) == 0:
+        if np.nansum(this_flux) < image_creator.depth:
 
             if num == 0:
                 begin[ind] = -1
@@ -280,42 +267,24 @@ for num, depth in enumerate(depths):
         significance_image = img / img_obj.noise
         significance_image[significance_image < 0] = 0
 
-        try:
-            # segm = phut.detect_sources(significance_image, 2.5, npixels=5)
-            # segm = phut.deblend_sources(img, segm, npixels=5,
-            #                             nlevels=32, contrast=0.001)
-
-            imgs[ind, :, :] = img
-            # segms[ind, :, :] = segm.data
-            sigs[ind, :, :] = significance_image
-
-            # util.plot_images(img, segm.data, significance_image, reg,
-            #                  f, depth, tag, ind, imgextent, ini_width_pkpc,
-            #                  cutout_halfsize=int(0.1 * res))
-
-            # segm_sources += np.unique(segm.data).size - 1
-
-        except TypeError as e:
-            print(e)
-            print(img.min(), img.max(),
-                  significance_image.min(), significance_image.max())
-
-            failed += 1
-
-            imgs[ind, :, :] = img
-            # segms[ind, :, :] = np.zeros((res, res))
-            sigs[ind, :, :] = np.zeros((res, res))
+        imgs.append(img)
+        sigs.append(significance_image)
 
         if num == 0:
 
-            begin[ind] = len(fluxes)
-            Slen[ind] = len(this_smls)
+            begin.append(len(fluxes))
+            Slen.append(this_smls)
             # grp_mass[ind] = this_groupmass
 
             star_pos.extend(this_pos)
             smls.extend(this_smls)
             fluxes.extend(this_flux)
             subgrpids.extend(this_subgrpids)
+
+    imgs = np.array(imgs)
+    sigs = np.array(sigs)
+
+    print("There are", imgs.shape[0])
 
     fdepth_group = hdf.create_group(str(depth))
 
