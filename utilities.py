@@ -12,6 +12,8 @@ from photutils import CircularAperture, RectangularAperture, \
     detect_sources, deblend_sources
 from scipy.interpolate import interp1d
 import matplotlib.gridspec as gridspec
+from scipy.spatial import ConvexHull
+from scipy.optimize import curve_fit
 from scipy.spatial import cKDTree
 import schwimmbad
 from functools import partial
@@ -23,6 +25,29 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
+
+
+def spherical_region(sim, snap):
+    """
+    Inspired from David Turner's suggestion
+    """
+
+    dm_cood = E.read_array('PARTDATA', sim, snap, '/PartType1/Coordinates',
+                           noH=True, physicalUnits=False, numThreads=4)  # dm particle coordinates
+
+    hull = ConvexHull(dm_cood)
+
+    cen = [np.median(dm_cood[:, 0]), np.median(dm_cood[:, 1]), np.median(dm_cood[:, 2])]
+    pedge = dm_cood[hull.vertices]  # edge particles
+    y_obs = np.zeros(len(pedge))
+    p0 = np.append(cen, 14. / 0.677700)
+
+    popt, pcov = curve_fit(_sphere, pedge, y_obs, p0,
+                           method='lm', sigma=np.ones(len(pedge)) * 0.001)
+    dist = np.sqrt(np.sum((pedge - popt[:3]) ** 2, axis=1))
+    centre, radius, mindist = popt[:3], popt[3], np.min(dist)
+
+    return centre, radius, mindist
 
 
 def calc_ages(z, a_born):

@@ -45,6 +45,8 @@ def get_data(reg, snap, r):
 
     path = '/cosma/home/dp004/dc-rope1/FLARES/FLARES-1/G-EAGLE_' + reg + '/data'
 
+    cen, radius, _ = util.spherical_region(path, snap)
+    print(cen, radius)
     # Load all necessary arrays
     r_200 = E.read_array('SUBFIND', path, snap, 'FOF/Group_R_Mean200',
                          noH=True, physicalUnits=True, numThreads=8)
@@ -77,46 +79,38 @@ def get_data(reg, snap, r):
     for (ind, g), sg in zip(enumerate(gal_grpid), gal_subgrpid):
         gal_haloids[ind] = float(str(int(g)) + '.%05d'%int(sg))
 
-    # tree = cKDTree(grp_cops)
-
-    S_coords = E.read_array('PARTDATA', path, snap,
+    S_coords = E.read_array('SNAP', path, snap,
                             'PartType4/Coordinates', noH=True,
                             physicalUnits=True, numThreads=8)
-    G_coords = E.read_array('PARTDATA', path, snap,
+    G_coords = E.read_array('SNAP', path, snap,
                             'PartType0/Coordinates', noH=True,
                             physicalUnits=True, numThreads=8)
+    
+    stree = cKDTree(S_coords)
+    gtree = cKDTree(G_coords)
 
-    # sbefore = S_coords.shape[0]
-    # gbefore = G_coords.shape[0]
-    #
-    # s_okinds_list = tree.query_ball_point(S_coords, r=r)
-    #     # g_okinds_list = tree.query_ball_point(G_coords, r=r)
-    #
-    # s_okinds = []
-    # for ind, lst in enumerate(s_okinds_list):
-    #     if len(lst) > 0:
-    #         s_okinds.append(ind)
-    # g_okinds = []
-    # for ind, lst in enumerate(g_okinds_list):
-    #     if len(lst) > 0:
-    #         g_okinds.append(ind)
-    #
-    # S_coords = S_coords[s_okinds, :]
-    # G_coords = G_coords[g_okinds, :]
+    sbefore = S_coords.shape[0]
+    gbefore = G_coords.shape[0]
 
-    # print("Stars within images:", S_coords.shape[0], "of", sbefore,
-    #       "(%.2f"%(S_coords.shape[0]/sbefore * 100) + "%)")
-    # print("Gas within images:", G_coords.shape[0], "of", gbefore,
-    #       "(%.2f"%(G_coords.shape[0]/gbefore * 100) + "%)")
+    s_okinds = stree.query_ball_point(cen, r=radius)
+    g_okinds = gtree.query_ball_point(cen, r=radius)
 
-    s_okinds = np.full(S_coords.shape[0], True)
-    g_okinds = np.full(G_coords.shape[0], True)
+    S_coords = S_coords[s_okinds, :]
+    G_coords = G_coords[g_okinds, :]
+
+    print("Stars within images:", S_coords.shape[0], "of", sbefore,
+          "(%.2f"%(S_coords.shape[0]/sbefore * 100) + "%)")
+    print("Gas within images:", G_coords.shape[0], "of", gbefore,
+          "(%.2f"%(G_coords.shape[0]/gbefore * 100) + "%)")
+
+    # s_okinds = np.full(S_coords.shape[0], True)
+    # g_okinds = np.full(G_coords.shape[0], True)
 
     # Load data for luminosities
-    S_subgrpid = E.read_array('PARTDATA', path, snap,
+    S_subgrpid = E.read_array('SNAP', path, snap,
                             'PartType4/SubGroupNumber', noH=True,
                             physicalUnits=True, numThreads=8)[s_okinds]
-    S_grpid = E.read_array('PARTDATA', path, snap,
+    S_grpid = E.read_array('SNAP', path, snap,
                             'PartType4/GroupNumber', noH=True,
                             physicalUnits=True, numThreads=8)[s_okinds]
 
@@ -125,29 +119,29 @@ def get_data(reg, snap, r):
     for (ind, g), sg in zip(enumerate(S_grpid), S_subgrpid):
         halo_ids[ind] = float(str(int(g)) + '.%05d'%int(sg))
 
-    S_sml = E.read_array('PARTDATA', path, snap,
+    S_sml = E.read_array('SNAP', path, snap,
                          'PartType4/SmoothingLength', noH=True,
                          physicalUnits=True, numThreads=8)[s_okinds]
-    G_sml = E.read_array('PARTDATA', path, snap,
+    G_sml = E.read_array('SNAP', path, snap,
                          'PartType0/SmoothingLength', noH=True,
                          physicalUnits=True, numThreads=8)[g_okinds]
-    a_born = E.read_array('PARTDATA', path, snap,
+    a_born = E.read_array('SNAP', path, snap,
                           'PartType4/StellarFormationTime', noH=True,
                           physicalUnits=True, numThreads=8)[s_okinds]
-    S_Z = E.read_array('PARTDATA', path, snap,
+    S_Z = E.read_array('SNAP', path, snap,
                        'PartType4/SmoothedMetallicity', noH=True,
                        physicalUnits=True, numThreads=8)[s_okinds]
-    G_Z = E.read_array('PARTDATA', path, snap,
+    G_Z = E.read_array('SNAP', path, snap,
                        'PartType0/SmoothedMetallicity', noH=True,
                        physicalUnits=True, numThreads=8)[g_okinds]
-    S_mass_ini = E.read_array('PARTDATA', path, snap,
+    S_mass_ini = E.read_array('SNAP', path, snap,
                               'PartType4/InitialMass',
                               noH=True, physicalUnits=True,
                               numThreads=8)[s_okinds] * 10 ** 10
-    S_mass = E.read_array('PARTDATA', path, snap, 'PartType4/Mass',
+    S_mass = E.read_array('SNAP', path, snap, 'PartType4/Mass',
                           noH=True, physicalUnits=True,
                           numThreads=8)[s_okinds] * 10 ** 10
-    G_mass = E.read_array('PARTDATA', path, snap, 'PartType0/Mass',
+    G_mass = E.read_array('SNAP', path, snap, 'PartType0/Mass',
                           noH=True, physicalUnits=True,
                           numThreads=8)[g_okinds] * 10 ** 10
 
@@ -160,7 +154,7 @@ def get_data(reg, snap, r):
 
     return S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
            G_coords, S_mass, grp_cops, r_200, all_grp_ms, halo_ids, \
-           gal_cops, gal_ms, gal_grpid, gal_subgrpid, gal_haloids
+           gal_cops, gal_ms, gal_grpid, gal_subgrpid, gal_haloids, cen, radius
 
 
 def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
@@ -341,8 +335,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
     G_coords, S_mass, cops, r_200, all_gal_ms, S_subgrpid,\
-    gal_cops, gal_ms, gal_grpid, gal_subgrpid, gal_haloids = get_data(sim,
-                                                                      tag, r)
+    gal_cops, gal_ms, gal_grpid, gal_subgrpid, gal_haloids, \
+    cen, radius = get_data(sim, tag, r)
 
     print(r)
 
@@ -393,14 +387,14 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     print("There are", len(cops), "groups")
 
-    mins = G_coords.min(axis=0)
-    maxs = G_coords.max(axis=0)
-    reg_width = np.max(maxs - mins)
+    mins = cen - radius
+    maxs = cen + radius
+    reg_width = 2 * radius
     print(int(reg_width / r), "images along each axis,",
           int(reg_width / r)**3, "total, with a width of", reg_width)
-    xcents = np.linspace(mins[0] + r / 2, maxs[0] - r / 2, int(reg_width / r))
-    ycents = np.linspace(mins[1] + r / 2, maxs[1] - r / 2, int(reg_width / r))
-    zcents = np.linspace(mins[2] + r / 2, maxs[2] - r / 2, int(reg_width / r))
+    xcents = np.linspace(mins + (r / 2), maxs - (r / 2), int(reg_width / r))
+    ycents = np.linspace(mins + (r / 2), maxs - (r / 2), int(reg_width / r))
+    zcents = np.linspace(mins + (r / 2), maxs - (r / 2), int(reg_width / r))
 
     cents = []
     for i, x in enumerate(xcents):
