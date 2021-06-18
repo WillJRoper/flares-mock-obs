@@ -85,7 +85,7 @@ def get_data(reg, snap, r):
     G_coords = E.read_array('PARTDATA', path, snap,
                             'PartType0/Coordinates', noH=True,
                             physicalUnits=True, numThreads=8)
-
+    print(np.min(G_coords, axis=0), np.max(G_coords, axis=0))
     sbefore = S_coords.shape[0]
     gbefore = G_coords.shape[0]
 
