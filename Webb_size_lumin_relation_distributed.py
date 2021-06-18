@@ -223,6 +223,7 @@ for num, depth in enumerate(depths):
         subfind_ids = np.unique(this_subgrpids)
 
         if np.nansum(this_flux) < field.depths[f]:
+            print(np.nansum(this_flux), field.depths[f])
             continue
 
         if orientation == "sim" or orientation == "face-on":
@@ -301,6 +302,8 @@ fluxes = np.array(fluxes)
 subgrpids = np.array(subgrpids)
 smls = np.array(smls)
 star_pos = np.array(star_pos)
+begin = np.array(begin)
+Slen = np.array(Slen)
 
 dset = hdf.create_dataset("Subgroup_IDs",
                                         data=gal_haloids,
