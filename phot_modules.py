@@ -395,7 +395,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     maxs = G_coords.max(axis=0)
     reg_width = np.max(maxs - mins)
     print(int(reg_width / r), "images along each axis,",
-          int(reg_width / r)**3, "total")
+          int(reg_width / r)**3, "total, with a width of", reg_width)
     xcents = np.linspace(mins[0] + r / 2, maxs[0] - r / 2, int(reg_width / r))
     ycents = np.linspace(mins[1] + r / 2, maxs[1] - r / 2, int(reg_width / r))
     zcents = np.linspace(mins[2] + r / 2, maxs[2] - r / 2, int(reg_width / r))
@@ -422,6 +422,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         gasMetallicities = G_Z[g_okinds]
         gasSML = G_sml[g_okinds]
         gasMasses = G_mass[g_okinds]
+        
+        print(cop, Masses.size)
 
         Fnus[ind] = {f: {} for f in filters}
 
