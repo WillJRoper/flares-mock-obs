@@ -395,7 +395,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     xcents = np.linspace(mins[0] + (r / 2), maxs[0] - (r / 2), int(reg_width / r))
     ycents = np.linspace(mins[1] + (r / 2), maxs[1] - (r / 2), int(reg_width / r))
     zcents = np.linspace(mins[2] + (r / 2), maxs[2] - (r / 2), int(reg_width / r))
-
+    print(np.diff(xcents))
     cents = []
     for i, x in enumerate(xcents):
         for j, y in enumerate(ycents):
@@ -415,7 +415,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         if len(okinds) == 0:
             continue
 
-        print(r, cop - r, cop + r, len(okinds))
+        print(r, (cop - r) - (cop + r), len(okinds))
 
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
