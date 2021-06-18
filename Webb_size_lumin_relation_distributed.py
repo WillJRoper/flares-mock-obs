@@ -223,15 +223,6 @@ for num, depth in enumerate(depths):
         subfind_ids = np.unique(this_subgrpids)
 
         if np.nansum(this_flux) < field.depths[f]:
-
-            if num == 0:
-                begin[ind] = -1
-                Slen[ind] = 0
-
-            failed += 1
-
-            print(failed, ind)
-
             continue
 
         if orientation == "sim" or orientation == "face-on":
