@@ -79,10 +79,10 @@ def get_data(reg, snap, r):
     for (ind, g), sg in zip(enumerate(gal_grpid), gal_subgrpid):
         gal_haloids[ind] = float(str(int(g)) + '.%05d'%int(sg))
 
-    S_coords = E.read_array('SNAP', path, snap,
+    S_coords = E.read_array('PARTDATA', path, snap,
                             'PartType4/Coordinates', noH=True,
                             physicalUnits=True, numThreads=8)
-    G_coords = E.read_array('SNAP', path, snap,
+    G_coords = E.read_array('PARTDATA', path, snap,
                             'PartType0/Coordinates', noH=True,
                             physicalUnits=True, numThreads=8)
     
@@ -107,10 +107,10 @@ def get_data(reg, snap, r):
     # g_okinds = np.full(G_coords.shape[0], True)
 
     # Load data for luminosities
-    S_subgrpid = E.read_array('SNAP', path, snap,
+    S_subgrpid = E.read_array('PARTDATA', path, snap,
                             'PartType4/SubGroupNumber', noH=True,
                             physicalUnits=True, numThreads=8)[s_okinds]
-    S_grpid = E.read_array('SNAP', path, snap,
+    S_grpid = E.read_array('PARTDATA', path, snap,
                             'PartType4/GroupNumber', noH=True,
                             physicalUnits=True, numThreads=8)[s_okinds]
 
@@ -119,29 +119,29 @@ def get_data(reg, snap, r):
     for (ind, g), sg in zip(enumerate(S_grpid), S_subgrpid):
         halo_ids[ind] = float(str(int(g)) + '.%05d'%int(sg))
 
-    S_sml = E.read_array('SNAP', path, snap,
+    S_sml = E.read_array('PARTDATA', path, snap,
                          'PartType4/SmoothingLength', noH=True,
                          physicalUnits=True, numThreads=8)[s_okinds]
-    G_sml = E.read_array('SNAP', path, snap,
+    G_sml = E.read_array('PARTDATA', path, snap,
                          'PartType0/SmoothingLength', noH=True,
                          physicalUnits=True, numThreads=8)[g_okinds]
-    a_born = E.read_array('SNAP', path, snap,
+    a_born = E.read_array('PARTDATA', path, snap,
                           'PartType4/StellarFormationTime', noH=True,
                           physicalUnits=True, numThreads=8)[s_okinds]
-    S_Z = E.read_array('SNAP', path, snap,
+    S_Z = E.read_array('PARTDATA', path, snap,
                        'PartType4/SmoothedMetallicity', noH=True,
                        physicalUnits=True, numThreads=8)[s_okinds]
-    G_Z = E.read_array('SNAP', path, snap,
+    G_Z = E.read_array('PARTDATA', path, snap,
                        'PartType0/SmoothedMetallicity', noH=True,
                        physicalUnits=True, numThreads=8)[g_okinds]
-    S_mass_ini = E.read_array('SNAP', path, snap,
+    S_mass_ini = E.read_array('PARTDATA', path, snap,
                               'PartType4/InitialMass',
                               noH=True, physicalUnits=True,
                               numThreads=8)[s_okinds] * 10 ** 10
-    S_mass = E.read_array('SNAP', path, snap, 'PartType4/Mass',
+    S_mass = E.read_array('PARTDATA', path, snap, 'PartType4/Mass',
                           noH=True, physicalUnits=True,
                           numThreads=8)[s_okinds] * 10 ** 10
-    G_mass = E.read_array('SNAP', path, snap, 'PartType0/Mass',
+    G_mass = E.read_array('PARTDATA', path, snap, 'PartType0/Mass',
                           noH=True, physicalUnits=True,
                           numThreads=8)[g_okinds] * 10 ** 10
 
