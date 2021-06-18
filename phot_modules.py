@@ -415,6 +415,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         if len(okinds) == 0:
             continue
 
+        print(r, cop - r, cop + r, len(okinds))
+
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
         Ages = S_age[okinds]
