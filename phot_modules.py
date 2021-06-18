@@ -77,7 +77,7 @@ def get_data(reg, snap, r):
     for (ind, g), sg in zip(enumerate(gal_grpid), gal_subgrpid):
         gal_haloids[ind] = float(str(int(g)) + '.%05d'%int(sg))
 
-    tree = cKDTree(grp_cops)
+    # tree = cKDTree(grp_cops)
 
     S_coords = E.read_array('PARTDATA', path, snap,
                             'PartType4/Coordinates', noH=True,
@@ -85,29 +85,32 @@ def get_data(reg, snap, r):
     G_coords = E.read_array('PARTDATA', path, snap,
                             'PartType0/Coordinates', noH=True,
                             physicalUnits=True, numThreads=8)
-    print(np.min(G_coords, axis=0), np.max(G_coords, axis=0))
-    sbefore = S_coords.shape[0]
-    gbefore = G_coords.shape[0]
 
-    s_okinds_list = tree.query_ball_point(S_coords, r=r)
-    g_okinds_list = tree.query_ball_point(G_coords, r=r)
+    # sbefore = S_coords.shape[0]
+    # gbefore = G_coords.shape[0]
+    #
+    # s_okinds_list = tree.query_ball_point(S_coords, r=r)
+    #     # g_okinds_list = tree.query_ball_point(G_coords, r=r)
+    #
+    # s_okinds = []
+    # for ind, lst in enumerate(s_okinds_list):
+    #     if len(lst) > 0:
+    #         s_okinds.append(ind)
+    # g_okinds = []
+    # for ind, lst in enumerate(g_okinds_list):
+    #     if len(lst) > 0:
+    #         g_okinds.append(ind)
+    #
+    # S_coords = S_coords[s_okinds, :]
+    # G_coords = G_coords[g_okinds, :]
 
-    s_okinds = []
-    for ind, lst in enumerate(s_okinds_list):
-        if len(lst) > 0:
-            s_okinds.append(ind)
-    g_okinds = []
-    for ind, lst in enumerate(g_okinds_list):
-        if len(lst) > 0:
-            g_okinds.append(ind)
+    # print("Stars within images:", S_coords.shape[0], "of", sbefore,
+    #       "(%.2f"%(S_coords.shape[0]/sbefore * 100) + "%)")
+    # print("Gas within images:", G_coords.shape[0], "of", gbefore,
+    #       "(%.2f"%(G_coords.shape[0]/gbefore * 100) + "%)")
 
-    S_coords = S_coords[s_okinds, :]
-    G_coords = G_coords[g_okinds, :]
-
-    print("Stars within images:", S_coords.shape[0], "of", sbefore,
-          "(%.2f"%(S_coords.shape[0]/sbefore * 100) + "%)")
-    print("Gas within images:", G_coords.shape[0], "of", gbefore,
-          "(%.2f"%(G_coords.shape[0]/gbefore * 100) + "%)")
+    s_okinds = np.full(S_coords.shape[0], True)
+    g_okinds = np.full(G_coords.shape[0], True)
 
     # Load data for luminosities
     S_subgrpid = E.read_array('PARTDATA', path, snap,
@@ -388,7 +391,24 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     print("There are", len(cops), "groups")
 
-    for ind, cop in enumerate(cops):
+    mins = G_coords.min(axis=0)
+    maxs = G_coords.max(axis=0)
+    reg_width = np.max(maxs - mins)
+    print(int(reg_width / r), "images along each axis,",
+          int(reg_width / r)**3, "total")
+    xcents = np.linspace(mins[0] + r / 2, maxs[0] - r / 2, int(reg_width / r))
+    ycents = np.linspace(mins[1] + r / 2, maxs[1] - r / 2, int(reg_width / r))
+    zcents = np.linspace(mins[2] + r / 2, maxs[2] - r / 2, int(reg_width / r))
+
+    cents = []
+    for i, x in enumerate(xcents):
+        for j, y in enumerate(ycents):
+            for k, z in enumerate(zcents):
+                cents.append(np.array([x, y, z]))
+
+    print(len(cents))
+
+    for ind, cop in enumerate(cents):
 
         okinds = star_tree.query_ball_point(cop, r=r)
 
@@ -407,8 +427,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         Fnus[ind]["smls"] = Smls
         Fnus[ind]["masses"] = Masses
-        Fnus[ind]["group_mass"] = all_gal_ms[ind]
-        Fnus[ind]["group_cop"] = cops[ind]
+        # Fnus[ind]["group_mass"] = all_gal_ms[ind]
+        # Fnus[ind]["group_cop"] = cops[ind]
         Fnus[ind]["part_subgrpids"] = S_subgrpid[okinds]
 
         if orientation == "sim":
