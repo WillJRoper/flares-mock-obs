@@ -67,7 +67,7 @@ def get_data(reg, snap, r):
     all_grp_ms = E.read_array('SUBFIND', path, snap, 'FOF/Group_M_Mean200',
                               numThreads=8) * 10**10
 
-    okinds = all_grp_ms > 10**11
+    okinds = all_grp_ms > 10**10
     grp_cops = grp_cops[okinds]
     r_200 = r_200[okinds]
     all_grp_ms = all_grp_ms[okinds]
@@ -406,8 +406,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
             for k, z in enumerate(zcents):
                 cents.append(np.array([x, y, z]))
 
-    print(len(cents))
-
     for ind, cop in enumerate(cents):
 
         okinds = star_tree.query_ball_point(cop, r=r)
@@ -418,6 +416,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
+        if Masses.size == 0:
+            continue
         Ages = S_age[okinds]
         Metallicities = S_Z[okinds]
         Smls = S_sml[okinds]

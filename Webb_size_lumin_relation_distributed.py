@@ -226,7 +226,7 @@ for num, depth in enumerate(depths):
         this_pos = reg_dict[key]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
         this_smls = reg_dict[key]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
         this_subgrpids = reg_dict[key]["part_subgrpids"]
-        this_groupmass = reg_dict[key]["group_mass"]
+        # this_groupmass = reg_dict[key]["group_mass"]
 
         this_flux = reg_dict[key][f]
 
@@ -307,7 +307,7 @@ for num, depth in enumerate(depths):
 
             begin[ind] = len(fluxes)
             Slen[ind] = len(this_smls)
-            grp_mass[ind] = this_groupmass
+            # grp_mass[ind] = this_groupmass
 
             star_pos.extend(this_pos)
             smls.extend(this_smls)
@@ -359,11 +359,11 @@ dset = hdf.create_dataset("Start_Index", data=begin,
                               compression="gzip")
 dset.attrs["units"] = "None"
 
-dset = hdf.create_dataset("Group_Mass", data=grp_mass,
-                              dtype=grp_mass.dtype,
-                              shape=grp_mass.shape,
-                              compression="gzip")
-dset.attrs["units"] = "$M_\odot$"
+# dset = hdf.create_dataset("Group_Mass", data=grp_mass,
+#                               dtype=grp_mass.dtype,
+#                               shape=grp_mass.shape,
+#                               compression="gzip")
+# dset.attrs["units"] = "$M_\odot$"
 
 dset = hdf.create_dataset("Smoothing_Length", data=smls,
                               dtype=smls.dtype,
