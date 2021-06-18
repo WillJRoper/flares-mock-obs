@@ -406,6 +406,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     print(cents.shape)
 
+    stars_found = 0
+
     for ind, cop in enumerate(cents):
 
         okinds = star_tree.query_ball_point(cop, r=r)
@@ -414,6 +416,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         if len(okinds) == 0:
             continue
+
+        stars_found += len(okinds)
 
         print(r, (cop - r) - (cop + r), len(okinds))
 
@@ -519,6 +523,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
             tauVs_BC = None
             fesc = None
             ValueError(F"Undefined Type {Type}")
+
+        print(stars_found, "of", S_coords.shape)
 
         # --- calculate rest-frame Luminosity. In units of erg/s/Hz
         for f in filters:
