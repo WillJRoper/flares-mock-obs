@@ -408,10 +408,11 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         g_okinds = gas_tree.query_ball_point(cop, r=r)
 
+        if len(okinds) == 0:
+            continue
+
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
-        if Masses.size == 0:
-            continue
         Ages = S_age[okinds]
         Metallicities = S_Z[okinds]
         Smls = S_sml[okinds]
