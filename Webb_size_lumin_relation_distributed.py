@@ -222,7 +222,7 @@ for num, depth in enumerate(depths):
 
         subfind_ids = np.unique(this_subgrpids)
 
-        if np.nansum(this_flux) < image_creator.depth:
+        if np.nansum(this_flux) < field.depths[f]:
 
             if num == 0:
                 begin[ind] = -1
