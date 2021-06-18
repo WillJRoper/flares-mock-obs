@@ -412,8 +412,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         g_okinds = gas_tree.query_ball_point(cop, r=r)
 
-        Fnus[ind] = {f: {} for f in filters}
-
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
         if Masses.size == 0:
@@ -424,6 +422,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         gasMetallicities = G_Z[g_okinds]
         gasSML = G_sml[g_okinds]
         gasMasses = G_mass[g_okinds]
+
+        Fnus[ind] = {f: {} for f in filters}
 
         Fnus[ind]["smls"] = Smls
         Fnus[ind]["masses"] = Masses
