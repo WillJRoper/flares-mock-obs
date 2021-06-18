@@ -408,12 +408,10 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     for ind, cop in enumerate(cents):
 
-        print(cop)
-
         okinds = star_tree.query_ball_point(cop, r=r)
 
         g_okinds = gas_tree.query_ball_point(cop, r=r)
-        print(okinds)
+
         if len(okinds) == 0:
             continue
 
