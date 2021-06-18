@@ -400,7 +400,9 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     for i, x in enumerate(xcents):
         for j, y in enumerate(ycents):
             for k, z in enumerate(zcents):
-                print(x, y, z, np.array([x, y, z])[0], np.array([x, y, z]))
+                print(x, y, z)
+                print(np.array([x, y, z]))
+                print(np.array([x, y, z])[0])
                 cents.append(np.array([x, y, z])[0])
 
     cents = np.array(cents)
