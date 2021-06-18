@@ -400,13 +400,15 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     for i, x in enumerate(xcents):
         for j, y in enumerate(ycents):
             for k, z in enumerate(zcents):
-                cents.append(np.array([x, y, z]))
+                cents.append(np.array([x, y, z])[0])
 
     cents = np.array(cents)
 
     print(cents.shape)
 
     for ind, cop in enumerate(cents):
+
+        print(cop)
 
         okinds = star_tree.query_ball_point(cop, r=r)
 
