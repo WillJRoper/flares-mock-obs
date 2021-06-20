@@ -204,7 +204,7 @@ for num, depth in enumerate(depths):
     fdepth = f + "." + str(depth)
 
     imgs = []
-    sigs = []
+    noise = []
     img_num = []
 
     failed = 0
@@ -221,7 +221,24 @@ for num, depth in enumerate(depths):
         this_subgrpids = reg_dict[key]["part_subgrpids"]
         # this_groupmass = reg_dict[key]["group_mass"]
 
-        this_flux = reg_dict[key][f]
+        xcond = np.logical_and(this_pos[:, 0] < imgextent[1]
+                               * arcsec_per_kpc_proper,
+                               this_pos[:, 0] > imgextent[0]
+                               * arcsec_per_kpc_proper)
+        ycond = np.logical_and(this_pos[:, 1] < imgextent[1]
+                               * arcsec_per_kpc_proper,
+                               this_pos[:, 1] > imgextent[0]
+                               * arcsec_per_kpc_proper)
+        zcond = np.logical_and(this_pos[:, 2] < imgextent[1]
+                               * arcsec_per_kpc_proper,
+                               this_pos[:, 2] > imgextent[0]
+                               * arcsec_per_kpc_proper)
+        okinds = np.logical_and(np.logical_and(xcond, ycond), zcond)
+
+        this_flux = reg_dict[key][f][okinds]
+        this_pos = this_pos[okinds]
+        this_smls = this_smls[okinds]
+        this_subgrpids = this_subgrpids[okinds]
 
         subfind_ids = np.unique(this_subgrpids)
 
@@ -230,8 +247,6 @@ for num, depth in enumerate(depths):
             continue
 
         if orientation == "sim" or orientation == "face-on":
-
-            this_radii = util.calc_rad(this_pos, i=0, j=1)
 
             img = util.make_spline_img(this_pos, res, 0, 1, tree,
                                        this_flux, this_smls)
@@ -259,11 +274,11 @@ for num, depth in enumerate(depths):
 
             img, img_obj = util.noisy_img(img, image_creator)
 
-        significance_image = img / img_obj.noise
-        significance_image[significance_image < 0] = 0
+        # significance_image = img / img_obj.noise
+        # significance_image[significance_image < 0] = 0
 
         imgs.append(img)
-        sigs.append(significance_image)
+        noise.append(image_creator.pixel.noise)
         img_num.append(key)
 
         if num == 0:
@@ -278,10 +293,10 @@ for num, depth in enumerate(depths):
             subgrpids.extend(this_subgrpids)
 
     imgs = np.array(imgs)
-    sigs = np.array(sigs)
+    noise = np.array(noise)
     img_num = np.array(img_num)
 
-    print("There are", imgs.shape[0])
+    print("There are", imgs.shape[0], "images")
 
     fdepth_group = hdf.create_group(str(depth))
 
@@ -297,9 +312,9 @@ for num, depth in enumerate(depths):
                                   compression="gzip")
     dset.attrs["units"] = "None"
 
-    dset = fdepth_group.create_dataset("Significance_Images", data=sigs,
-                                  dtype=sigs.dtype,
-                                  shape=sigs.shape,
+    dset = fdepth_group.create_dataset("Noise_value", data=noise,
+                                  dtype=noise.dtype,
+                                  shape=noise.shape,
                                   compression="gzip")
     dset.attrs["units"] = "None"
 
