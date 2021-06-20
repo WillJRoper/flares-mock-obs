@@ -171,6 +171,7 @@ for f in filters:
 
             hdf.close()
         except KeyError as e:
+            print(e)
             hdf.close()
             continue
 
