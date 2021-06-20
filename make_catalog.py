@@ -217,12 +217,6 @@ for f in filters:
                 hdf.close()
                 continue
 
-            if sigs.shape[0] == 0:
-                continue
-
-            if sigs[:].max() < thresh:
-                continue
-
             for ind in range(imgs.shape[0]):
 
                 img = imgs[ind, :, :]
