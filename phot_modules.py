@@ -340,8 +340,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     gal_cops, gal_ms, gal_grpid, gal_subgrpid, gal_haloids, \
     cen, radius = get_data(sim, tag, r)
 
-    print(r)
-
     Fnus = {}
     Fnus["gal_cop"] = gal_cops
     Fnus["gal_ms"] = gal_ms
@@ -394,10 +392,10 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     reg_width = 2 * radius
     print(int(reg_width / r), "images along each axis,",
           int(reg_width / r)**3, "total, with a width of", reg_width)
-    xcents = np.linspace(mins[0], maxs[0], int(reg_width / r) * 2)[::2]
-    ycents = np.linspace(mins[1], maxs[1], int(reg_width / r) * 2)[::2]
-    zcents = np.linspace(mins[2], maxs[2], int(reg_width / r) * 2)[::2]
-    print(np.diff(xcents))
+    xcents = np.linspace(mins[0] + r, maxs[0] - r, int(reg_width / r))
+    ycents = np.linspace(mins[1] + r, maxs[1] - r, int(reg_width / r))
+    zcents = np.linspace(mins[2] + r, maxs[2] - r, int(reg_width / r))
+
     cents = []
     for i, x in enumerate(xcents):
         for j, y in enumerate(ycents):
@@ -405,10 +403,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
                 cents.append(np.array([x, y, z]))
 
     cents = np.array(cents)
-
-    print(cents.shape)
-
-    stars_found = 0
 
     for ind, cop in enumerate(cents):
 
@@ -418,10 +412,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         if len(okinds) == 0:
             continue
-
-        stars_found += len(okinds)
-
-        print(r, (cop - r) - (cop + r), len(okinds))
 
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
@@ -525,8 +515,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
             tauVs_BC = None
             fesc = None
             ValueError(F"Undefined Type {Type}")
-
-        print(stars_found, "of", S_coords.shape)
 
         # --- calculate rest-frame Luminosity. In units of erg/s/Hz
         for f in filters:
