@@ -108,7 +108,7 @@ kernel.normalize()
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
-ini_width_pkpc = 200
+ini_width_pkpc = 500
 ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
 f = filters[filter_ind]
@@ -184,7 +184,7 @@ gal_haloids = reg_dict["gal_haloids"]
 
 begin = []
 Slen = []
-grp_mass  = []
+grp_mass = []
 
 smls = []
 fluxes = []
@@ -205,6 +205,7 @@ for num, depth in enumerate(depths):
 
     imgs = []
     sigs = []
+    img_num = []
 
     failed = 0
     segm_sources = 0
@@ -261,6 +262,7 @@ for num, depth in enumerate(depths):
 
         imgs.append(img)
         sigs.append(significance_image)
+        img_num.append(key)
 
         if num == 0:
 
@@ -275,6 +277,7 @@ for num, depth in enumerate(depths):
 
     imgs = np.array(imgs)
     sigs = np.array(sigs)
+    img_num = np.array(img_num)
 
     print("There are", imgs.shape[0])
 
@@ -286,11 +289,11 @@ for num, depth in enumerate(depths):
                                   compression="gzip")
     dset.attrs["units"] = "$nJy$"
 
-    # dset = fdepth_group.create_dataset("Segmentation_Maps", data=segms,
-    #                               dtype=segms.dtype,
-    #                               shape=segms.shape,
-    #                               compression="gzip")
-    # dset.attrs["units"] = "None"
+    dset = fdepth_group.create_dataset("Image_ID", data=img_num,
+                                  dtype=img_num.dtype,
+                                  shape=img_num.shape,
+                                  compression="gzip")
+    dset.attrs["units"] = "None"
 
     dset = fdepth_group.create_dataset("Significance_Images", data=sigs,
                                   dtype=sigs.dtype,
