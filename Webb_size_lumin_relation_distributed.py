@@ -212,8 +212,6 @@ for num, depth in enumerate(depths):
 
     for key in image_keys:
 
-        print(key)
-
         ind = key
 
         this_pos = reg_dict[key]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
