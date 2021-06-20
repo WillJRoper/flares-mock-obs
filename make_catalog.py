@@ -140,16 +140,6 @@ for f in filters:
 
     for num, depth in enumerate(depths):
 
-        # segm_flux = {}
-        # segm_flux_err = {}
-        # kron_flux = {}
-        # kron_flux_err = {}
-        # kron_rad = {}
-        # kron_hlr = {}
-        # gini = {}
-        # xs = {}
-        # ys = {}
-        # labels = {}
         obs_data = {}
         obs_img_num = {}
         obs_begin = {}
@@ -202,7 +192,6 @@ for f in filters:
                         this_flux[i] += flux
 
                     this_flux = this_flux[this_flux > 0]
-                    flux_subfind.extend(this_flux)
 
                     subf_begin.setdefault(f + "." + str(depth), []).append(
                         len(subf_flux.setdefault(f + "." + str(depth), [])))
@@ -220,7 +209,7 @@ for f in filters:
                 fdepth_group = hdf[str(depth)]
 
                 imgs = fdepth_group["Images"]
-                sigs = fdepth_group["Significance_Images"]
+                noises = fdepth_group["Noise_value"]
 
             except KeyError as e:
                 print(e)
@@ -235,8 +224,8 @@ for f in filters:
 
             for ind in range(imgs.shape[0]):
 
-                sig = sigs[ind, :, :]
                 img = imgs[ind, :, :]
+                sig = img / noises[ind]
 
                 if sig.max() < thresh:
                     continue
@@ -272,6 +261,8 @@ for f in filters:
 
         for key, val in obs_data[f + "." + str(depth)].items():
 
+            print("Writing out", key)
+
             val = np.array(val)
 
             dset = fdepth_cat_group.create_dataset(key,
@@ -289,54 +280,5 @@ for f in filters:
         subf_len_arr = np.array(subf_len[f + "." + str(depth)])
         subf_flux_arr = np.array(subf_flux[f + "." + str(depth)])
         subf_img_num_arr = np.array(subf_img_num[f + "." + str(depth)])
-#
-#     dset = f_group.create_dataset("Galaxy Mass",
-#                                   data=gal_mass,
-#                                   dtype=gal_mass.dtype,
-#                                   shape=gal_mass.shape,
-#                                   compression="gzip")
-#     dset.attrs["units"] = "$M_\odot$"
-#
-#     dset = f_group.create_dataset("Start_Index", data=begin,
-#                                   dtype=begin.dtype,
-#                                   shape=begin.shape,
-#                                   compression="gzip")
-#     dset.attrs["units"] = "None"
-#
-#     dset = f_group.create_dataset("Group_Mass", data=grp_mass,
-#                                   dtype=grp_mass.dtype,
-#                                   shape=grp_mass.shape,
-#                                   compression="gzip")
-#     dset.attrs["units"] = "$M_\odot$"
-#
-#     dset = f_group.create_dataset("Smoothing_Length", data=smls,
-#                                   dtype=smls.dtype,
-#                                   shape=smls.shape,
-#                                   compression="gzip")
-#     dset.attrs["units"] = "Mpc"
-#
-#     dset = f_group.create_dataset("Star_Pos", data=star_pos,
-#                                   dtype=star_pos.dtype,
-#                                   shape=star_pos.shape,
-#                                   compression="gzip")
-#     dset.attrs["units"] = "kpc"
-#
-#     dset = f_group.create_dataset("Fluxes", data=fluxes,
-#                                   dtype=fluxes.dtype,
-#                                   shape=fluxes.shape,
-#                                   compression="gzip")
-#     dset.attrs["units"] = "nJy"
-#
-#     dset = f_group.create_dataset("Part_subgrpids", data=subgrpids,
-#                                   dtype=subgrpids.dtype,
-#                                   shape=subgrpids.shape,
-#                                   compression="gzip")
-#     dset.attrs["units"] = "None"
-#
-#     dset = f_group.create_dataset("Group_Length", data=Slen,
-#                                   dtype=Slen.dtype,
-#                                   shape=Slen.shape,
-#                                   compression="gzip")
-#     dset.attrs["units"] = "None"
-#
+
 hdf_cat.close()
