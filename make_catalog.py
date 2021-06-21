@@ -12,13 +12,7 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
 import seaborn as sns
-from matplotlib.colors import LogNorm
-import matplotlib.gridspec as gridspec
-from scipy.stats import binned_statistic
-import phot_modules as phot
-import utilities as util
-import flare
-from flare.photom import lum_to_M, M_to_lum
+import astropy
 from astropy.cosmology import Planck13 as cosmo
 from photutils.segmentation import SourceCatalog
 import h5py
@@ -246,7 +240,7 @@ for f in filters:
 
                 tab = source_cat.to_table(columns=quantities)
                 for key in tab.colnames:
-                    obs_data[f + "." + str(depth)].setdefault(key, []).extend(tab[key].value)
+                    obs_data[f + "." + str(depth)].setdefault(key, []).extend(tab[key])
                 obs_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full(tab["label"].size, img_id))
                 obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_data[f + "." + str(depth)]["Image_ID"]))
                 obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
@@ -263,7 +257,10 @@ for f in filters:
 
                 print("Writing out", key, "for", f, depth)
 
-                val = np.array(val)
+                try:
+                    val = np.array(val)
+                except astropy.units.core.UnitConversionError:
+                    val = np.array([i.value for i in val])
 
                 dset = fdepth_cat_group.create_dataset(key,
                                                         data=val,
