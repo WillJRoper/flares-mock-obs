@@ -110,52 +110,13 @@ for n_z in range(len(snaps)):
                     f_group = hdf[f]
                     fdepth_group = f_group[str(depth)]
 
-                    imgs = fdepth_group["Images"]
-                    sigs = fdepth_group["Significance_Images"]
+                    kron_radii = fdepth_group["Kron_HLR"][...]
+                    fluxes = fdepth_group['kron_flux'][...]
 
                 except KeyError as e:
                     print(e)
                     hdf.close()
                     continue
-
-                kron_radii = []
-                fluxes = []
-
-                if sigs.shape[0] == 0:
-                    continue
-
-                if sigs[:].max() < thresh:
-                    continue
-
-                for ind in range(imgs.shape[0]):
-
-                    sig = sigs[ind, :, :]
-                    img = imgs[ind, :, :]
-
-                    if sig.max() < thresh:
-                        continue
-
-                    try:
-                        segm = phut.detect_sources(sig, thresh, npixels=5)
-                        segm = phut.deblend_sources(img, segm, npixels=5,
-                                                    nlevels=32, contrast=0.001)
-                    except TypeError as e:
-                        continue
-
-                    source_cat = SourceCatalog(img, segm, error=None,
-                                               mask=None,  kernel=None,
-                                               background=None, wcs=None,
-                                               localbkg_width=0,
-                                               apermask_method='correct',
-                                               kron_params=(2.5, 0.0),
-                                               detection_cat=None)
-
-                    try:
-                        kron_radii.extend(source_cat.fluxfrac_radius(0.5)
-                                          * kpc_res)
-                        fluxes.extend(source_cat.kron_flux)
-                    except ValueError:
-                        continue
 
                 hdf.close()
 

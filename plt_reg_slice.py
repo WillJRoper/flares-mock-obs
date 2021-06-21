@@ -33,8 +33,7 @@ for reg in range(0, 40):
     else:
         regions.append(str(reg))
 
-snaps = ['005_z010p000', '006_z009p000', '007_z008p000', '008_z007p000',
-         '009_z006p000', '010_z005p000', '011_z004p770']
+snaps = ['009_z006p000', '010_z005p000', '011_z004p770']
 
 reg_snaps = []
 for reg in reversed(regions):
@@ -167,11 +166,6 @@ for reg in regions:
         plt_img[reg_img > 0] = np.log10(reg_img[reg_img > 0])
         plt_img[reg_img <= 0] = np.nan
 
-        print([reg_img > 0])
-        print(np.log10(reg_img[reg_img > 0]))
-
-        print(np.percentile(reg_img, 99), np.max(plt_img), np.max(reg_img))
-
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111)
 
@@ -180,7 +174,7 @@ for reg in regions:
         fig.savefig("plots/region_img_Filter-" + f + "_Orientation-"
                     + orientation + "_Type-" + Type
                     + "_Region-" + reg + "_Snap-" + snap + ".png",
-                    dpi=600, bbox_inches="tight")
+                    dpi=1200, bbox_inches="tight")
         plt.close(fig)
 
 
