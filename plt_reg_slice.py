@@ -159,6 +159,10 @@ for reg in regions:
                 if int(img_id) in img_ids:
                     print(i, j, kth, img_id, np.sum(imgs[img_ids == img_id, :, :]))
                     reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res,] = imgs[img_ids == img_id, :, :]
+                else:
+                    noise = image_creator.pixel.noise * np.random.randn(res,
+                                                                        res)
+                    reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ] = noise
 
         hdf.close()
 
@@ -176,7 +180,7 @@ for reg in regions:
         fig.savefig("plots/region_img_Filter-" + f + "_Orientation-"
                     + orientation + "_Type-" + Type
                     + "_Region-" + reg + "_Snap-" + snap + ".png",
-                    dpi=1200, bbox_inches="tight")
+                    dpi=12000, bbox_inches="tight")
         plt.close(fig)
 
 
