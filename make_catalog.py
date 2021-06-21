@@ -77,6 +77,8 @@ filters = [f'Hubble.ACS.{f}'
            for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
           + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
+filters.append("SUBFIND")
+
 depths = [0.1, 1, 5, 10, 20]
 
 # Define radii
@@ -129,9 +131,8 @@ hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
 print("Creating File...")
 
 obs_data = {}
-obs_img_num = {}
-obs_begin = {}
-obs_len = {}
+
+subf_data = {}
 
 subf_flux = {}
 subf_img_num = {}
@@ -152,28 +153,30 @@ for f in filters:
               "and extinction {e} for region {x} and "
               "snapshot {u}".format(o=orientation, t=Type, e=extinction,
                                     x=reg, u=snap))
-        try:
-            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                            .format(reg, snap, Type, orientation, f), "r")
-        except OSError as e:
-            print(e)
-            continue
 
-        try:
+        if depth == "SUBFIND":
 
-            fluxes = hdf["Fluxes"][:]
-            subgrpids = hdf["Part_subgrpids"][:]
-            begin = hdf["Start_Index"][:]
-            group_len = hdf["Group_Length"][:]
-            gal_ids = set(hdf["Subgroup_IDs"][:])
+            try:
+                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                                .format(reg, snap, Type, orientation, f), "r")
+            except OSError as e:
+                print(e)
+                continue
 
-            hdf.close()
-        except KeyError as e:
-            print(e)
-            hdf.close()
-            continue
+            try:
+                fdepth_group = hdf[str(depth)]
 
-        if depth == depths[0]:
+                fluxes = fdepth_group["Fluxes"][:]
+                subgrpids = fdepth_group["Part_subgrpids"][:]
+                begin = fdepth_group["Start_Index"][:]
+                group_len = fdepth_group["Image_Length"][:]
+                gal_ids = set(fdepth_group["Subgroup_IDs"][:])
+
+                hdf.close()
+            except KeyError as e:
+                print(e)
+                hdf.close()
+                continue
 
             for (img_num, beg), img_len in zip(enumerate(begin), group_len):
 
@@ -190,14 +193,10 @@ for f in filters:
 
                 this_flux = this_flux[this_flux > 0]
 
-                subf_begin.setdefault(f + "." + str(depth), []).append(
-                    len(subf_flux.setdefault(f + "." + str(depth), [])))
-                subf_len.setdefault(f + "." + str(depth), []).append(
-                    len(this_flux))
-                subf_flux.setdefault(f + "." + str(depth), []).extend(
-                    this_flux)
-                subf_img_num.setdefault(f + "." + str(depth), []).extend(
-                    np.full_like(this_flux, img_num))
+                subf_data.setdefault(f + "." + str(depth), {}).setdefault("Fluxes", []).extend(this_flux)
+                subf_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(subf_data[f + "." + str(depth)]["Fluxes"]))
+                subf_data[f + "." + str(depth)].setdefault("Image_Length", []).append(len(this_flux))
+                subf_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full_like(this_flux, img_num))
 
         hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                         .format(reg, snap, Type, orientation, f), "r")
@@ -242,9 +241,9 @@ for f in filters:
             for key in tab.colnames:
                 obs_data.setdefault(f + "." + str(depth), {}).setdefault(key, []).extend(tab[key])
             obs_data[f + "." + str(depth)].setdefault("Kron_HLR", []).extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
-            obs_begin.setdefault(f + "." + str(depth), []).append(len(obs_img_num.setdefault(f + "." + str(depth), [])))
-            obs_len.setdefault(f + "." + str(depth), []).append(tab["label"].size)
-            obs_img_num.setdefault(f + "." + str(depth), []).extend(np.full(tab["label"].size, ind))
+            obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_img_num.setdefault(f + "." + str(depth), [])))
+            obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
+            obs_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full(tab["label"].size, ind))
 
         hdf.close()
 
@@ -267,11 +266,7 @@ for f in filters:
                                                         compression="gzip")
                 dset.attrs["units"] = units[key]
 
-        if depth == depths[0]:
-
-            obs_begin_arr = np.array(obs_begin[f + "." + str(depth)])
-            obs_len_arr = np.array(obs_len[f + "." + str(depth)])
-            obs_img_num_arr = np.array(obs_img_num[f + "." + str(depth)])
+        if depth == "SUBFIND":
 
             subf_begin_arr = np.array(subf_begin[f + "." + str(depth)])
             subf_len_arr = np.array(subf_len[f + "." + str(depth)])
