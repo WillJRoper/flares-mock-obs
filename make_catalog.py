@@ -197,56 +197,58 @@ for f in filters:
                 subf_data[f + "." + str(depth)].setdefault("Image_Length", []).append(len(this_flux))
                 subf_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full_like(this_flux, img_num))
 
-        hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                        .format(reg, snap, Type, orientation, f), "r")
+        else:
 
-        try:
-            fdepth_group = hdf[str(depth)]
-
-            imgs = fdepth_group["Images"]
-            img_ids = fdepth_group["Image_ID"][...]
-            noises = fdepth_group["Noise_value"]
-
-        except KeyError as e:
-            print(e)
-            hdf.close()
-            continue
-
-        for ind, img_id in zip(range(imgs.shape[0]), img_ids):
-
-            img = imgs[ind, :, :]
-            sig = img / noises[ind]
-
-            if sig.max() < thresh:
-                continue
+            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                            .format(reg, snap, Type, orientation, f), "r")
 
             try:
-                segm = phut.detect_sources(sig, thresh, npixels=5)
-                segm = phut.deblend_sources(img, segm, npixels=5,
-                                            nlevels=32, contrast=0.001)
-            except TypeError as e:
+                fdepth_group = hdf[str(depth)]
+
+                imgs = fdepth_group["Images"]
+                img_ids = fdepth_group["Image_ID"][...]
+                noises = fdepth_group["Noise_value"]
+
+            except KeyError as e:
                 print(e)
+                hdf.close()
                 continue
 
-            source_cat = SourceCatalog(img, segm, error=None, mask=None,
-                                       kernel=None, background=None,
-                                       wcs=None, localbkg_width=0,
-                                       apermask_method='correct',
-                                       kron_params=(2.5, 0.0),
-                                       detection_cat=None)
+            for ind, img_id in zip(range(imgs.shape[0]), img_ids):
 
-            try:
-                obs_data.setdefault(f + "." + str(depth), {}).setdefault("Kron_HLR", []).extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
-            except ValueError as e:
-                print(e)
-                continue
+                img = imgs[ind, :, :]
+                sig = img / noises[ind]
 
-            tab = source_cat.to_table(columns=quantities)
-            for key in tab.colnames:
-                obs_data[f + "." + str(depth)].setdefault(key, []).extend(tab[key])
-            obs_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full(tab["label"].size, img_id))
-            obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_data[f + "." + str(depth)]["Image_ID"]))
-            obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
+                if sig.max() < thresh:
+                    continue
+
+                try:
+                    segm = phut.detect_sources(sig, thresh, npixels=5)
+                    segm = phut.deblend_sources(img, segm, npixels=5,
+                                                nlevels=32, contrast=0.001)
+                except TypeError as e:
+                    print(e)
+                    continue
+
+                source_cat = SourceCatalog(img, segm, error=None, mask=None,
+                                           kernel=None, background=None,
+                                           wcs=None, localbkg_width=0,
+                                           apermask_method='correct',
+                                           kron_params=(2.5, 0.0),
+                                           detection_cat=None)
+
+                try:
+                    obs_data.setdefault(f + "." + str(depth), {}).setdefault("Kron_HLR", []).extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
+                except ValueError as e:
+                    print(e)
+                    continue
+
+                tab = source_cat.to_table(columns=quantities)
+                for key in tab.colnames:
+                    obs_data[f + "." + str(depth)].setdefault(key, []).extend(tab[key])
+                obs_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full(tab["label"].size, img_id))
+                obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_data[f + "." + str(depth)]["Image_ID"]))
+                obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
 
         hdf.close()
 
