@@ -241,9 +241,9 @@ for f in filters:
             for key in tab.colnames:
                 obs_data.setdefault(f + "." + str(depth), {}).setdefault(key, []).extend(tab[key])
             obs_data[f + "." + str(depth)].setdefault("Kron_HLR", []).extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
-            obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_img_num.setdefault(f + "." + str(depth), [])))
-            obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
             obs_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full(tab["label"].size, ind))
+            obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_data[f + "." + str(depth)]["Image_ID"].setdefault(f + "." + str(depth), [])))
+            obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
 
         hdf.close()
 
@@ -255,7 +255,7 @@ for f in filters:
         if f + "." + str(depth) in obs_data.keys():
             for key, val in obs_data[f + "." + str(depth)].items():
 
-                print("Writing out", key)
+                print("Writing out", key, "for", f, depth)
 
                 val = np.array(val)
 
@@ -268,9 +268,20 @@ for f in filters:
 
         if depth == "SUBFIND":
 
-            subf_begin_arr = np.array(subf_begin[f + "." + str(depth)])
-            subf_len_arr = np.array(subf_len[f + "." + str(depth)])
-            subf_flux_arr = np.array(subf_flux[f + "." + str(depth)])
-            subf_img_num_arr = np.array(subf_img_num[f + "." + str(depth)])
+            fdepth_cat_group = f_cat_group.create_group(str(depth))
+            if f + "." + str(depth) in subf_data.keys():
+                for key, val in subf_data[f + "." + str(depth)].items():
+
+                    print("Writing out", key, "for", f, depth)
+
+                    val = np.array(val)
+
+                    dset = fdepth_cat_group.create_dataset(key,
+                                                           data=val,
+                                                           dtype=val.dtype,
+                                                           shape=val.shape,
+                                                           compression="gzip")
+                    dset.attrs["units"] = units[key]
+
 
 hdf_cat.close()
