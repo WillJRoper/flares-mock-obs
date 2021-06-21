@@ -117,13 +117,13 @@ quantities = ('label', 'xcentroid', 'ycentroid', 'area',
               "eccentricity", "ellipticity", "gini",
               'segment_flux', 'segment_fluxerr', 'kron_flux', 'kron_fluxerr',
               "inertia_tensor", "kron_radius")
-units = {'label': None, 'xcentroid': "pixels", 'ycentroid': "pixels",
-         'area': "pixels$^2$", "eccentricity": None, "ellipticity": None,
-         "gini": None, 'segment_flux': "nJy", 'segment_fluxerr': "nJy",
+units = {'label': "None", 'xcentroid': "pixels", 'ycentroid': "pixels",
+         'area': "pixels$^2$", "eccentricity": "None", "ellipticity": "None",
+         "gini": "None", 'segment_flux': "nJy", 'segment_fluxerr': "nJy",
          'kron_flux': "nJy", 'kron_fluxerr': "nJy",
-         "inertia_tensor": None, "kron_radius": "pixels",
-         "Kron_HLR": "pkpc", 'Fluxes': "nJy", "Start_Index": None,
-         "Image_ID": None, "Image_Length": None}
+         "inertia_tensor": "None", "kron_radius": "pixels",
+         "Kron_HLR": "pkpc", 'Fluxes': "nJy", "Start_Index": "None",
+         "Image_ID": "None", "Image_Length": "None"}
 
 hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                     .format(reg, tag, Type, orientation), "w")
