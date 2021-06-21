@@ -276,8 +276,6 @@ for f in filters:
                     print("Writing out", key, "for", f, depth)
 
                     val = np.array(val)
-                    print(val.shape, units[key], val.dtype)
-                    print(val)
 
                     dset = fdepth_cat_group.create_dataset(key,
                                                            data=val,
