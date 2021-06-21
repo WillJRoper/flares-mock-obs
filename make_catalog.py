@@ -246,7 +246,7 @@ for f in filters:
 
                 tab = source_cat.to_table(columns=quantities)
                 for key in tab.colnames:
-                    obs_data[f + "." + str(depth)].setdefault(key, []).extend(tab[key])
+                    obs_data[f + "." + str(depth)].setdefault(key, []).extend(tab[key].value)
                 obs_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full(tab["label"].size, img_id))
                 obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_data[f + "." + str(depth)]["Image_ID"]))
                 obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
