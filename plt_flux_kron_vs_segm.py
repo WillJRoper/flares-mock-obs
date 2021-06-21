@@ -143,7 +143,10 @@ for n_z in range(len(snaps)):
 
         ax.legend()
 
-        fig.savefig("plots/flux_kronvssegm_Filter-" + f + "_Orientation-"
+        if not os.path.exists("plots/Flux_SegmKron"):
+            os.makedirs("plots/Flux_SegmKron")
+
+        fig.savefig("plots/Flux_SegmKron/flux_kronvssegm_Filter-" + f + "_Orientation-"
                 + orientation + "_Type-" + Type + "_Snap-" + snap + ".png",
                     bbox_inches="tight")
 
