@@ -242,7 +242,7 @@ for f in filters:
                 obs_data.setdefault(f + "." + str(depth), {}).setdefault(key, []).extend(tab[key])
             obs_data[f + "." + str(depth)].setdefault("Kron_HLR", []).extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
             obs_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full(tab["label"].size, ind))
-            obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_data[f + "." + str(depth)]["Image_ID"].setdefault(f + "." + str(depth), [])))
+            obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_data[f + "." + str(depth)]["Image_ID"]))
             obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
 
         hdf.close()
