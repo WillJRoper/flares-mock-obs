@@ -50,7 +50,9 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-filters = ('Hubble.WFC3.f160w', )
+filters = [f'Hubble.ACS.{f}'
+           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
+          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 depths = [0.1, 1, 5, 10, 20]
 
@@ -94,47 +96,15 @@ for n_z in range(len(snaps)):
                     f_group = hdf[f]
                     fdepth_group = f_group[str(depth)]
 
-                    imgs = fdepth_group["Images"]
-                    sigs = fdepth_group["Significance_Images"]
+                    flux_segm = fdepth_group['segment_flux'][...]
+                    flux_segm_err = fdepth_group['segment_fluxerr'][...]
+                    flux_kron = fdepth_group['kron_flux'][...]
+                    flux_kron_err = fdepth_group['kron_fluxerr'][...]
 
                 except KeyError as e:
                     hdf.close()
                     print(e)
                     continue
-
-                flux_segm = []
-                flux_kron = []
-                flux_segm_err = []
-                flux_kron_err = []
-
-                if sigs.shape[0] == 0:
-                    continue
-
-                if sigs[:].max() < thresh:
-                    continue
-
-                for ind in range(imgs.shape[0]):
-
-                    sig = sigs[ind, :, :]
-                    img = imgs[ind, :, :]
-
-                    if sig.max() < thresh:
-                        continue
-
-                    try:
-                        segm = phut.detect_sources(sig, thresh, npixels=5)
-                        segm = phut.deblend_sources(img, segm, npixels=5,
-                                                    nlevels=32, contrast=0.001)
-                    except TypeError as e:
-                        continue
-
-                    source_cat = SourceCatalog(img, segm, error=None, mask=None,  kernel=None, background=None, wcs=None, localbkg_width=0, apermask_method='correct', kron_params=(2.5, 0.0), detection_cat=None)
-
-                    flux_kron.extend(source_cat.kron_flux)
-                    flux_kron_err.extend(source_cat.kron_fluxerr)
-
-                    flux_segm.extend(source_cat.segment_flux)
-                    flux_segm_err.extend(source_cat.segment_fluxerr)
 
                 hdf.close()
 

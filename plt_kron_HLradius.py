@@ -53,7 +53,9 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-filters = ('Hubble.WFC3.f160w', )
+filters = [f'Hubble.ACS.{f}'
+           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
+          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 depths = [0.1, 1, 5, 10, 20]
 
@@ -168,7 +170,10 @@ for n_z in range(len(snaps)):
 
         axes[-1].tick_params(axis='x', which='minor', bottom=True)
 
-        fig.savefig("plots/HalfLightRadius_Filter-" + f + "_Orientation-" + orientation + "_Type-" + Type + "_Snap-" + snap + ".png", bbox_inches="tight")
+        if not os.path.exists("plots/HLRs"):
+            os.makedirs("plots/HLRs")
+
+        fig.savefig("plots/HLRs/HalfLightRadius_Filter-" + f + "_Orientation-" + orientation + "_Type-" + Type + "_Snap-" + snap + ".png", bbox_inches="tight")
 
         plt.close(fig)
 

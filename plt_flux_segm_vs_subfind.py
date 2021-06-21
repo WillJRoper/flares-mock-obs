@@ -50,7 +50,9 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-filters = ('Hubble.WFC3.f160w', )
+filters = [f'Hubble.ACS.{f}'
+           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
+          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 depths = [0.1, 1, 5, 10, 20]
 
@@ -81,95 +83,65 @@ for n_z in range(len(snaps)):
                   "snapshot {u}".format(o=orientation, t=Type, e=extinction,
                                         x=reg, u=snap))
             try:
-                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
-                                .format(reg, snap, Type, orientation), "r")
+                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                                .format(reg, snap, Type, orientation, f), "r")
             except OSError as e:
                 print(e)
                 continue
 
             try:
                 f_group = hdf[f]
+                fdepth_group = f_group["SUBFIND"]
 
-                fluxes = f_group["Fluxes"][:]
-                subgrpids = f_group["Part_subgrpids"][:]
-                begin = f_group["Start_Index"][:]
-                group_len = f_group["Group_Length"][:]
-                gal_ids = set(f_group["Subgroup_IDs"][:])
+                fluxes = fdepth_group["Fluxes"][:]
+                subgrpids = fdepth_group["Part_subgrpids"][:]
+                begin = fdepth_group["Start_Index"][:]
+                group_len = fdepth_group["Image_Length"][:]
+                gal_ids = set(fdepth_group["Subgroup_IDs"][:])
 
                 hdf.close()
             except KeyError as e:
                 hdf.close()
                 continue
 
+            flux_subfind = []
+
+            for beg, img_len in zip(begin, group_len):
+
+                this_subgrpids = subgrpids[beg: beg + img_len]
+
+                subgrps, inverse_inds = np.unique(this_subgrpids,
+                                                  return_inverse=True)
+
+                this_flux = np.zeros(subgrps.size)
+
+                for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
+                                             inverse_inds, this_subgrpids):
+                    this_flux[i] += flux
+
+                this_flux = this_flux[this_flux > 0]
+                flux_subfind.extend(this_flux)
+
+            flux_subf_dict.setdefault(f + "." + "SUBFIND", []).extend(
+                flux_subfind)
+
             for depth in depths:
 
-                if depth == depths[0]:
-
-                    flux_subfind = []
-
-                    for beg, img_len in zip(begin, group_len):
-
-                        this_subgrpids = subgrpids[beg: beg + img_len]
-
-                        subgrps, inverse_inds = np.unique(this_subgrpids,
-                                                          return_inverse=True)
-
-                        this_flux = np.zeros(subgrps.size)
-
-                        for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
-                                                     inverse_inds, this_subgrpids):
-
-                            this_flux[i] += flux
-
-                        this_flux = this_flux[this_flux > 0]
-                        flux_subfind.extend(this_flux)
-
-                    flux_subf_dict.setdefault(f + "." + str(depth), []).extend(flux_subfind)
-
-                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
-                                .format(reg, snap, Type, orientation),
+                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                                .format(reg, snap, Type, orientation, f),
                                 "r")
 
                 try:
                     f_group = hdf[f]
                     fdepth_group = f_group[str(depth)]
 
-                    imgs = fdepth_group["Images"]
-                    sigs = fdepth_group["Significance_Images"]
+                    flux_segm = fdepth_group['segment_flux'][...]
+                    flux_segm_err = fdepth_group['segment_fluxerr'][...]
 
                 except KeyError as e:
                     print(e)
                     hdf.close()
                     continue
-
-                flux_segm = []
-                flux_segm_err = []
-
-                if sigs.shape[0] == 0:
-                    continue
-
-                if sigs[:].max() < thresh:
-                    continue
-
-                for ind in range(imgs.shape[0]):
-
-                    sig = sigs[ind, :, :]
-                    img = imgs[ind, :, :]
-
-                    if sig.max() < thresh:
-                        continue
-
-                    try:
-                        segm = phut.detect_sources(sig, thresh, npixels=5)
-                        segm = phut.deblend_sources(img, segm, npixels=5,
-                                                    nlevels=32, contrast=0.001)
-                    except TypeError as e:
-                        continue
-
-                    source_cat = SourceCatalog(img, segm, error=None, mask=None,  kernel=None, background=None, wcs=None, localbkg_width=0, apermask_method='correct', kron_params=(2.5, 0.0), detection_cat=None)
-
-                    flux_segm.extend(source_cat.segment_flux)
-                    flux_segm_err.extend(source_cat.segment_fluxerr)
 
                 hdf.close()
 
@@ -177,7 +149,7 @@ for n_z in range(len(snaps)):
                 flux_segmerr_dict.setdefault(f + "." + str(depth), []).extend(
                     flux_segm_err)
 
-        if f + "." + str(depths[0]) in flux_subf_dict.keys():
+        if f + "." + "SUBFIND" in flux_subf_dict.keys():
             flux_subfind = np.array(flux_subf_dict[f + "." + str(depths[0])])
         else:
             flux_subfind = np.array([])

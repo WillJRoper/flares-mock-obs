@@ -61,7 +61,7 @@ for f in filters:
     for reg in regions:
         for snap in snaps:
 
-            print(reg, snap)
+            print(f, reg, snap)
 
             z_str = snap.split('z')[1].split('p')
             z = float(z_str[0] + '.' + z_str[1])
