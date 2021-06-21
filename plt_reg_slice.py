@@ -60,6 +60,8 @@ depth = depths[int(sys.argv[3])]
 for reg in regions:
     for snap in snaps:
 
+        print(reg, snap)
+
         z_str = snap.split('z')[1].split('p')
         z = float(z_str[0] + '.' + z_str[1])
 
