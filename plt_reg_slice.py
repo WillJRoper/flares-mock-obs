@@ -166,6 +166,9 @@ for reg in regions:
         plt_img = np.zeros(reg_img.shape)
         plt_img[reg_img > 0] = np.log10(reg_img[reg_img > 0])
 
+        print([reg_img > 0])
+        print(np.log10(reg_img[reg_img > 0]))
+
         print(np.percentile(reg_img, 99), np.max(plt_img), np.max(reg_img))
 
         fig = plt.figure(figsize=(10, 10))
