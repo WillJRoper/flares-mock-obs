@@ -21,7 +21,6 @@ import eritlux.simulations.imagesim as imagesim
 import flare.surveys
 import flare.plots.image
 import utilities as util
-from os import join
 
 sns.set_context("paper")
 sns.set_style('white')
@@ -180,10 +179,10 @@ for f in filters:
                       vmin=np.percentile(plt_img, 33.175),
                       vmax=np.percentile(plt_img, 99))
 
-            if not os.path.exists(join("plots", "Region_slices")):
-                os.makedirs(join("plots", "Region_slices"))
-            if not os.path.exists(join("plots", "Region_slices/{}".format(reg))):
-                os.makedirs(join("plots", "Region_slices/{}".format(reg)))
+            if not os.path.exists("plots/Region_slices"):
+                os.makedirs("plots/Region_slices")
+            if not os.path.exists("plots/Region_slices/{}".format(reg)):
+                os.makedirs("plots/Region_slices/{}".format(reg))
 
             fig.savefig("plots/Region_slices/" + reg + "/region_img_Filter-" + f + "_Orientation-"
                         + orientation + "_Type-" + Type
