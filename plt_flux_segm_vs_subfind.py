@@ -150,7 +150,7 @@ for n_z in range(len(snaps)):
                     flux_segm_err)
 
         if f + "." + "SUBFIND" in flux_subf_dict.keys():
-            flux_subfind = np.array(flux_subf_dict[f + "." + str(depths[0])])
+            flux_subfind = np.array(flux_subf_dict[f + "." + "SUBFIND"])
         else:
             flux_subfind = np.array([])
         print("SUBFIND:", flux_subfind.size)
