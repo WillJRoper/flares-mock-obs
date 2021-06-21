@@ -180,7 +180,7 @@ for reg in regions:
         fig.savefig("plots/region_img_Filter-" + f + "_Orientation-"
                     + orientation + "_Type-" + Type
                     + "_Region-" + reg + "_Snap-" + snap + ".png",
-                    dpi=12000, bbox_inches="tight")
+                    dpi=3000, bbox_inches="tight")
         plt.close(fig)
 
 
