@@ -46,7 +46,7 @@ def get_data(reg, snap, r):
     path = '/cosma/home/dp004/dc-rope1/FLARES/FLARES-1/G-EAGLE_' + reg + '/data'
 
     cen, radius, _ = util.spherical_region(path, snap)
-    print(cen, radius)
+
     # Load all necessary arrays
     r_200 = E.read_array('SUBFIND', path, snap, 'FOF/Group_R_Mean200',
                          noH=True, physicalUnits=True, numThreads=8)
