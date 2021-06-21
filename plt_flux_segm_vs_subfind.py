@@ -94,36 +94,14 @@ for n_z in range(len(snaps)):
                 fdepth_group = f_group["SUBFIND"]
 
                 fluxes = fdepth_group["Fluxes"][:]
-                subgrpids = fdepth_group["Part_subgrpids"][:]
-                begin = fdepth_group["Start_Index"][:]
-                group_len = fdepth_group["Image_Length"][:]
-                gal_ids = set(fdepth_group["Subgroup_IDs"][:])
 
                 hdf.close()
             except KeyError as e:
+                print(e)
                 hdf.close()
                 continue
 
-            flux_subfind = []
-
-            for beg, img_len in zip(begin, group_len):
-
-                this_subgrpids = subgrpids[beg: beg + img_len]
-
-                subgrps, inverse_inds = np.unique(this_subgrpids,
-                                                  return_inverse=True)
-
-                this_flux = np.zeros(subgrps.size)
-
-                for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
-                                             inverse_inds, this_subgrpids):
-                    this_flux[i] += flux
-
-                this_flux = this_flux[this_flux > 0]
-                flux_subfind.extend(this_flux)
-
-            flux_subf_dict.setdefault(f + "." + "SUBFIND", []).extend(
-                flux_subfind)
+            flux_subf_dict.setdefault(f + "." + "SUBFIND", []).extend(fluxes)
 
             for depth in depths:
 
