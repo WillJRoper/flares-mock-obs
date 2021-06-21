@@ -12,7 +12,6 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
 import seaborn as sns
-import astropy
 from astropy.cosmology import Planck13 as cosmo
 from photutils.segmentation import SourceCatalog
 import h5py
@@ -259,7 +258,7 @@ for f in filters:
 
                 try:
                     val = np.array(val)
-                except astropy.units.core.UnitConversionError:
+                except TypeError:
                     val = np.array([i.value for i in val])
 
                 dset = fdepth_cat_group.create_dataset(key,
