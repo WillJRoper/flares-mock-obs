@@ -149,10 +149,11 @@ for f in filters:
 
     for num, depth in enumerate(depths):
 
-        print("Getting SUBFIND occupancy with orientation {o}, type {t}, "
-              "and extinction {e} for region {x} and "
-              "snapshot {u}".format(o=orientation, t=Type, e=extinction,
-                                    x=reg, u=snap))
+        print("Getting sources with orientation {o}, type {t}, "
+              "and extinction {e} for region {x},  "
+              "snapshot {u}, filter {i},  and depth {d}"
+              .format(o=orientation, t=Type, e=extinction, x=reg,
+                      u=snap, i=f, d=depth))
 
         if depth == "SUBFIND":
 
@@ -220,8 +221,6 @@ for f in filters:
             if sig.max() < thresh:
                 continue
 
-            print(ind)
-
             try:
                 segm = phut.detect_sources(sig, thresh, npixels=5)
                 segm = phut.deblend_sources(img, segm, npixels=5,
@@ -237,10 +236,15 @@ for f in filters:
                                        kron_params=(2.5, 0.0),
                                        detection_cat=None)
 
+            try:
+                obs_data.setdefault(f + "." + str(depth), {})..setdefault("Kron_HLR", []).extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
+            except ValueError as e:
+                print(e)
+                continue
+
             tab = source_cat.to_table(columns=quantities)
             for key in tab.colnames:
-                obs_data.setdefault(f + "." + str(depth), {}).setdefault(key, []).extend(tab[key])
-            obs_data[f + "." + str(depth)].setdefault("Kron_HLR", []).extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
+                obs_data[f + "." + str(depth)].setdefault(key, []).extend(tab[key])
             obs_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full(tab["label"].size, ind))
             obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_data[f + "." + str(depth)]["Image_ID"]))
             obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
