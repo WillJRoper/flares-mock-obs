@@ -80,8 +80,8 @@ for n_z in range(len(snaps)):
 
             print("Getting SUBFIND occupancy with orientation {o}, type {t}, "
                   "and extinction {e} for region {x} and "
-                  "snapshot {u}".format(o=orientation, t=Type, e=extinction,
-                                        x=reg, u=snap))
+                  "snapshot {u} and filter  {i}".format(o=orientation, t=Type, e=extinction,
+                                        x=reg, u=snap, i=f))
             try:
                 hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                                 .format(reg, snap, Type, orientation), "r")
@@ -97,10 +97,11 @@ for n_z in range(len(snaps)):
                 subgrpids = fdepth_group["Part_subgrpids"][:]
                 begin = fdepth_group["Start_Index"][:]
                 group_len = fdepth_group["Image_Length"][:]
-                gal_ids = set(fdepth_group["Subgroup_IDs"][:])
+                # gal_ids = set(fdepth_group["Subgroup_IDs"][:])
 
                 hdf.close()
             except KeyError as e:
+                print(e)
                 hdf.close()
                 continue
 
