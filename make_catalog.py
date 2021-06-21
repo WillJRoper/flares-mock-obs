@@ -77,9 +77,7 @@ filters = [f'Hubble.ACS.{f}'
            for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
           + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
-filters.append("SUBFIND")
-
-depths = [0.1, 1, 5, 10, 20]
+depths = [0.1, 1, 5, 10, 20, "SUBFIND"]
 
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
