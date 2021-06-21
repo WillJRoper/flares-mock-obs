@@ -163,7 +163,7 @@ for reg in regions:
 
         hdf.close()
 
-        plt_img = np.zeros_like(reg_img)
+        plt_img = np.zeros(reg_img.shape)
         plt_img[reg_img > 0] = np.log10(reg_img[reg_img > 0])
 
         print(np.percentile(reg_img, 99), np.max(plt_img), np.max(reg_img))
