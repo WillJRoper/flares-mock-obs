@@ -156,8 +156,8 @@ for reg in regions:
         for i in range(xcents.size):
             for j in range(ycents.size):
                 img_id = ijk[i, j, kth]
-                if img_id in img_ids:
-                    print(i, j, img_id, np.sum(imgs[img_ids == img_id, :, :]))
+                if int(img_id) in img_ids:
+                    print(i, j, kth, img_id, np.sum(imgs[img_ids == img_id, :, :]))
                     reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res,] = imgs[img_ids == img_id, :, :]
 
         hdf.close()
@@ -169,7 +169,9 @@ for reg in regions:
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111)
 
-        ax.imshow(plt_img, cmap="plasma")
+        ax.imshow(plt_img, cmap="plasma",
+                  vmin=np.percentile(plt_img, 33.175),
+                  vmax=np.percentile(plt_img, 99))
 
         fig.savefig("plots/region_img_Filter-" + f + "_Orientation-"
                     + orientation + "_Type-" + Type
