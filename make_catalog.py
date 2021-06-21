@@ -267,7 +267,6 @@ for f in filters:
 
                 dset = fdepth_cat_group.create_dataset(key,
                                                         data=val,
-                                                        dtype=val.dtype,
                                                         shape=val.shape,
                                                         compression="gzip")
                 dset.attrs["units"] = units[key]
@@ -285,7 +284,6 @@ for f in filters:
 
                     dset = fdepth_cat_group.create_dataset(key,
                                                            data=val,
-                                                           dtype=val.dtype,
                                                            shape=val.shape,
                                                            compression="gzip")
                     dset.attrs["units"] = units[key]
