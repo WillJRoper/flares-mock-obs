@@ -165,6 +165,7 @@ for reg in regions:
 
         plt_img = np.zeros(reg_img.shape)
         plt_img[reg_img > 0] = np.log10(reg_img[reg_img > 0])
+        plt_img[reg_img <= 0] = np.nan
 
         print([reg_img > 0])
         print(np.log10(reg_img[reg_img > 0]))
