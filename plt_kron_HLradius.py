@@ -102,7 +102,7 @@ for n_z in range(len(snaps)):
             for depth in depths:
 
                 try:
-                    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
+                    hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                                     .format(reg, snap, Type, orientation), "r")
                 except OSError as e:
                     print(e)

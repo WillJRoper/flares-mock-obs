@@ -83,8 +83,8 @@ for n_z in range(len(snaps)):
                   "snapshot {u}".format(o=orientation, t=Type, e=extinction,
                                         x=reg, u=snap))
             try:
-                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                                .format(reg, snap, Type, orientation, f), "r")
+                hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
+                                .format(reg, snap, Type, orientation), "r")
             except OSError as e:
                 print(e)
                 continue
@@ -127,8 +127,8 @@ for n_z in range(len(snaps)):
 
             for depth in depths:
 
-                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                                .format(reg, snap, Type, orientation, f),
+                hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
+                                .format(reg, snap, Type, orientation),
                                 "r")
 
                 try:
