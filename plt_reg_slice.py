@@ -156,6 +156,7 @@ for reg in regions:
             for j in range(ycents.size):
                 img_id = ijk[i, j, kth]
                 if img_id in img_ids:
+                    print(i, j, img_id, np.sum(imgs[img_ids == img_id, :, :]))
                     reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res,] = imgs[img_ids == img_id, :, :]
 
         hdf.close()
