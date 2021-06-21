@@ -273,7 +273,6 @@ for f in filters:
 
         if depth == "SUBFIND":
 
-            fdepth_cat_group = f_cat_group.create_group(str(depth))
             if f + "." + str(depth) in subf_data.keys():
                 for key, val in subf_data[f + "." + str(depth)].items():
 
