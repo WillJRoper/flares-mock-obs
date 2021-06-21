@@ -150,8 +150,8 @@ for f in filters:
     for num, depth in enumerate(depths):
 
         print("Getting sources with orientation {o}, type {t}, "
-              "and extinction {e} for region {x},  "
-              "snapshot {u}, filter {i},  and depth {d}"
+              "and extinction {e} for region {x}, "
+              "snapshot {u}, filter {i}, and depth {d}"
               .format(o=orientation, t=Type, e=extinction, x=reg,
                       u=snap, i=f, d=depth))
 
@@ -206,6 +206,7 @@ for f in filters:
             fdepth_group = hdf[str(depth)]
 
             imgs = fdepth_group["Images"]
+            img_ids = fdepth_group["Image_ID"][...]
             noises = fdepth_group["Noise_value"]
 
         except KeyError as e:
@@ -213,7 +214,7 @@ for f in filters:
             hdf.close()
             continue
 
-        for ind in range(imgs.shape[0]):
+        for ind, img_id in zip(range(imgs.shape[0]), img_ids):
 
             img = imgs[ind, :, :]
             sig = img / noises[ind]
@@ -245,7 +246,7 @@ for f in filters:
             tab = source_cat.to_table(columns=quantities)
             for key in tab.colnames:
                 obs_data[f + "." + str(depth)].setdefault(key, []).extend(tab[key])
-            obs_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full(tab["label"].size, ind))
+            obs_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full(tab["label"].size, img_id))
             obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_data[f + "." + str(depth)]["Image_ID"]))
             obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
 
