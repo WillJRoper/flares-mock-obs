@@ -237,7 +237,7 @@ for f in filters:
                                        detection_cat=None)
 
             try:
-                obs_data.setdefault(f + "." + str(depth), {})..setdefault("Kron_HLR", []).extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
+                obs_data.setdefault(f + "." + str(depth), {}).setdefault("Kron_HLR", []).extend(source_cat.fluxfrac_radius(0.5) * kpc_res)
             except ValueError as e:
                 print(e)
                 continue
