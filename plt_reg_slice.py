@@ -160,15 +160,13 @@ for reg in regions:
 
         hdf.close()
 
-
-
-        img_norm = LogNorm(vmin=-np.percentile(reg_img, 31.75),
-                           vmax=np.percentile(reg_img, 99))
+        plt_img = np.zeros_like(reg_img)
+        plt_img[reg_img > 0] = np.log10(reg_img[reg_img > 0])
 
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111)
 
-        ax.imshow(reg_img, cmap="plasma", norm=img_norm, vmin=-np.percentile(reg_img, 31.75), vmax=np.percentile(reg_img, 99))
+        ax.imshow(plt_img, cmap="plasma", vmin=0, vmax=np.percentile(reg_img, 99))
 
         fig.savefig("plots/region_img_Filter-" + f + "_Orientation-"
                     + orientation + "_Type-" + Type
