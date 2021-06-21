@@ -122,7 +122,7 @@ units = {'label': None, 'xcentroid': "pixels", 'ycentroid': "pixels",
          "gini": None, 'segment_flux': "nJy", 'segment_fluxerr': "nJy",
          'kron_flux': "nJy", 'kron_fluxerr': "nJy",
          "inertia_tensor": None, "kron_radius": "pixels",
-         "Kron_HLR": "pkpc"}
+         "Kron_HLR": "pkpc", 'Fluxes': "nJy"}
 
 hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                     .format(reg, tag, Type, orientation), "w")
