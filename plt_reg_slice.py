@@ -89,13 +89,6 @@ for reg in regions:
         # Compute the new width
         width = arc_res * res
 
-        print("Filter:", f)
-        print("Image width and resolution (in arcseconds):", width, arc_res)
-        print("Image width and resolution (in pkpc):",
-              width / arcsec_per_kpc_proper,
-              arc_res / arcsec_per_kpc_proper)
-        print("Image width (in pixels):", res)
-
         # Define pixel area in pkpc
         single_pixel_area = arc_res * arc_res \
                             / (arcsec_per_kpc_proper * arcsec_per_kpc_proper)
@@ -135,6 +128,13 @@ for reg in regions:
 
         kth = int(reg_width / r) // 2
 
+        print("Filter:", f)
+        print("Image width and resolution (in arcseconds):", width * xcents.size, arc_res)
+        print("Image width and resolution (in pkpc):",
+              width / arcsec_per_kpc_proper * xcents.size,
+              arc_res / arcsec_per_kpc_proper)
+        print("Image width (in pixels):", res * xcents.size)
+
         reg_img = np.zeros((int(reg_width / r) * res,
                             int(reg_width / r) * res), dtype=np.float32)
 
@@ -160,13 +160,15 @@ for reg in regions:
 
         hdf.close()
 
+
+
         img_norm = LogNorm(vmin=-np.percentile(reg_img, 31.75),
                            vmax=np.percentile(reg_img, 99))
 
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111)
 
-        ax.imshow(reg_img, cmap="plasma", norm=img_norm)
+        ax.imshow(reg_img, cmap="plasma", norm=img_norm, vmin=-np.percentile(reg_img, 31.75), vmax=np.percentile(reg_img, 99))
 
         fig.savefig("plots/region_img_Filter-" + f + "_Orientation-"
                     + orientation + "_Type-" + Type
