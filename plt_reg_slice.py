@@ -166,10 +166,12 @@ for reg in regions:
         plt_img = np.zeros_like(reg_img)
         plt_img[reg_img > 0] = np.log10(reg_img[reg_img > 0])
 
+        print(np.percentile(reg_img, 99), np.max(plt_img), np.max(reg_img))
+
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111)
 
-        ax.imshow(plt_img, cmap="plasma", vmin=0, vmax=np.percentile(reg_img, 99))
+        ax.imshow(plt_img, cmap="plasma")
 
         fig.savefig("plots/region_img_Filter-" + f + "_Orientation-"
                     + orientation + "_Type-" + Type
