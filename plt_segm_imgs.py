@@ -217,7 +217,7 @@ for f in filters:
 
             print("Creating image", img_id, ind)
 
-            if not ind.size is None:
+            if not ind is None:
 
                 if depth == "SUBFIND":
                     this_pos = subfind_spos[begin[ind]:
