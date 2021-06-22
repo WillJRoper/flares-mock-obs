@@ -260,8 +260,6 @@ for f in filters:
                         + str(img_id) + ".png", dpi=600)
             plt.close(fig)
 
-            ind += 1
-
 
 
 
