@@ -246,8 +246,7 @@ for f in filters:
 
             plt_img = np.zeros_like(img)
             plt_img[img > 0] = np.log10(img[img > 0])
-            axes[i, 0].imshow(plt_img, extent=imgextent, cmap="Greys_r",
-                              norm=img_norm)
+            axes[i, 0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
             axes[i, 1].imshow(sig, extent=imgextent, cmap="coolwarm",
                               norm=sig_norm)
             axes[i, 2].imshow(segm, extent=imgextent, cmap="gist_rainbow")
