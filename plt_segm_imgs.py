@@ -157,10 +157,8 @@ for f in filters:
 
         img_id = create_img_ids[img_ind]
 
-        img_norm = mpl.colors.Normalize(vmin=-np.percentile(max_imgs[img_ind, :, :],
-                                                            33.175),
-                                        vmax=np.percentile(max_imgs[img_ind, :, :],
-                                                           99))
+        img_norm = mpl.colors.Normalize(vmin=np.log10(-np.percentile(max_imgs[img_ind, :, :], 33.175)),
+                                        vmax=np.log10(np.percentile(max_imgs[img_ind, :, :], 99)))
         sig_norm = mpl.colors.TwoSlopeNorm(vmin=0., vcenter=2.5, vmax=100)
 
         fig = plt.figure(figsize=(10, 7))
@@ -212,11 +210,14 @@ for f in filters:
 
             print(imgs.shape)
 
-            ind = np.where(img_ids == img_id)[0][0]
+            try:
+                ind = np.where(img_ids == img_id)[0][0]
+            except IndexError:
+                ind = None
 
             print("Creating image", img_id, ind)
 
-            if ind.size != 0:
+            if not ind.size is None:
 
                 if depth == "SUBFIND":
                     this_pos = subfind_spos[begin[ind]:
