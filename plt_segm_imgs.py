@@ -140,7 +140,7 @@ for f in filters:
     print(list(hdf.keys()))
     fdepth_group = hdf["0.1"]
 
-    imgs = fdepth_group["Images"][:]
+    max_imgs = fdepth_group["Images"][:]
     img_ids = fdepth_group["Image_ID"][:]
 
     hdf.close()
@@ -157,9 +157,9 @@ for f in filters:
 
         img_id = create_img_ids[img_ind]
 
-        img_norm = mpl.colors.Normalize(vmin=-np.percentile(imgs[img_ind, :, :],
+        img_norm = mpl.colors.Normalize(vmin=-np.percentile(max_imgs[img_ind, :, :],
                                                             33.175),
-                                        vmax=np.percentile(imgs[img_ind, :, :],
+                                        vmax=np.percentile(max_imgs[img_ind, :, :],
                                                            99))
         sig_norm = mpl.colors.TwoSlopeNorm(vmin=0., vcenter=2.5, vmax=100)
 
@@ -169,7 +169,7 @@ for f in filters:
         axes = np.empty((6, 3), dtype=object)
         for i in range(6):
             for j in range(3):
-                axes[i, j] = fig.add_subplot(gs[i, j])
+                axes[i, j] = fig.add_subplot(gs[j, i])
 
         for i in range(6):
             for j in range(3):
