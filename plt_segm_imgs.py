@@ -148,7 +148,7 @@ for f in filters:
     if max_imgs.size == 0:
         continue
 
-    print(np.sum(max_imgs, axis=(1, 2)).shape, imgs.shape)
+    print(np.sum(max_imgs, axis=(1, 2)).shape, max_imgs.shape)
     sinds = np.argsort(np.sum(max_imgs, axis=(1, 2)))[::-1]
     create_img_ids = img_ids[sinds][:10]
     max_imgs = max_imgs[sinds]
