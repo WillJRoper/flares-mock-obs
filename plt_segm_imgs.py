@@ -171,6 +171,8 @@ for f in filters:
             for j in range(3):
                 axes[i, j] = fig.add_subplot(gs[i, j])
 
+        print(axes)
+
         for i in range(6):
             for j in range(3):
                 ax = axes[i, j]
