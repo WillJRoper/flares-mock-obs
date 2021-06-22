@@ -163,15 +163,13 @@ for f in filters:
                                                            99))
         sig_norm = mpl.colors.TwoSlopeNorm(vmin=0., vcenter=2.5, vmax=100)
 
-        fig = plt.figure()
-        gs = gridspec.GridSpec(6, 3)
+        fig = plt.figure(figsize=(10, 7))
+        gs = gridspec.GridSpec(3, 6)
         gs.update(wspace=0.0, hspace=0.0)
         axes = np.empty((6, 3), dtype=object)
         for i in range(6):
             for j in range(3):
                 axes[i, j] = fig.add_subplot(gs[i, j])
-
-        print(axes)
 
         for i in range(6):
             for j in range(3):
@@ -208,7 +206,7 @@ for f in filters:
                 fluxes = fdepth_group["Fluxes"][:]
                 img_ids = fdepth_group["Image_ID"][:]
             except KeyError:
-                imgs = np.array([])
+                imgs = np.array([[[],],])
 
             hdf.close()
 
