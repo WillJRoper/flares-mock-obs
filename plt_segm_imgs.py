@@ -166,12 +166,12 @@ for f in filters:
         fig = plt.figure()
         gs = gridspec.GridSpec(5, 3)
         gs.update(wspace=0.0, hspace=0.0)
-        axes = np.empty((5, 3), dtype=object)
-        for i in range(5):
+        axes = np.empty((6, 3), dtype=object)
+        for i in range(6):
             for j in range(3):
                 axes[i, j] = fig.add_subplot(gs[i, j])
 
-        for i in range(5):
+        for i in range(6):
             for j in range(3):
                 ax = axes[i, j]
                 ax.grid(False)
