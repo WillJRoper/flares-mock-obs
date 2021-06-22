@@ -145,7 +145,7 @@ for f in filters:
 
     hdf.close()
 
-    if imgs.size == 0:
+    if max_imgs.size == 0:
         continue
 
     print(np.sum(max_imgs, axis=(1, 2)).shape, imgs.shape)
