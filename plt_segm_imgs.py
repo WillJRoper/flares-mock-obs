@@ -196,14 +196,17 @@ for f in filters:
 
             fdepth_group = hdf[str(depth)]
 
-            imgs = fdepth_group["Images"][:]
-            noise = fdepth_group["Noise_value"][:]
-            all_smls = fdepth_group["Smoothing_Length"][:]
-            subfind_spos = fdepth_group["Star_Pos"][:]
-            begin = fdepth_group["Start_Index"][:]
-            group_len = fdepth_group["Image_Length"][:]
-            fluxes = fdepth_group["Fluxes"][:]
-            img_ids = fdepth_group["Image_ID"][:]
+            try:
+                imgs = fdepth_group["Images"][:]
+                noise = fdepth_group["Noise_value"][:]
+                all_smls = fdepth_group["Smoothing_Length"][:]
+                subfind_spos = fdepth_group["Star_Pos"][:]
+                begin = fdepth_group["Start_Index"][:]
+                group_len = fdepth_group["Image_Length"][:]
+                fluxes = fdepth_group["Fluxes"][:]
+                img_ids = fdepth_group["Image_ID"][:]
+            except KeyError:
+                imgs = np.array([])
 
             hdf.close()
 
