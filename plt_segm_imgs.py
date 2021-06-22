@@ -164,7 +164,7 @@ for f in filters:
         sig_norm = mpl.colors.TwoSlopeNorm(vmin=0., vcenter=2.5, vmax=100)
 
         fig = plt.figure()
-        gs = gridspec.GridSpec(5, 3)
+        gs = gridspec.GridSpec(6, 3)
         gs.update(wspace=0.0, hspace=0.0)
         axes = np.empty((6, 3), dtype=object)
         for i in range(6):
