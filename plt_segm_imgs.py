@@ -144,7 +144,10 @@ for f in filters:
     img_ids = fdepth_group["Image_ID"][:]
 
     hdf.close()
-    print(np.sum(imgs, axis=0).shape, imgs.shape)
+
+    if imgs.size == 0:
+        continue
+    
     sinds = np.argsort(np.sum(imgs, axis=0))[::-1]
     create_img_ids = img_ids[sinds][:10]
     imgs = imgs[sinds]
