@@ -30,6 +30,7 @@ import utilities as util
 import eritlux.simulations.imagesim as imagesim
 import flare.surveys
 import flare.plots.image
+import photutils as phut
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
@@ -47,33 +48,27 @@ snaps = ['000_z015p000', '001_z014p000', '002_z013p000',
          '006_z009p000', '007_z008p000', '008_z007p000',
          '009_z006p000', '010_z005p000', '011_z004p770']
 
-reg_snaps = []
-for reg in reversed(regions):
-
-    for snap in snaps:
-
-        reg_snaps.append((reg, snap))
-
 # Set orientation
-orientation = sys.argv[2]
+orientation = sys.argv[3]
 
 # Define luminosity and dust model types
-Type = sys.argv[3]
+Type = sys.argv[4]
 extinction = 'default'
 
 # Define filter
-f = 'Hubble.WFC3.f160w'
+filters = [f'Hubble.ACS.{f}'
+           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
+          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
-depth = int(sys.argv[4])
+depths = [0.1, 1, 5, 10, 20, "SUBFIND"]
 
 reg_ind = int(sys.argv[1])
+snap_ind = int(sys.argv[2])
 
-reg, snap = reg_snaps[reg_ind]
+reg, snap = regions[reg_ind], snaps[snap_ind]
 
 z_str = snap.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
-
-n_img = int(sys.argv[5])
 
 print("Making images for with orientation {o}, type {t}, "
       "and extinction {e} for region {x} and "
@@ -83,7 +78,7 @@ print("Making images for with orientation {o}, type {t}, "
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
-ini_width_pkpc = 150
+ini_width_pkpc = 500
 ini_width = ini_width_pkpc * arcsec_per_kpc_proper
 
 survey_id = 'XDF'  # the XDF (updated HUDF)
@@ -93,147 +88,170 @@ field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
 # image location etc. (if real image)
 field = flare.surveys.surveys[survey_id].fields[field_id]
 
-# --- initialise ImageCreator object
-image_creator = imagesim.Idealised(f, field)
+thresh = 2.5
 
-arc_res = image_creator.pixel_scale
+for f in filters:
 
-# Compute the resolution
-ini_res = ini_width / arc_res
-res = int(np.ceil(ini_res))
-cutout_halfsize = int(res * 0.1)
+    # --- initialise ImageCreator object
+    image_creator = imagesim.Idealised(f, field)
 
-# Compute the new width
-width = arc_res * res
+    arc_res = image_creator.pixel_scale
 
-print("Filter:", f)
-print("Image width and resolution (in arcseconds):", width, arc_res)
-print("Image width and resolution (in pkpc):",
-      width / arcsec_per_kpc_proper,
-      arc_res / arcsec_per_kpc_proper)
-print("Image width (in pixels):", res)
+    # Compute the resolution
+    ini_res = ini_width / arc_res
+    res = int(np.ceil(ini_res))
+    cutout_halfsize = int(res * 0.1)
 
-# Define pixel area in pkpc
-single_pixel_area = arc_res * arc_res \
-                    / (arcsec_per_kpc_proper * arcsec_per_kpc_proper)
+    # Compute the new width
+    width = arc_res * res
 
-# Define range and extent for the images in arc seconds
-imgrange = ((-width / 2, width / 2), (-width / 2, width / 2))
-imgextent = [-width / 2, width / 2, -width / 2, width / 2]
+    print("Filter:", f)
+    print("Image width and resolution (in arcseconds):", width, arc_res)
+    print("Image width and resolution (in pkpc):",
+          width / arcsec_per_kpc_proper,
+          arc_res / arcsec_per_kpc_proper)
+    print("Image width (in pixels):", res)
 
-hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
-                .format(reg, snap, Type, orientation),
-                "r")
+    # Define pixel area in pkpc
+    single_pixel_area = arc_res * arc_res \
+                        / (arcsec_per_kpc_proper * arcsec_per_kpc_proper)
 
-f_group = hdf[f]
-fdepth_group = f_group[str(depth)]
+    # Define range and extent for the images in arc seconds
+    imgrange = ((-width / 2, width / 2), (-width / 2, width / 2))
+    imgextent = [-width / 2, width / 2, -width / 2, width / 2]
 
-imgs = fdepth_group["Images"][:]
-segms = fdepth_group["Segmentation_Maps"][:]
-sigs = fdepth_group["Significance_Images"][:]
-subfind_spos = f_group["Star_Pos"][:]
-all_smls = f_group["Smoothing_Length"][:]
-subgrpids = f_group["Part_subgrpids"][:]
-begin = f_group["Start_Index"][:]
-group_len = f_group["Group_Length"][:]
-gal_ids = set(f_group["Subgroup_IDs"][:])
+    # Define x and y positions of pixels
+    X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], res),
+                       np.linspace(imgrange[1][0], imgrange[1][1], res))
 
-hdf.close()
+    # Define pixel position array for the KDTree
+    pix_pos = np.zeros((X.size, 2))
+    pix_pos[:, 0] = X.ravel()
+    pix_pos[:, 1] = Y.ravel()
 
-print(imgs.shape)
+    # Build KDTree
+    tree = cKDTree(pix_pos)
 
-# Define x and y positions of pixels
-X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], res),
-                   np.linspace(imgrange[1][0], imgrange[1][1], res))
+    print("Pixel tree built")
 
-# Define pixel position array for the KDTree
-pix_pos = np.zeros((X.size, 2))
-pix_pos[:, 0] = X.ravel()
-pix_pos[:, 1] = Y.ravel()
+    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                    .format(reg, snap, Type, orientation, f),
+                    "r")
 
-# Build KDTree
-tree = cKDTree(pix_pos)
+    f_group = hdf[f]
+    fdepth_group = f_group["0.1"]
 
-print("Pixel tree built")
+    imgs = fdepth_group["Images"][:]
+    img_ids = fdepth_group["Image_ID"][:]
 
-ind = 0
-while ind < n_img and ind < imgs.shape[0]:
+    hdf.close()
 
-    print("Creating image", ind)
+    sinds = np.argsort(np.sum(imgs, axis=0))[::-1]
+    create_img_ids = img_ids[sinds][:10]
+    imgs = imgs[sinds]
 
-    img = imgs[ind, :, :]
-    segm = segms[ind, :, :]
-    poss = subfind_spos[begin[ind]: begin[ind] + group_len[ind], (0, 1)]
-    subgrp = subgrpids[begin[ind]: begin[ind] + group_len[ind]]
-    smooth = all_smls[begin[ind]: begin[ind] + group_len[ind]]
+    for img_ind in range(create_img_ids.size):
 
-    subfind_img = util.make_subfind_spline_img(poss, res, 0, 1, tree, subgrp,
-                                               smooth, gal_ids, spline_cut_off=5/2)
-    subfind_img[segm == 0] = np.nan
+        img_id = create_img_ids[img_ind]
 
-    fig = plt.figure(figsize=(4, 6.4))
-    gs = gridspec.GridSpec(3, 2)
-    gs.update(wspace=0.0, hspace=0.0)
-    ax1 = fig.add_subplot(gs[0, 0])
-    ax2 = fig.add_subplot(gs[1, 0])
-    ax3 = fig.add_subplot(gs[2, 0])
-    ax4 = fig.add_subplot(gs[0, 1])
-    ax5 = fig.add_subplot(gs[1, 1])
-    ax6 = fig.add_subplot(gs[2, 1])
+        img_norm = mpl.colors.Normalize(vmin=-np.percentile(imgs[img_ind, :, :],
+                                                            33.175),
+                                        vmax=np.percentile(imgs[img_ind, :, :],
+                                                           99))
+        sig_norm = mpl.colors.TwoSlopeNorm(vmin=0., vcenter=2.5, vmax=100)
 
-    axes = [ax1, ax2, ax3, ax4, ax5, ax6]
+        fig = plt.figure()
+        gs = gridspec.GridSpec(5, 3)
+        gs.update(wspace=0.0, hspace=0.0)
+        axes = np.empty((5, 3))
+        for i in range(5):
+            for j in range(3):
+                axes[i, j] = fig.add_subplot(gs[i, j])
 
-    for i, ax in enumerate(axes):
-        ax.grid(False)
+        for i in range(5):
+            for j in range(3):
+                ax = axes[i, j]
+                ax.grid(False)
 
-        if i < 2:
-            ax.tick_params(axis='x', top=False, bottom=False,
-                        labeltop=False, labelbottom=False)
-        elif i > 2 and i < 5:
-            ax.tick_params(axis='both', top=False, bottom=False,
-                           labeltop=False, labelbottom=False,
-                           left=False, right=False,
-                           labelleft=False, labelright=False)
-        elif i == 5:
-            ax.tick_params(axis='y', left=False, right=False,
-                           labelleft=False, labelright=False)
+                if j < 2:
+                    ax.tick_params(axis='x', top=False, bottom=False,
+                                   labeltop=False, labelbottom=False)
+                # elif i > 2 and i < 5:
+                #     ax.tick_params(axis='both', top=False, bottom=False,
+                #                    labeltop=False, labelbottom=False,
+                #                    left=False, right=False,
+                #                    labelleft=False, labelright=False)
+                if i > 0:
+                    ax.tick_params(axis='y', left=False, right=False,
+                                   labelleft=False, labelright=False)
 
-    plt_img = np.zeros_like(img)
-    plt_img[img > 0] = np.log10(img[img > 0])
-    axes[0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
-    axes[1].imshow(segm, extent=imgextent, cmap="plasma")
-    axes[2].imshow(subfind_img, extent=imgextent, cmap="gist_rainbow")
+        for i, depth in enumerate(depths):
 
-    max_ind = np.unravel_index(np.argmax(plt_img), plt_img.shape)
-    ind_slice = [np.max((0, max_ind[0] - cutout_halfsize)),
-                 np.min((plt_img.size, max_ind[0] + cutout_halfsize)),
-                 np.max((0, max_ind[1] - cutout_halfsize)),
-                 np.min((plt_img.size, max_ind[1] + cutout_halfsize))]
-    axes[3].imshow(plt_img[ind_slice[0]: ind_slice[1],
-                   ind_slice[2]: ind_slice[3]],
-                   extent=imgextent, cmap="Greys_r")
-    axes[4].imshow(segm[ind_slice[0]: ind_slice[1],
-                   ind_slice[2]: ind_slice[3]], extent=imgextent,
-                   cmap="plasma")
-    axes[5].imshow(subfind_img[ind_slice[0]: ind_slice[1],
-                   ind_slice[2]: ind_slice[3]], extent=imgextent,
-                   cmap="gist_rainbow")
+            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                            .format(reg, snap, Type, orientation, f),
+                            "r")
 
-    ax1.set_title(str(ini_width_pkpc) + " pkpc")
-    ax4.set_title("Brightest Source")
+            f_group = hdf[f]
+            fdepth_group = f_group[str(depth)]
 
-    ax1.set_ylabel('y (")')
-    ax2.set_ylabel('y (")')
-    ax3.set_ylabel('y (")')
-    ax3.set_xlabel('x (")')
-    ax6.set_xlabel('x (")')
+            imgs = fdepth_group["Images"][:]
+            noise = f_group["Noise_value"][:]
+            all_smls = f_group["Smoothing_Length"][:]
+            subfind_spos = f_group["Star_Pos"][:]
+            begin = f_group["Start_Index"][:]
+            group_len = f_group["Image_Length"][:]
+            fluxes = f_group["Fluxes"][:]
+            img_ids = fdepth_group["Image_ID"][:]
 
-    fig.savefig("plots/gal_img_log_Filter-" + f + "_Depth-" + str(depth)
-                + "_Region-" + reg + "_Snap-" + snap + "_Group-"
-                + str(ind) + ".png", dpi=600)
-    plt.close(fig)
+            hdf.close()
 
-    ind += 1
+            print(imgs.shape)
+
+            ind = np.where(img_ids == img_id)[0]
+
+            print("Creating image", img_id, ind)
+
+            if ind.size != 0:
+
+                if depth == "SUBFIND":
+                    this_pos = subfind_spos[begin[ind]:
+                                            begin[ind] + group_len[ind], (0, 1)]
+                    smooth = all_smls[begin[ind]: begin[ind] + group_len[ind]]
+                    this_flux = fluxes[begin[ind]: begin[ind] + group_len[ind]]
+
+                    img = util.make_spline_img(this_pos, res, 0, 1, tree,
+                                               this_flux, smooth)
+                    sig = np.zeros((res, res))
+                    segm = np.zeros((res, res))
+                else:
+                    img = imgs[ind, :, :]
+                    sig = img / noise[ind]
+                    segm = phut.detect_sources(sig, thresh, npixels=5)
+                    segm = phut.deblend_sources(img, segm, npixels=5,
+                                                nlevels=32, contrast=0.001)
+
+            else:
+                img = np.zeros((res, res))
+                sig = np.zeros((res, res))
+                segm = np.zeros((res, res))
+
+            plt_img = np.zeros_like(img)
+            plt_img[img > 0] = np.log10(img[img > 0])
+            axes[i, 0].imshow(plt_img, extent=imgextent, cmap="Greys_r",
+                              norm=img_norm)
+            axes[i, 1].imshow(sig, extent=imgextent, cmap="coolwarm",
+                              norm=sig_norm)
+            axes[i, 2].imshow(segm, extent=imgextent, cmap="gist_rainbow")
+
+            if not os.path.exists("plots/Gal_imgs"):
+                os.makedirs("plots/Gal_imgs")
+
+            fig.savefig("plots/Gal_imgs/gal_img_Filter-" + f
+                        + "_Region-" + reg + "_Snap-" + snap + "_Group-"
+                        + str(img_id) + ".png", dpi=600)
+            plt.close(fig)
+
+            ind += 1
 
 
 
