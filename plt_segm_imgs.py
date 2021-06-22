@@ -197,12 +197,12 @@ for f in filters:
             fdepth_group = hdf[str(depth)]
 
             imgs = fdepth_group["Images"][:]
-            noise = f_group["Noise_value"][:]
-            all_smls = f_group["Smoothing_Length"][:]
-            subfind_spos = f_group["Star_Pos"][:]
-            begin = f_group["Start_Index"][:]
-            group_len = f_group["Image_Length"][:]
-            fluxes = f_group["Fluxes"][:]
+            noise = fdepth_group["Noise_value"][:]
+            all_smls = fdepth_group["Smoothing_Length"][:]
+            subfind_spos = fdepth_group["Star_Pos"][:]
+            begin = fdepth_group["Start_Index"][:]
+            group_len = fdepth_group["Image_Length"][:]
+            fluxes = fdepth_group["Fluxes"][:]
             img_ids = fdepth_group["Image_ID"][:]
 
             hdf.close()
