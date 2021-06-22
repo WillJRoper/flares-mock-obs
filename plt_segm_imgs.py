@@ -138,8 +138,7 @@ for f in filters:
                     .format(reg, snap, Type, orientation, f),
                     "r")
 
-    f_group = hdf[f]
-    fdepth_group = f_group["0.1"]
+    fdepth_group = hdf["0.1"]
 
     imgs = fdepth_group["Images"][:]
     img_ids = fdepth_group["Image_ID"][:]
