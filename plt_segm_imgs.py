@@ -209,7 +209,7 @@ for f in filters:
 
             print(imgs.shape)
 
-            ind = np.where(img_ids == img_id)[0]
+            ind = np.where(img_ids == img_id)[0][0]
 
             print("Creating image", img_id, ind)
 
