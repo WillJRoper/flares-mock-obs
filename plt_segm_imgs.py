@@ -194,8 +194,7 @@ for f in filters:
                             .format(reg, snap, Type, orientation, f),
                             "r")
 
-            f_group = hdf[f]
-            fdepth_group = f_group[str(depth)]
+            fdepth_group = hdf[str(depth)]
 
             imgs = fdepth_group["Images"][:]
             noise = f_group["Noise_value"][:]
