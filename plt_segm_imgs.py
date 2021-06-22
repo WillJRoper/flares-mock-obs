@@ -228,9 +228,12 @@ for f in filters:
                 else:
                     img = imgs[ind, :, :]
                     sig = img / noise[ind]
-                    segm = phut.detect_sources(sig, thresh, npixels=5)
-                    segm = phut.deblend_sources(img, segm, npixels=5,
-                                                nlevels=32, contrast=0.001)
+                    try:
+                        segm = phut.detect_sources(sig, thresh, npixels=5)
+                        segm = phut.deblend_sources(img, segm, npixels=5,
+                                                    nlevels=32, contrast=0.001)
+                    except TypeError:
+                        segm = np.zeros((res, res))
 
             else:
                 img = np.zeros((res, res))
