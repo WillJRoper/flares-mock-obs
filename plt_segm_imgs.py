@@ -141,6 +141,7 @@ for f in filters:
     fdepth_group = hdf["0.1"]
 
     max_imgs = fdepth_group["Images"][:]
+    group_len = fdepth_group["Image_Length"][:]
     img_ids = fdepth_group["Image_ID"][:]
 
     hdf.close()
@@ -148,8 +149,7 @@ for f in filters:
     if max_imgs.size == 0:
         continue
 
-    print(np.sum(max_imgs, axis=(1, 2)).shape, max_imgs.shape)
-    sinds = np.argsort(np.sum(max_imgs, axis=(1, 2)))[::-1]
+    sinds = np.argsort(group_len)[::-1]
     create_img_ids = img_ids[sinds][:10]
     max_imgs = max_imgs[sinds]
 
