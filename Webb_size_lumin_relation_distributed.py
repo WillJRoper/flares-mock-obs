@@ -224,13 +224,13 @@ for num, depth in enumerate(depths):
 
         ind = key
 
-        if len(reg_dict[ind].keys()) == len(filters):
+        if "coords" not in reg_dict[ind].keys():
             continue
 
         this_pos = reg_dict[key]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
         this_smls = reg_dict[key]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
         this_subgrpids = reg_dict[key]["part_subgrpids"]
-        # this_groupmass = reg_dict[key]["group_mass"]
+
         print(imgextent)
         print(np.min(this_pos, axis=0), np.max(this_pos, axis=0))
         xcond = np.logical_and(this_pos[:, 0] < imgextent[1]
