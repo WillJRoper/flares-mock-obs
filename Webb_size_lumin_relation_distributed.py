@@ -231,8 +231,6 @@ for num, depth in enumerate(depths):
         this_smls = reg_dict[key]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
         this_subgrpids = reg_dict[key]["part_subgrpids"]
 
-        print(imgextent)
-        print(np.min(this_pos, axis=0), np.max(this_pos, axis=0))
         xcond = np.logical_and(this_pos[:, 0] < imgextent[1]
                                * arcsec_per_kpc_proper,
                                this_pos[:, 0] > imgextent[0]
