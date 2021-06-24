@@ -46,6 +46,7 @@ def get_data(reg, snap, r):
     path = '/cosma/home/dp004/dc-rope1/FLARES/FLARES-1/G-EAGLE_' + reg + '/data'
 
     cen, radius, _ = util.spherical_region(path, snap)
+    print("Centre, radius=", cen, radius)
 
     # Load all necessary arrays
     r_200 = E.read_array('SUBFIND', path, snap, 'FOF/Group_R_Mean200',
@@ -69,10 +70,10 @@ def get_data(reg, snap, r):
     all_grp_ms = E.read_array('SUBFIND', path, snap, 'FOF/Group_M_Mean200',
                               numThreads=8) * 10**10
 
-    okinds = all_grp_ms > 10**10
-    grp_cops = grp_cops[okinds]
-    r_200 = r_200[okinds]
-    all_grp_ms = all_grp_ms[okinds]
+    # okinds = all_grp_ms > 10**10
+    # grp_cops = grp_cops[okinds]
+    # r_200 = r_200[okinds]
+    # all_grp_ms = all_grp_ms[okinds]
 
     # Convert to group.subgroup ID format
     gal_haloids = np.zeros(gal_grpid.size, dtype=float)
@@ -397,14 +398,24 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     zcents = np.linspace(mins[2] + r, maxs[2] - r, int(reg_width / r))
 
     cents = []
+    ijk = np.zeros(
+        (int(reg_width / r), int(reg_width / r), int(reg_width / r)),
+        dtype=np.int16)
+    num = 0
     for i, x in enumerate(xcents):
         for j, y in enumerate(ycents):
             for k, z in enumerate(zcents):
                 cents.append(np.array([x, y, z]))
+                ijk[i, j, k] = num
+                num += 1
 
     cents = np.array(cents)
+    Fnus["cents"] = cents
+    Fnus["ijk"] = ijk
 
     for ind, cop in enumerate(cents):
+
+        Fnus[ind] = {f: {} for f in filters}
 
         okinds = star_tree.query_ball_point(cop, r=r)
 
@@ -421,8 +432,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         gasMetallicities = G_Z[g_okinds]
         gasSML = G_sml[g_okinds]
         gasMasses = G_mass[g_okinds]
-
-        Fnus[ind] = {f: {} for f in filters}
 
         Fnus[ind]["smls"] = Smls
         Fnus[ind]["masses"] = Masses

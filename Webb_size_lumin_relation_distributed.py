@@ -182,6 +182,18 @@ image_keys = [k for k in reg_dict.keys() if type(k) is int]
 gal_mass = reg_dict["gal_ms"]
 gal_haloids = reg_dict["gal_haloids"]
 
+cents = reg_dict["cents"]
+ijk = reg_dict["ijk"]
+
+hdf.create_dataset("Image_Centres", data=cents, dtype=cents.dtype,
+                   shape=cents.shape, compression="gzip")
+hdf.create_dataset("Cell_Image_Number", data=ijk, dtype=ijk.dtype,
+                   shape=ijk.shape, compression="gzip")
+hdf.create_dataset("Galaxy_Mass", data=gal_mass, dtype=gal_mass.dtype,
+                   shape=gal_mass.shape, compression="gzip")
+hdf.create_dataset("Galaxy_IDs", data=gal_haloids, dtype=gal_haloids.dtype,
+                   shape=gal_haloids.shape, compression="gzip")
+
 for num, depth in enumerate(depths):
 
     field.depths[f] = depth
@@ -194,13 +206,12 @@ for num, depth in enumerate(depths):
 
     fdepth = f + "." + str(depth)
 
-    imgs = []
-    noise = []
-    img_num = []
+    imgs = np.full((len(image_keys), res, res), np.nan, dtype=np.float32)
+    noise = np.full(len(image_keys), np.nan, dtype=np.float32)
+    img_num = np.full(len(image_keys), np.nan, dtype=np.int32)
 
-    begin = []
-    Slen = []
-    grp_mass = []
+    begin = np.full(len(image_keys), np.nan, dtype=np.int32)
+    Slen = np.full(len(image_keys), np.nan, dtype=np.int32)
     smls = []
     fluxes = []
     subgrpids = []
@@ -213,29 +224,32 @@ for num, depth in enumerate(depths):
 
         ind = key
 
+        if len(reg_dict[ind].keys()) == len(filters):
+            continue
+
         this_pos = reg_dict[key]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
         this_smls = reg_dict[key]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
         this_subgrpids = reg_dict[key]["part_subgrpids"]
         # this_groupmass = reg_dict[key]["group_mass"]
 
-        xcond = np.logical_and(this_pos[:, 0] < imgextent[1]
-                               * arcsec_per_kpc_proper,
-                               this_pos[:, 0] > imgextent[0]
-                               * arcsec_per_kpc_proper)
-        ycond = np.logical_and(this_pos[:, 1] < imgextent[1]
-                               * arcsec_per_kpc_proper,
-                               this_pos[:, 1] > imgextent[0]
-                               * arcsec_per_kpc_proper)
-        zcond = np.logical_and(this_pos[:, 2] < imgextent[1]
-                               * arcsec_per_kpc_proper,
-                               this_pos[:, 2] > imgextent[0]
-                               * arcsec_per_kpc_proper)
-        okinds = np.logical_and(np.logical_and(xcond, ycond), zcond)
+        # xcond = np.logical_and(this_pos[:, 0] < imgextent[1]
+        #                        * arcsec_per_kpc_proper,
+        #                        this_pos[:, 0] > imgextent[0]
+        #                        * arcsec_per_kpc_proper)
+        # ycond = np.logical_and(this_pos[:, 1] < imgextent[1]
+        #                        * arcsec_per_kpc_proper,
+        #                        this_pos[:, 1] > imgextent[0]
+        #                        * arcsec_per_kpc_proper)
+        # zcond = np.logical_and(this_pos[:, 2] < imgextent[1]
+        #                        * arcsec_per_kpc_proper,
+        #                        this_pos[:, 2] > imgextent[0]
+        #                        * arcsec_per_kpc_proper)
+        # okinds = np.logical_and(np.logical_and(xcond, ycond), zcond)
 
-        this_flux = reg_dict[key][f][okinds]
-        this_pos = this_pos[okinds]
-        this_smls = this_smls[okinds]
-        this_subgrpids = this_subgrpids[okinds]
+        this_flux = reg_dict[key][f]#[okinds]
+        # this_pos = this_pos[okinds]
+        # this_smls = this_smls[okinds]
+        # this_subgrpids = this_subgrpids[okinds]
 
         subfind_ids = np.unique(this_subgrpids)
 
@@ -270,25 +284,17 @@ for num, depth in enumerate(depths):
 
             img, img_obj = util.noisy_img(img, image_creator)
 
-        # significance_image = img / img_obj.noise
-        # significance_image[significance_image < 0] = 0
+        imgs[ind, :, :] = img
+        noise[ind] = image_creator.pixel.noise
+        img_num[ind] = key
 
-        imgs.append(img)
-        noise.append(image_creator.pixel.noise)
-        img_num.append(key)
-
-        begin.append(len(fluxes))
-        Slen.append(len(this_smls))
-        # grp_mass[ind] = this_groupmass
+        begin[ind] = len(fluxes)
+        Slen[ind] = len(this_smls)
 
         star_pos.extend(this_pos)
         smls.extend(this_smls)
         fluxes.extend(this_flux)
         subgrpids.extend(this_subgrpids)
-
-    imgs = np.array(imgs)
-    noise = np.array(noise)
-    img_num = np.array(img_num)
 
     print("There are", imgs.shape[0], "images")
 
@@ -316,8 +322,6 @@ for num, depth in enumerate(depths):
     subgrpids = np.array(subgrpids)
     smls = np.array(smls)
     star_pos = np.array(star_pos)
-    begin = np.array(begin)
-    Slen = np.array(Slen)
 
     dset = fdepth_group.create_dataset("Start_Index", data=begin,
                                   dtype=begin.dtype,
@@ -386,24 +390,24 @@ for key in image_keys:
     this_smls = reg_dict[key]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
     this_subgrpids = reg_dict[key]["part_subgrpids"]
 
-    xcond = np.logical_and(this_pos[:, 0] < imgextent[1]
-                           * arcsec_per_kpc_proper,
-                           this_pos[:, 0] > imgextent[0]
-                           * arcsec_per_kpc_proper)
-    ycond = np.logical_and(this_pos[:, 1] < imgextent[1]
-                           * arcsec_per_kpc_proper,
-                           this_pos[:, 1] > imgextent[0]
-                           * arcsec_per_kpc_proper)
-    zcond = np.logical_and(this_pos[:, 2] < imgextent[1]
-                           * arcsec_per_kpc_proper,
-                           this_pos[:, 2] > imgextent[0]
-                           * arcsec_per_kpc_proper)
-    okinds = np.logical_and(np.logical_and(xcond, ycond), zcond)
+    # xcond = np.logical_and(this_pos[:, 0] < imgextent[1]
+    #                        * arcsec_per_kpc_proper,
+    #                        this_pos[:, 0] > imgextent[0]
+    #                        * arcsec_per_kpc_proper)
+    # ycond = np.logical_and(this_pos[:, 1] < imgextent[1]
+    #                        * arcsec_per_kpc_proper,
+    #                        this_pos[:, 1] > imgextent[0]
+    #                        * arcsec_per_kpc_proper)
+    # zcond = np.logical_and(this_pos[:, 2] < imgextent[1]
+    #                        * arcsec_per_kpc_proper,
+    #                        this_pos[:, 2] > imgextent[0]
+    #                        * arcsec_per_kpc_proper)
+    # okinds = np.logical_and(np.logical_and(xcond, ycond), zcond)
 
-    this_flux = reg_dict[key][f][okinds]
-    this_pos = this_pos[okinds]
-    this_smls = this_smls[okinds]
-    this_subgrpids = this_subgrpids[okinds]
+    this_flux = reg_dict[key][f]#[okinds]
+    # this_pos = this_pos[okinds]
+    # this_smls = this_smls[okinds]
+    # this_subgrpids = this_subgrpids[okinds]
 
     img_num.append(key)
 

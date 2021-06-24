@@ -160,11 +160,12 @@ for f in filters:
         img_norm = mpl.colors.Normalize(vmin=np.log10(-np.percentile(max_imgs[img_ind, :, :], 33.175)),
                                         vmax=np.log10(np.percentile(max_imgs[img_ind, :, :], 99)))
         sig_norm = mpl.colors.TwoSlopeNorm(vmin=0., vcenter=2.5, vmax=100)
+        bi_cmap = matplotlib.colors.ListedColormap(['k', 'w'])
 
-        fig = plt.figure(figsize=(10, 7))
-        gs = gridspec.GridSpec(3, 6)
+        fig = plt.figure(figsize=(10, 12))
+        gs = gridspec.GridSpec(5, 6)
         gs.update(wspace=0.0, hspace=0.0)
-        axes = np.empty((6, 3), dtype=object)
+        axes = np.empty((6, 5), dtype=object)
         for i in range(6):
             for j in range(3):
                 axes[i, j] = fig.add_subplot(gs[j, i])
@@ -177,11 +178,6 @@ for f in filters:
                 if j < 2:
                     ax.tick_params(axis='x', top=False, bottom=False,
                                    labeltop=False, labelbottom=False)
-                # elif i > 2 and i < 5:
-                #     ax.tick_params(axis='both', top=False, bottom=False,
-                #                    labeltop=False, labelbottom=False,
-                #                    left=False, right=False,
-                #                    labelleft=False, labelright=False)
                 if i > 0:
                     ax.tick_params(axis='y', left=False, right=False,
                                    labelleft=False, labelright=False)
@@ -205,6 +201,13 @@ for f in filters:
                 img_ids = fdepth_group["Image_ID"][:]
             except KeyError:
                 imgs = np.array([[[],],])
+                noise = None
+                all_smls = None
+                subfind_spos = None
+                begin = None
+                group_len = None
+                fluxes = None
+                img_ids = None
 
             hdf.close()
 
@@ -229,20 +232,28 @@ for f in filters:
                                                this_flux, smooth)
                     sig = np.zeros((res, res))
                     segm = np.zeros((res, res))
+                    db_segm = np.zeros((res, res))
+                    resi = np.zeros((res, res))
                 else:
                     img = imgs[ind, :, :]
                     sig = img / noise[ind]
                     try:
                         segm = phut.detect_sources(sig, thresh, npixels=5)
-                        segm = phut.deblend_sources(img, segm, npixels=5,
+                        db_segm = phut.deblend_sources(img, segm, npixels=5,
                                                     nlevels=32, contrast=0.001)
+                        resi = np.abs(segm - db_segm)
+                        resi[resi > 0] = 1
                     except TypeError:
                         segm = np.zeros((res, res))
+                        db_segm = np.zeros((res, res))
+                        resi = np.zeros((res, res))
 
             else:
                 img = np.zeros((res, res))
                 sig = np.zeros((res, res))
                 segm = np.zeros((res, res))
+                db_segm = np.zeros((res, res))
+                resi = np.zeros((res, res))
 
             plt_img = np.zeros_like(img)
             plt_img[img > 0] = np.log10(img[img > 0])
@@ -250,6 +261,8 @@ for f in filters:
             axes[i, 1].imshow(sig, extent=imgextent, cmap="coolwarm",
                               norm=sig_norm)
             axes[i, 2].imshow(segm, extent=imgextent, cmap="gist_rainbow")
+            axes[i, 3].imshow(db_segm, extent=imgextent, cmap="gist_rainbow")
+            axes[i, 4].imshow(resi, extent=imgextent, cmap=bi_cmap)
 
             if not os.path.exists("plots/Gal_imgs"):
                 os.makedirs("plots/Gal_imgs")
