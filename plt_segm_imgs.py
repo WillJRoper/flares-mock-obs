@@ -167,11 +167,11 @@ for f in filters:
         gs.update(wspace=0.0, hspace=0.0)
         axes = np.empty((6, 5), dtype=object)
         for i in range(6):
-            for j in range(3):
+            for j in range(5):
                 axes[i, j] = fig.add_subplot(gs[j, i])
 
         for i in range(6):
-            for j in range(3):
+            for j in range(5):
                 ax = axes[i, j]
                 ax.grid(False)
 
