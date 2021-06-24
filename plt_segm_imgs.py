@@ -162,7 +162,7 @@ for f in filters:
         sig_norm = mpl.colors.TwoSlopeNorm(vmin=0., vcenter=2.5, vmax=100)
         bi_cmap = matplotlib.colors.ListedColormap(['k', 'w'])
 
-        fig = plt.figure(figsize=(10, 12))
+        fig = plt.figure(figsize=(10, 10))
         gs = gridspec.GridSpec(5, 6)
         gs.update(wspace=0.0, hspace=0.0)
         axes = np.empty((6, 5), dtype=object)
@@ -241,7 +241,7 @@ for f in filters:
                         segm = phut.detect_sources(sig, thresh, npixels=5)
                         db_segm = phut.deblend_sources(img, segm, npixels=5,
                                                     nlevels=32, contrast=0.001)
-                        resi = np.abs(segm - db_segm)
+                        resi = np.abs(segm.data - db_segm.data)
                         resi[resi > 0] = 1
                     except TypeError:
                         segm = np.zeros((res, res))

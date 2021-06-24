@@ -435,8 +435,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         Fnus[ind]["smls"] = Smls
         Fnus[ind]["masses"] = Masses
-        # Fnus[ind]["group_mass"] = all_gal_ms[ind]
-        # Fnus[ind]["group_cop"] = cops[ind]
         Fnus[ind]["part_subgrpids"] = S_subgrpid[okinds]
 
         if orientation == "sim":
