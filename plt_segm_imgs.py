@@ -56,9 +56,9 @@ Type = sys.argv[4]
 extinction = 'default'
 
 # Define filter
-filters = [f'Hubble.ACS.{f}'
-           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
-          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+filters = [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']] \
+          + [f'Hubble.ACS.{f}'
+             for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']]
 
 depths = [0.1, 1, 5, 10, 20, "SUBFIND"]
 
