@@ -426,7 +426,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
             continue
 
         Fnus[ind] = {f: {} for f in filters}
-        ijk[ijk_dict[num]] = cop
+        ijk[ijk_dict[num]] = ind
         out_cents.append(cop)
 
         # Extract values for this galaxy
