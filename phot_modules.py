@@ -398,31 +398,36 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     zcents = np.linspace(mins[2] + r, maxs[2] - r, int(reg_width / r))
 
     cents = []
+    out_cents = []
     ijk = np.zeros(
         (int(reg_width / r), int(reg_width / r), int(reg_width / r)),
         dtype=np.int16)
+
+    ijk_dict = {}
     num = 0
     for i, x in enumerate(xcents):
         for j, y in enumerate(ycents):
             for k, z in enumerate(zcents):
                 cents.append(np.array([x, y, z]))
-                ijk[i, j, k] = num
+                ijk_dict[num] = (i, j, k)
                 num += 1
 
     cents = np.array(cents)
-    Fnus["cents"] = cents
-    Fnus["ijk"] = ijk
 
-    for ind, cop in enumerate(cents):
+    ind = 0
 
-        Fnus[ind] = {f: {} for f in filters}
+    for num, cop in enumerate(cents):
 
         okinds = star_tree.query_ball_point(cop, r=r)
 
         g_okinds = gas_tree.query_ball_point(cop, r=r)
 
-        if len(okinds) == 0:
+        if len(okinds) < 700:
             continue
+
+        Fnus[ind] = {f: {} for f in filters}
+        ijk[ijk_dict[num]] = cop
+        out_cents.append(cop)
 
         # Extract values for this galaxy
         Masses = S_mass_ini[okinds]
@@ -531,6 +536,10 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
                                             fesc=fesc, log10t_BC=log10t_BC)
 
             Fnus[ind][f] = Fnu
+        ind += 1
+
+    Fnus["ijk"] = ijk
+    Fnus["cents"] = np.array(out_cents)
 
     return Fnus
 
