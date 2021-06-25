@@ -257,6 +257,7 @@ for f in filters:
 
             plt_img = np.zeros_like(img)
             plt_img[img > 0] = np.log10(img[img > 0])
+            print(np.min(plt_img), np.max(plt_img))
             axes[i, 0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
             axes[i, 1].imshow(sig, extent=imgextent, cmap="coolwarm",
                               norm=sig_norm)
