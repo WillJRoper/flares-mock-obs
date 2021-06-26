@@ -213,7 +213,7 @@ for f in filters:
 
             print(imgs.shape)
 
-            ind = int(img_ids)
+            ind = int(img_id)
 
             print("Creating image", img_id, ind)
 
