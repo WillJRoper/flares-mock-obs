@@ -217,7 +217,7 @@ for f in filters:
 
             print("Creating image", img_id, ind)
 
-            if np.nansum(imgs[ind, :, :]) != 0 and imgs.size > 0:
+            if imgs.size > 0:
 
                 if depth == "SUBFIND":
                     this_pos = subfind_spos[begin[ind]:
