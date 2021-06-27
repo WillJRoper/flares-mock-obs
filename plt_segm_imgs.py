@@ -184,9 +184,8 @@ for f in filters:
         fig = plt.figure(figsize=(10, 11))
         gs = gridspec.GridSpec(5, 7, width_ratios=[10, 10, 10, 10, 10, 10, 1])
         gs.update(wspace=0.0, hspace=0.0)
-        caxes = [fig.add_subplot(gs[i, -1]) for i in range(5)]
-        axes = np.empty((6, 5), dtype=object)
-        for i in range(6):
+        axes = np.empty((7, 5), dtype=object)
+        for i in range(7):
             for j in range(5):
                 axes[i, j] = fig.add_subplot(gs[j, i])
 
@@ -286,16 +285,16 @@ for f in filters:
                 os.makedirs("plots/Gal_imgs")
 
             fig.colorbar(mpl.cm.ScalarMappable(norm=img_norm, cmap="Greys_r"),
-                         cax=caxes[0], label='Flux (nJy)',fraction=0.046, pad=0.04)
+                         cax=axes[0, -1], label='Flux (nJy)',fraction=0.046, pad=0.04)
             fig.colorbar(mpl.cm.ScalarMappable(norm=sig_norm, cmap="coolwarm"),
-                         cax=caxes[1], label='Flux (nJy)',fraction=0.046, pad=0.04)
+                         cax=axes[1, -1], label='Flux (nJy)',fraction=0.046, pad=0.04)
             fig.colorbar(img_segm,
-                         cax=caxes[2], label='Label',fraction=0.046, pad=0.04)
+                         cax=axes[2, -1], label='Label',fraction=0.046, pad=0.04)
             fig.colorbar(img_dbsegm,
-                         cax=caxes[3], label='Label',fraction=0.046, pad=0.04)
+                         cax=axes[3, -1], label='Label',fraction=0.046, pad=0.04)
             fig.colorbar(mpl.cm.ScalarMappable(norm=bi_norm, cmap=bi_cmap),
-                         cax=caxes[4], ticks=[0, 1], tick_labels=["UC",
-                                                                  "DB"],
+                         cax=axes[4, -1], ticks=[0, 1], tick_labels=["UC",
+                                                                     "DB"],
                          fraction=0.046, pad=0.04)
 
             fig.savefig("plots/Gal_imgs/gal_img_Filter-" + f
