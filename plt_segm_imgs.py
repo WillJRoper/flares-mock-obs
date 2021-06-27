@@ -181,7 +181,7 @@ for f in filters:
         bounds = [0, 0.5, 1]
         bi_norm = matplotlib.colors.BoundaryNorm(bounds, bi_cmap.N)
 
-        fig = plt.figure(figsize=(10, 10))
+        fig = plt.figure(figsize=(10, 11))
         gs = gridspec.GridSpec(5, 7, width_ratios=[10, 10, 10, 10, 10, 10, 1])
         gs.update(wspace=0.0, hspace=0.0)
         caxes = [fig.add_subplot(gs[i, -1]) for i in range(5)]
@@ -190,7 +190,7 @@ for f in filters:
             for j in range(5):
                 axes[i, j] = fig.add_subplot(gs[j, i])
 
-        for i in range(6):
+        for i in range(7):
             for j in range(5):
                 ax = axes[i, j]
                 ax.grid(False)
@@ -290,6 +290,9 @@ for f in filters:
                          cax=caxes[2], label='Label')
             fig.colorbar(img_dbsegm,
                          cax=caxes[3], label='Label')
+            fig.colorbar(mpl.cm.ScalarMappable(norm=bi_norm, cmap=bi_cmap),
+                         cax=caxes[4], ticks=[0, 1], tick_labels=["UC",
+                                                                  "DB"])
 
             fig.savefig("plots/Gal_imgs/gal_img_Filter-" + f
                         + "_Region-" + reg + "_Snap-" + snap + "_Group-"
