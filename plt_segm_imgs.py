@@ -285,15 +285,15 @@ for f in filters:
                 os.makedirs("plots/Gal_imgs")
 
             fig.colorbar(mpl.cm.ScalarMappable(norm=img_norm, cmap="Greys_r"),
-                         cax=axes[0, -1], label='Flux (nJy)',fraction=0.046, pad=0.04)
+                         cax=axes[-1, 0], label='Flux (nJy)',fraction=0.046, pad=0.04)
             fig.colorbar(mpl.cm.ScalarMappable(norm=sig_norm, cmap="coolwarm"),
-                         cax=axes[1, -1], label='Flux (nJy)',fraction=0.046, pad=0.04)
+                         cax=axes[-1, 1], label='Flux (nJy)',fraction=0.046, pad=0.04)
             fig.colorbar(img_segm,
-                         cax=axes[2, -1], label='Label',fraction=0.046, pad=0.04)
+                         cax=axes[-1, 2], label='Label',fraction=0.046, pad=0.04)
             fig.colorbar(img_dbsegm,
-                         cax=axes[3, -1], label='Label',fraction=0.046, pad=0.04)
+                         cax=axes[-1, 3], label='Label',fraction=0.046, pad=0.04)
             fig.colorbar(mpl.cm.ScalarMappable(norm=bi_norm, cmap=bi_cmap),
-                         cax=axes[4, -1], ticks=[0, 1],
+                         cax=axes[-1, 4], ticks=[0, 1],
                          fraction=0.046, pad=0.04)
 
             fig.savefig("plots/Gal_imgs/gal_img_Filter-" + f
