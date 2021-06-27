@@ -232,17 +232,17 @@ for num, depth in enumerate(depths):
         this_subgrpids = reg_dict[key]["part_subgrpids"]
 
         xcond = np.logical_and(this_pos[:, 0] < imgextent[1]
-                               * arcsec_per_kpc_proper,
+                               / arcsec_per_kpc_proper,
                                this_pos[:, 0] > imgextent[0]
-                               * arcsec_per_kpc_proper)
+                               / arcsec_per_kpc_proper)
         ycond = np.logical_and(this_pos[:, 1] < imgextent[1]
-                               * arcsec_per_kpc_proper,
+                               / arcsec_per_kpc_proper,
                                this_pos[:, 1] > imgextent[0]
-                               * arcsec_per_kpc_proper)
+                               / arcsec_per_kpc_proper)
         zcond = np.logical_and(this_pos[:, 2] < imgextent[1]
-                               * arcsec_per_kpc_proper,
+                               / arcsec_per_kpc_proper,
                                this_pos[:, 2] > imgextent[0]
-                               * arcsec_per_kpc_proper)
+                               / arcsec_per_kpc_proper)
         okinds = np.logical_and(np.logical_and(xcond, ycond), zcond)
 
         this_flux = reg_dict[key][f][okinds]
@@ -392,17 +392,17 @@ for key in image_keys:
     pre_cut += len(this_smls)
 
     xcond = np.logical_and(this_pos[:, 0] < imgextent[1]
-                           * arcsec_per_kpc_proper,
+                           / arcsec_per_kpc_proper,
                            this_pos[:, 0] > imgextent[0]
-                           * arcsec_per_kpc_proper)
+                           / arcsec_per_kpc_proper)
     ycond = np.logical_and(this_pos[:, 1] < imgextent[1]
-                           * arcsec_per_kpc_proper,
+                           / arcsec_per_kpc_proper,
                            this_pos[:, 1] > imgextent[0]
-                           * arcsec_per_kpc_proper)
+                           / arcsec_per_kpc_proper)
     zcond = np.logical_and(this_pos[:, 2] < imgextent[1]
-                           * arcsec_per_kpc_proper,
+                           / arcsec_per_kpc_proper,
                            this_pos[:, 2] > imgextent[0]
-                           * arcsec_per_kpc_proper)
+                           / arcsec_per_kpc_proper)
     okinds = np.logical_and(np.logical_and(xcond, ycond), zcond)
 
     this_flux = reg_dict[key][f][okinds]
