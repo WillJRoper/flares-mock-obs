@@ -176,7 +176,7 @@ for f in filters:
         img_norm = mpl.colors.Normalize(vmin=np.log10(-np.percentile(norm_imgs, 33.175)),
                                         vmax=np.log10(np.percentile(norm_imgs, 99)))
         sig_norm = mpl.colors.TwoSlopeNorm(vmin=0., vcenter=2.5,
-                                           vmax=np.max(norm_sigs))
+                                           vmax=np.percentile(norm_sigs, 95))
         bi_cmap = matplotlib.colors.ListedColormap(['k', 'w'])
         bounds = [0, 0.5, 1]
         bi_norm = matplotlib.colors.BoundaryNorm(bounds, bi_cmap.N)
@@ -194,12 +194,10 @@ for f in filters:
                 ax = axes[i, j]
                 ax.grid(False)
 
-                if j < axes.shape[1]:
-                    ax.tick_params(axis='x', top=False, bottom=False,
-                                   labeltop=False, labelbottom=False)
-                if i > 0:
-                    ax.tick_params(axis='y', left=False, right=False,
-                                   labelleft=False, labelright=False)
+                ax.tick_params(axis='x', top=False, bottom=False,
+                               labeltop=False, labelbottom=False)
+                ax.tick_params(axis='y', left=False, right=False,
+                               labelleft=False, labelright=False)
 
         for i, depth in enumerate(depths):
 
@@ -287,7 +285,7 @@ for f in filters:
             fig.colorbar(mpl.cm.ScalarMappable(norm=img_norm, cmap="Greys_r"),
                          cax=axes[-1, 0], label='Flux (nJy)',fraction=0.046, pad=0.04)
             fig.colorbar(mpl.cm.ScalarMappable(norm=sig_norm, cmap="coolwarm"),
-                         cax=axes[-1, 1], label='Flux (nJy)',fraction=0.046, pad=0.04)
+                         cax=axes[-1, 1], label='SNR',fraction=0.046, pad=0.04)
             fig.colorbar(img_segm,
                          cax=axes[-1, 2], label='Label',fraction=0.046, pad=0.04)
             fig.colorbar(img_dbsegm,
