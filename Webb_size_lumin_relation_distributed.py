@@ -489,3 +489,5 @@ dset = fdepth_group.create_dataset("Image_Length", data=Slen,
 dset.attrs["units"] = "None"
 
 hdf.close()
+
+print(pre_cut, post_cut)
