@@ -378,8 +378,8 @@ fluxes = []
 subgrpids = []
 star_pos = []
 
-failed = 0
-segm_sources = 0
+pre_cut = 0
+post_cut = 0
 
 for key in image_keys:
 
@@ -388,6 +388,8 @@ for key in image_keys:
     this_pos = reg_dict[key]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
     this_smls = reg_dict[key]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
     this_subgrpids = reg_dict[key]["part_subgrpids"]
+
+    pre_cut += len(this_smls)
 
     xcond = np.logical_and(this_pos[:, 0] < imgextent[1]
                            * arcsec_per_kpc_proper,
@@ -407,6 +409,8 @@ for key in image_keys:
     this_pos = this_pos[okinds]
     this_smls = this_smls[okinds]
     this_subgrpids = this_subgrpids[okinds]
+
+    post_cut += len(this_smls)
 
     img_num.append(key)
 
