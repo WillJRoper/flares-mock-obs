@@ -224,8 +224,8 @@ for f in filters:
                     db_segm = np.zeros((res, res))
                     resi = np.zeros((res, res))
                 else:
-                    imgs = fdepth_group["Images"][:]
-                    noise = fdepth_group["Noise_value"][:]
+                    imgs = fdepth_group["Images"]
+                    noise = fdepth_group["Noise_value"]
                     img = imgs[ind, :, :]
                     sig = img / noise[ind]
                     try:
