@@ -168,15 +168,15 @@ for f in filters:
             fdepth_group = hdf[str(i)]
 
             norm_imgs.append(fdepth_group["Images"][img_id, :, :])
-            norm_sigs.append(fdepth_group["Images"][img_id, :, :]
-                             / fdepth_group["Noise_value"][img_id])
+            # norm_sigs.append(fdepth_group["Images"][img_id, :, :]
+            #                  / fdepth_group["Noise_value"][img_id])
 
         hdf.close()
 
         img_norm = mpl.colors.Normalize(vmin=np.log10(-np.percentile(norm_imgs, 33.175)),
                                         vmax=np.log10(np.percentile(norm_imgs, 99)))
         sig_norm = mpl.colors.TwoSlopeNorm(vmin=0., vcenter=2.5,
-                                           vmax=np.percentile(norm_sigs, 90))
+                                           vmax=100)
         bi_cmap = matplotlib.colors.ListedColormap(['k', 'w'])
         bounds = [0, 0.5, 1]
         bi_norm = matplotlib.colors.BoundaryNorm(bounds, bi_cmap.N)
