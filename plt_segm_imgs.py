@@ -191,8 +191,6 @@ for f in filters:
             fdepth_group = hdf[str(depth)]
 
             try:
-                imgs = fdepth_group["Images"][:]
-                noise = fdepth_group["Noise_value"][:]
                 all_smls = fdepth_group["Smoothing_Length"][:]
                 subfind_spos = fdepth_group["Star_Pos"][:]
                 begin = fdepth_group["Start_Index"][:]
@@ -200,8 +198,6 @@ for f in filters:
                 fluxes = fdepth_group["Fluxes"][:]
                 img_ids = fdepth_group["Image_ID"][:]
             except KeyError:
-                imgs = np.array([[[],],])
-                noise = None
                 all_smls = None
                 subfind_spos = None
                 begin = None
@@ -209,15 +205,11 @@ for f in filters:
                 fluxes = None
                 img_ids = None
 
-            hdf.close()
-
-            print(imgs.shape)
-
             ind = int(img_id)
 
             print("Creating image", img_id, ind)
 
-            if imgs.size > 0:
+            if len(all_smls) > 0:
 
                 if depth == "SUBFIND":
                     this_pos = subfind_spos[begin[ind]:
@@ -232,6 +224,8 @@ for f in filters:
                     db_segm = np.zeros((res, res))
                     resi = np.zeros((res, res))
                 else:
+                    imgs = fdepth_group["Images"][:]
+                    noise = fdepth_group["Noise_value"][:]
                     img = imgs[ind, :, :]
                     sig = img / noise[ind]
                     try:
@@ -269,6 +263,8 @@ for f in filters:
                         + "_Region-" + reg + "_Snap-" + snap + "_Group-"
                         + str(img_id) + ".png", dpi=600)
             plt.close(fig)
+
+            hdf.close()
 
 
 
