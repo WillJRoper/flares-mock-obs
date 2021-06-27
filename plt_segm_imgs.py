@@ -251,8 +251,8 @@ for f in filters:
                         segm = phut.detect_sources(sig, thresh, npixels=5)
                         db_segm = phut.deblend_sources(img, segm, npixels=5,
                                                     nlevels=32, contrast=0.001)
-                        segm = segm.data
-                        db_segm = db_segm.data
+                        segm = np.float32(segm.data)
+                        db_segm = np.float32(db_segm.data)
                         resi = np.abs(segm - db_segm)
                         resi[resi > 0] = 1
                     except TypeError:
