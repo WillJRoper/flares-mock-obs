@@ -293,8 +293,7 @@ for f in filters:
             fig.colorbar(img_dbsegm,
                          cax=axes[3, -1], label='Label',fraction=0.046, pad=0.04)
             fig.colorbar(mpl.cm.ScalarMappable(norm=bi_norm, cmap=bi_cmap),
-                         cax=axes[4, -1], ticks=[0, 1], tick_labels=["UC",
-                                                                     "DB"],
+                         cax=axes[4, -1], ticks=[0, 1],
                          fraction=0.046, pad=0.04)
 
             fig.savefig("plots/Gal_imgs/gal_img_Filter-" + f
