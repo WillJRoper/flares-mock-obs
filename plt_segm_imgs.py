@@ -157,14 +157,34 @@ for f in filters:
 
         img_id = create_img_ids[img_ind]
 
-        img_norm = mpl.colors.Normalize(vmin=np.log10(-np.percentile(max_imgs[img_ind, :, :], 33.175)),
-                                        vmax=np.log10(np.percentile(max_imgs[img_ind, :, :], 99)))
-        sig_norm = mpl.colors.TwoSlopeNorm(vmin=0., vcenter=2.5, vmax=100)
+        hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                        .format(reg, snap, Type, orientation, f),
+                        "r")
+
+        norm_imgs = []
+        norm_sigs = []
+        for i in depths[:-1]:
+
+            fdepth_group = hdf[str(i)]
+
+            norm_imgs.append(fdepth_group["Images"][img_id, :, :])
+            norm_sigs.append(np.max(fdepth_group["Images"][img_id, :, :]
+                             / fdepth_group["Noise_value"][img_id]))
+
+        hdf.close()
+
+        img_norm = mpl.colors.Normalize(vmin=np.log10(-np.percentile(norm_imgs, 33.175)),
+                                        vmax=np.log10(np.percentile(norm_imgs, 99)))
+        sig_norm = mpl.colors.TwoSlopeNorm(vmin=0., vcenter=2.5,
+                                           vmax=np.max(norm_sigs))
         bi_cmap = matplotlib.colors.ListedColormap(['k', 'w'])
+        bounds = [0, 0.5, 1]
+        bi_norm = matplotlib.colors.BoundaryNorm(bounds, bi_cmap.N)
 
         fig = plt.figure(figsize=(10, 10))
-        gs = gridspec.GridSpec(5, 6)
+        gs = gridspec.GridSpec(5, 7, width_ratios=[10, 10, 10, 10, 10, 10, 1])
         gs.update(wspace=0.0, hspace=0.0)
+        caxes = [fig.add_subplot(gs[i, -1]) for i in range(5)]
         axes = np.empty((6, 5), dtype=object)
         for i in range(6):
             for j in range(5):
@@ -175,7 +195,7 @@ for f in filters:
                 ax = axes[i, j]
                 ax.grid(False)
 
-                if j < 2:
+                if j < axes.shape[1]:
                     ax.tick_params(axis='x', top=False, bottom=False,
                                    labeltop=False, labelbottom=False)
                 if i > 0:
@@ -249,15 +269,27 @@ for f in filters:
             plt_img = np.zeros_like(img)
             plt_img[img > 0] = np.log10(img[img > 0])
             print(depth, np.min(plt_img), np.max(plt_img))
-            axes[i, 0].imshow(plt_img, extent=imgextent, cmap="Greys_r")
+            axes[i, 0].imshow(plt_img, extent=imgextent, cmap="Greys_r",
+                              norm=img_norm)
             axes[i, 1].imshow(sig, extent=imgextent, cmap="coolwarm",
                               norm=sig_norm)
-            axes[i, 2].imshow(segm, extent=imgextent, cmap="gist_rainbow")
-            axes[i, 3].imshow(db_segm, extent=imgextent, cmap="gist_rainbow")
+            img_segm = axes[i, 2].imshow(segm, extent=imgextent,
+                                         cmap="gist_rainbow")
+            img_dbsegm = axes[i, 3].imshow(db_segm, extent=imgextent,
+                                           cmap="gist_rainbow")
             axes[i, 4].imshow(resi, extent=imgextent, cmap=bi_cmap)
 
             if not os.path.exists("plots/Gal_imgs"):
                 os.makedirs("plots/Gal_imgs")
+
+            fig.colorbar(mpl.cm.ScalarMappable(norm=img_norm, cmap="Greys_r"),
+                         cax=caxes[0], label='Flux (nJy)')
+            fig.colorbar(mpl.cm.ScalarMappable(norm=sig_norm, cmap="coolwarm"),
+                         cax=caxes[1], label='Flux (nJy)')
+            fig.colorbar(img_segm,
+                         cax=caxes[2], label='Label')
+            fig.colorbar(img_dbsegm,
+                         cax=caxes[3], label='Label')
 
             fig.savefig("plots/Gal_imgs/gal_img_Filter-" + f
                         + "_Region-" + reg + "_Snap-" + snap + "_Group-"
