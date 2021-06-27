@@ -252,7 +252,9 @@ for f in filters:
                         segm = phut.detect_sources(sig, thresh, npixels=5)
                         db_segm = phut.deblend_sources(img, segm, npixels=5,
                                                     nlevels=32, contrast=0.001)
-                        resi = np.abs(segm.data - db_segm.data)
+                        segm = segm.data
+                        db_segm = db_segm.data
+                        resi = np.abs(segm - db_segm)
                         resi[resi > 0] = 1
                     except TypeError:
                         segm = np.zeros((res, res))
@@ -268,7 +270,8 @@ for f in filters:
 
             plt_img = np.zeros_like(img)
             plt_img[img > 0] = np.log10(img[img > 0])
-            print(depth, np.min(plt_img), np.max(plt_img))
+            segm[segm == 0] = np.nan
+            db_segm[db_segm == 0] = np.nan
             axes[i, 0].imshow(plt_img, extent=imgextent, cmap="Greys_r",
                               norm=img_norm)
             axes[i, 1].imshow(sig, extent=imgextent, cmap="coolwarm",
@@ -283,16 +286,17 @@ for f in filters:
                 os.makedirs("plots/Gal_imgs")
 
             fig.colorbar(mpl.cm.ScalarMappable(norm=img_norm, cmap="Greys_r"),
-                         cax=caxes[0], label='Flux (nJy)')
+                         cax=caxes[0], label='Flux (nJy)',fraction=0.046, pad=0.04)
             fig.colorbar(mpl.cm.ScalarMappable(norm=sig_norm, cmap="coolwarm"),
-                         cax=caxes[1], label='Flux (nJy)')
+                         cax=caxes[1], label='Flux (nJy)',fraction=0.046, pad=0.04)
             fig.colorbar(img_segm,
-                         cax=caxes[2], label='Label')
+                         cax=caxes[2], label='Label',fraction=0.046, pad=0.04)
             fig.colorbar(img_dbsegm,
-                         cax=caxes[3], label='Label')
+                         cax=caxes[3], label='Label',fraction=0.046, pad=0.04)
             fig.colorbar(mpl.cm.ScalarMappable(norm=bi_norm, cmap=bi_cmap),
                          cax=caxes[4], ticks=[0, 1], tick_labels=["UC",
-                                                                  "DB"])
+                                                                  "DB"],
+                         fraction=0.046, pad=0.04)
 
             fig.savefig("plots/Gal_imgs/gal_img_Filter-" + f
                         + "_Region-" + reg + "_Snap-" + snap + "_Group-"
