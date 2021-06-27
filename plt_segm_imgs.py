@@ -181,7 +181,7 @@ for f in filters:
         bounds = [0, 0.5, 1]
         bi_norm = matplotlib.colors.BoundaryNorm(bounds, bi_cmap.N)
 
-        fig = plt.figure(figsize=(10, 11))
+        fig = plt.figure(figsize=(10, 12))
         gs = gridspec.GridSpec(5, 7, width_ratios=[10, 10, 10, 10, 10, 10, 1])
         gs.update(wspace=0.0, hspace=0.0)
         axes = np.empty((7, 5), dtype=object)
@@ -285,14 +285,14 @@ for f in filters:
             fig.colorbar(mpl.cm.ScalarMappable(norm=img_norm, cmap="Greys_r"),
                          cax=axes[-1, 0], label='Flux (nJy)',fraction=0.046, pad=0.04)
             fig.colorbar(mpl.cm.ScalarMappable(norm=sig_norm, cmap="coolwarm"),
-                         cax=axes[-1, 1], label='SNR',fraction=0.046, pad=0.04)
+                         cax=axes[-1, 1], label='SNR',fraction=0.04, pad=0.04)
             fig.colorbar(img_segm,
-                         cax=axes[-1, 2], label='Label',fraction=0.046, pad=0.04)
+                         cax=axes[-1, 2], label='Label',fraction=0.04, pad=0.04)
             fig.colorbar(img_dbsegm,
-                         cax=axes[-1, 3], label='Label',fraction=0.046, pad=0.04)
+                         cax=axes[-1, 3], label='Label',fraction=0.04, pad=0.04)
             fig.colorbar(mpl.cm.ScalarMappable(norm=bi_norm, cmap=bi_cmap),
                          cax=axes[-1, 4], ticks=[0, 1],
-                         fraction=0.046, pad=0.04)
+                         fraction=0.04, pad=0.04)
 
             fig.savefig("plots/Gal_imgs/gal_img_Filter-" + f
                         + "_Region-" + reg + "_Snap-" + snap + "_Group-"
