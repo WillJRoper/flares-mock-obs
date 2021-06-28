@@ -399,8 +399,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     cents = []
     out_cents = []
-    ijk = np.zeros(
-        (int(reg_width / r), int(reg_width / r), int(reg_width / r)),
+    ijk = np.full(
+        (int(reg_width / r), int(reg_width / r), int(reg_width / r)), -1,
         dtype=np.int16)
 
     ijk_dict = {}

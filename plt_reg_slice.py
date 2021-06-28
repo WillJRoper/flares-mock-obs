@@ -117,18 +117,6 @@ for f in filters:
             ycents = np.linspace(mins[1] + r, maxs[1] - r, int(reg_width / r))
             zcents = np.linspace(mins[2] + r, maxs[2] - r, int(reg_width / r))
 
-            cents = []
-            ijk = np.zeros((int(reg_width / r), int(reg_width / r), int(reg_width / r)))
-            num = 0
-            for i, x in enumerate(xcents):
-                for j, y in enumerate(ycents):
-                    for k, z in enumerate(zcents):
-                        cents.append(np.array([x, y, z]))
-                        ijk[i, j, k] = num
-                        num += 1
-
-            cents = np.array(cents)
-
             kth = int(reg_width / r) // 2
 
             print("Filter:", f)
@@ -144,6 +132,8 @@ for f in filters:
             hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
 
+            ijk = hdf["ijk"][:]
+
             try:
                 fdepth_group = hdf[str(depth)]
 
@@ -155,16 +145,15 @@ for f in filters:
                 hdf.close()
                 continue
 
-            for i in range(xcents.size):
-                for j in range(ycents.size):
+            for i in range(ijk.shape[0]):
+                for j in range(ijk.shape[1]):
                     img_id = ijk[i, j, kth]
-                    if int(img_id) in img_ids:
-                        print(i, j, kth, img_id, np.sum(imgs[img_ids == img_id, :, :]))
-                        reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res,] = imgs[img_ids == img_id, :, :]
+                    if img_id > 0:
+                        reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res] = imgs[img_id, :, :]
                     else:
                         noise = image_creator.pixel.noise * np.random.randn(res,
                                                                             res)
-                        reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ] = noise
+                        reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res] = noise
 
             hdf.close()
 

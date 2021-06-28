@@ -147,6 +147,7 @@ for f in filters:
     hdf.close()
 
     if max_imgs.size == 0:
+        print(max_imgs.shape)
         continue
 
     sinds = np.argsort(group_len)[::-1]
