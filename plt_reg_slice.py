@@ -131,7 +131,7 @@ for f in filters:
 
             hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
-            
+
             ijk = hdf["Cell_Image_Number"][:]
 
             try:
@@ -152,6 +152,7 @@ for f in filters:
                         reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res] = imgs[img_id, :, :]
                     else:
                         noise = image_creator.pixel.noise * np.random.randn(res, res)
+                        print(reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res].shape, noise.shape, i * res, (i + 1) * res, j * res, (j + 1) * res)
                         reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res] = noise
 
             hdf.close()
