@@ -50,9 +50,10 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-filters = [f'Hubble.ACS.{f}'
-           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
-          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+filters = [f'Hubble.WFC3.{f}'
+           for f in ['f105w', 'f125w', 'f140w', 'f160w']] + \
+          [f'Hubble.ACS.{f}'
+           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']]
 
 depths = [0.1, 1, 5, 10, 20]
 
@@ -102,21 +103,6 @@ for f in filters:
 
             ind = 0
 
-            r = width / arcsec_per_kpc_proper / 1000
-
-            path = '/cosma/home/dp004/dc-rope1/FLARES/FLARES-1/G-EAGLE_' + reg + '/data'
-
-            cen, radius, _ = util.spherical_region(path, snap)
-
-            mins = cen - radius
-            maxs = cen + radius
-            reg_width = 2 * radius
-            print(int(reg_width / r), "images along each axis,",
-                  int(reg_width / r) ** 3, "total, with a width of", reg_width)
-            xcents = np.linspace(mins[0] + r, maxs[0] - r, int(reg_width / r))
-            ycents = np.linspace(mins[1] + r, maxs[1] - r, int(reg_width / r))
-            zcents = np.linspace(mins[2] + r, maxs[2] - r, int(reg_width / r))
-
             print("Filter:", f)
             print("Image width and resolution (in arcseconds):", width * xcents.size, arc_res)
             print("Image width and resolution (in pkpc):",
@@ -152,7 +138,7 @@ for f in filters:
                         reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res] = imgs[img_id, :, :]
                     else:
                         noise = image_creator.pixel.noise * np.random.randn(res, res)
-                        print(reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res].shape, noise.shape, i * res, (i + 1) * res, j * res, (j + 1) * res)
+                        print(i, j, i * res, (i + 1) * res, j * res, (j + 1) * res)
                         reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res] = noise
 
             hdf.close()
