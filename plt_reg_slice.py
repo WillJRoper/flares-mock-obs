@@ -103,13 +103,6 @@ for f in filters:
 
             ind = 0
 
-            print("Filter:", f)
-            print("Image width and resolution (in arcseconds):", width * xcents.size, arc_res)
-            print("Image width and resolution (in pkpc):",
-                  width / arcsec_per_kpc_proper * xcents.size,
-                  arc_res / arcsec_per_kpc_proper)
-            print("Image width (in pixels):", res * xcents.size)
-
             hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
 
@@ -119,6 +112,13 @@ for f in filters:
                                 ijk.shape[1] * res), dtype=np.float32)
 
             kth = ijk.shape[0] // 2
+
+            print("Filter:", f)
+            print("Image width and resolution (in arcseconds):", width * ijk.shape[0], arc_res)
+            print("Image width and resolution (in pkpc):",
+                  width / arcsec_per_kpc_proper * ijk.shape[0],
+                  arc_res / arcsec_per_kpc_proper)
+            print("Image width (in pixels):", res * ijk.shape[0])
 
             try:
                 fdepth_group = hdf[str(depth)]
