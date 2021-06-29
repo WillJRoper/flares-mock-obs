@@ -131,8 +131,8 @@ for f in filters:
 
             hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
-
-            ijk = hdf["ijk"][:]
+            
+            ijk = hdf["Cell_Image_Number"][:]
 
             try:
                 fdepth_group = hdf[str(depth)]
