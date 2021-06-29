@@ -117,8 +117,6 @@ for f in filters:
             ycents = np.linspace(mins[1] + r, maxs[1] - r, int(reg_width / r))
             zcents = np.linspace(mins[2] + r, maxs[2] - r, int(reg_width / r))
 
-            kth = int(reg_width / r) // 2
-
             print("Filter:", f)
             print("Image width and resolution (in arcseconds):", width * xcents.size, arc_res)
             print("Image width and resolution (in pkpc):",
@@ -126,13 +124,15 @@ for f in filters:
                   arc_res / arcsec_per_kpc_proper)
             print("Image width (in pixels):", res * xcents.size)
 
-            reg_img = np.zeros((int(reg_width / r) * res,
-                                int(reg_width / r) * res), dtype=np.float32)
-
             hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
 
             ijk = hdf["Cell_Image_Number"][:]
+
+            reg_img = np.zeros((ijk.shape[0] * res,
+                                ijk.shape[1] * res), dtype=np.float32)
+
+            kth = ijk.shape[0] // 2
 
             try:
                 fdepth_group = hdf[str(depth)]
