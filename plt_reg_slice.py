@@ -151,8 +151,7 @@ for f in filters:
                     if img_id > 0:
                         reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res] = imgs[img_id, :, :]
                     else:
-                        noise = image_creator.pixel.noise * np.random.randn(res,
-                                                                            res)
+                        noise = image_creator.pixel.noise * np.random.randn(res, res)
                         reg_img[i * res: (i + 1) * res, j * res: (j + 1) * res] = noise
 
             hdf.close()
