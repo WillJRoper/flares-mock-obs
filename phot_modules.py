@@ -391,11 +391,11 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     mins = cen - radius
     maxs = cen + radius
     reg_width = 2 * radius
-    print(int(reg_width / r), "images along each axis,",
-          int(reg_width / r)**3, "total, with a width of", reg_width)
-    xcents = np.linspace(mins[0] + r, maxs[0] - r, int(reg_width / r))
-    ycents = np.linspace(mins[1] + r, maxs[1] - r, int(reg_width / r))
-    zcents = np.linspace(mins[2] + r, maxs[2] - r, int(reg_width / r))
+    print(int(reg_width / width), "images along each axis,",
+          int(reg_width / width)**3, "total, with a width of", reg_width)
+    xcents = np.linspace(mins[0] + (width / 2), maxs[0] - (width / 2), int(reg_width / width))
+    ycents = np.linspace(mins[1] + (width / 2), maxs[1] - (width / 2), int(reg_width / width))
+    zcents = np.linspace(mins[2] + (width / 2), maxs[2] - (width / 2), int(reg_width / width))
 
     cents = []
     out_cents = []
