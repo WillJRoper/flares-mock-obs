@@ -240,7 +240,7 @@ for num, depth in enumerate(depths):
                 imgs = fdepth_group["Images"][...]
                 noises = fdepth_group["Noise_value"][...]
 
-                if f == filters[0]:
+                if f == detect_filters[0]:
 
                     detection_img = np.zeros_like(imgs)
                     weight_img = np.zeros_like(noises)
@@ -249,7 +249,6 @@ for num, depth in enumerate(depths):
                 detection_img += (imgs / noises[:, None, None]**2)
                 weight_img += (1 / noises**2)
                 noise_img += (1 / noises)
-
 
                 hdf.close()
 
