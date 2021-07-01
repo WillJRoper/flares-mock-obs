@@ -165,7 +165,8 @@ for reg in regions:
                            labelleft=False, labelright=False)
 
             norm = mpl.colors.Normalize(vmin=0,
-                                        vmax=np.percentile(rgb_img, 99))
+                                        vmax=np.percentile(rgb_img, 99),
+                                        clip=True)
 
             plt_img = norm(rgb_img)
 
