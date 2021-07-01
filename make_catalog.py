@@ -214,22 +214,34 @@ for num, depth in enumerate(depths):
                 fdepth_group = hdf[str(depth)]
 
                 imgs = fdepth_group["Images"][...]
-                img_ids = fdepth_group["Image_ID"][...]
                 noises = fdepth_group["Noise_value"][...]
 
                 if f == filters[0]:
 
                     detection_img = np.zeros_like(imgs)
                     weight_img = np.zeros_like(noises)
+                    noise_img = np.zeros_like(noises)
+
+                detection_img += (imgs / noises**2)
+                weight_img += (1 / noises**2)
+                noise_img += (1 / noises)
+
+
+                hdf.close()
 
             except KeyError as e:
                 print(e)
                 hdf.close()
                 continue
 
+        detection_img /= weight_img
+        noise_img /= weight_img
+
+        sig = detection_img / noise_img
+
         try:
             segm = phut.detect_sources(sig, thresh, npixels=5)
-            segm = phut.deblend_sources(img, segm, npixels=5,
+            segm = phut.deblend_sources(detection_img, segm, npixels=5,
                                         nlevels=32, contrast=0.001)
         except TypeError as e:
             print(e)

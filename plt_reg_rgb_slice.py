@@ -158,8 +158,6 @@ for reg in regions:
                 for i in range(ijk.shape[0]):
                     for j in range(ijk.shape[1]):
                         img_id = ijk[i, j, kth]
-                        print(i, j, i * res, (i + 1) * res, j * res,
-                              (j + 1) * res)
                         if img_id >= 0:
                             rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += imgs[img_id, :, :] * (1 / noise[img_id]**2)
                             rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[img_id]**2
@@ -171,7 +169,7 @@ for reg in regions:
                 hdf.close()
 
         rgb_img /= rgb_wht
-        print(rgb_img.max(), rgb_img.min()), np.percentile(rgb_img, 99)
+        print(rgb_img.max(), rgb_img.min(), np.percentile(rgb_img, 99))
         plt_img = np.zeros(rgb_img.shape)
         plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
         plt_img[rgb_img <= 0] = 0
@@ -180,10 +178,10 @@ for reg in regions:
         fig = plt.figure(figsize=(1, 1), dpi=dpi)
         ax = fig.add_subplot(111)
 
-        norm = mpl.colors.Normalize(vmin=0,
-                                    vmax=np.percentile(plt_img, 99))
+        # norm = mpl.colors.Normalize(vmin=0,
+        #                             vmax=np.percentile(plt_img, 99))
 
-        plt_img = norm(plt_img)
+        # plt_img = norm(plt_img)
 
         print(plt_img.max(), plt_img.min())
 
