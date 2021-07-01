@@ -172,22 +172,22 @@ for reg in regions:
 
         rgb_img /= rgb_wht
         print(rgb_img.max(), rgb_img.min()), np.percentile(rgb_img, 99)
-        # plt_img = np.zeros(rgb_img.shape)
-        # plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
-        # plt_img[rgb_img <= 0] = np.nan
+        plt_img = np.zeros(rgb_img.shape)
+        plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
+        plt_img[rgb_img <= 0] = 0
 
         dpi = rgb_img.shape[0] / 2
         fig = plt.figure(figsize=(1, 1), dpi=dpi)
         ax = fig.add_subplot(111)
 
         norm = mpl.colors.Normalize(vmin=0,
-                                    vmax=np.percentile(rgb_img, 99))
+                                    vmax=np.percentile(plt_img, 99))
 
-        rgb_img = norm(rgb_img)
+        plt_img = norm(plt_img)
 
-        print(rgb_img.max(), rgb_img.min())
+        print(plt_img.max(), plt_img.min())
 
-        ax.imshow(rgb_img)
+        ax.imshow(plt_img)
 
         if not os.path.exists("plots/Region_slices"):
             os.makedirs("plots/Region_slices")
