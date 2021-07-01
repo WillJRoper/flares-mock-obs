@@ -127,9 +127,7 @@ for reg in regions:
 
                 for f in rgb_filters[key]:
 
-                    print(f, reg, snap)
-
-                    print("Filter:", f)
+                    print(f, reg, snap, img_ind)
 
                     hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                                     .format(reg, snap, Type, orientation, f),
@@ -152,9 +150,10 @@ for reg in regions:
 
             rgb_img /= rgb_wht
             print(rgb_img.max(), rgb_img.min(), np.percentile(rgb_img, 99))
+
             plt_img = np.zeros(rgb_img.shape)
             plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
-            plt_img[rgb_img <= 0] = 0
+            plt_img[rgb_img <= 0] = np.nan
 
             dpi = rgb_img.shape[0]
             fig = plt.figure(figsize=(1, 1), dpi=dpi)
@@ -170,7 +169,7 @@ for reg in regions:
 
             plt_img = norm(plt_img)
 
-            print(plt_img.max(), plt_img.min())
+            print(plt_img.max(), plt_img.min(), np.percentile(plt_img, 99))
 
             ax.imshow(plt_img)
 
