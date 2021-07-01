@@ -169,28 +169,27 @@ for reg in regions:
                 hdf.close()
 
         rgb_img /= rgb_wht
-        print(rgb_img.max(), rgb_img.min(), np.percentile(rgb_img, 99))
-        plt_img = np.zeros(rgb_img.shape)
-        plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
-        plt_img[rgb_img <= 0] = 0
 
-        dpi = rgb_img.shape[0] / 2
+        # plt_img = np.zeros(rgb_img.shape)
+        # plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
+        # plt_img[rgb_img <= 0] = np.nan
+
+        dpi = rgb_img.shape[0]
         fig = plt.figure(figsize=(1, 1), dpi=dpi)
         ax = fig.add_subplot(111)
-
-        # norm = mpl.colors.Normalize(vmin=0,
-        #                             vmax=np.percentile(plt_img, 99))
-
-        # plt_img = norm(plt_img)
-
-        print(plt_img.max(), plt_img.min())
-
-        ax.imshow(plt_img)
 
         ax.tick_params(axis='x', top=False, bottom=False,
                        labeltop=False, labelbottom=False)
         ax.tick_params(axis='y', left=False, right=False,
                        labelleft=False, labelright=False)
+
+        norm = mpl.colors.Normalize(vmin=0,
+                                    vmax=np.percentile(rgb_img, 99),
+                                    clip=True)
+
+        plt_img = norm(rgb_img)
+
+        ax.imshow(plt_img)
 
         if not os.path.exists("plots/Region_slices"):
             os.makedirs("plots/Region_slices")
