@@ -166,7 +166,7 @@ for reg in regions:
             ax.tick_params(axis='y', left=False, right=False,
                            labelleft=False, labelright=False)
 
-            norm = mpl.colors.Normalize(vmin=0,
+            norm = mpl.colors.Normalize(vmin=np.percentile(plt_img, 31.75),
                                         vmax=np.percentile(plt_img, 99))
 
             plt_img = norm(plt_img)
