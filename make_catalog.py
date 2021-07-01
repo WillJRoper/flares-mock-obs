@@ -246,7 +246,7 @@ for num, depth in enumerate(depths):
                     weight_img = np.zeros_like(noises)
                     noise_img = np.zeros_like(noises)
 
-                detection_img += (imgs / noises**2)
+                detection_img += (imgs / noises[:, None, None]**2)
                 weight_img += (1 / noises**2)
                 noise_img += (1 / noises)
 
