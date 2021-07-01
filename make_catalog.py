@@ -131,23 +131,23 @@ subf_img_num = {}
 subf_begin = {}
 subf_len = {}
 
-for f in filters:
+for num, depth in enumerate(depths):
 
-    # --- initialise ImageCreator object
-    image_creator = imagesim.Idealised(f, field)
+    if depth == "SUBFIND":
 
-    arc_res = image_creator.pixel_scale
-    kpc_res = arc_res / arcsec_per_kpc_proper
+        for f in filters:
 
-    for num, depth in enumerate(depths):
+            # --- initialise ImageCreator object
+            image_creator = imagesim.Idealised(f, field)
 
-        print("Getting sources with orientation {o}, type {t}, "
-              "and extinction {e} for region {x}, "
-              "snapshot {u}, filter {i}, and depth {d}"
-              .format(o=orientation, t=Type, e=extinction, x=reg,
-                      u=snap, i=f, d=depth))
+            arc_res = image_creator.pixel_scale
+            kpc_res = arc_res / arcsec_per_kpc_proper
 
-        if depth == "SUBFIND":
+            print("Getting sources with orientation {o}, type {t}, "
+                  "and extinction {e} for region {x}, "
+                  "snapshot {u}, filter {i}, and depth {d}"
+                  .format(o=orientation, t=Type, e=extinction, x=reg,
+                          u=snap, i=f, d=depth))
 
             try:
                 hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
@@ -191,7 +191,21 @@ for f in filters:
                 subf_data[f + "." + str(depth)].setdefault("Image_Length", []).append(len(this_flux))
                 subf_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full_like(this_flux, img_num))
 
-        else:
+    else:
+
+        for f in filters:
+
+            # --- initialise ImageCreator object
+            image_creator = imagesim.Idealised(f, field)
+
+            arc_res = image_creator.pixel_scale
+            kpc_res = arc_res / arcsec_per_kpc_proper
+
+            print("Getting sources with orientation {o}, type {t}, "
+                  "and extinction {e} for region {x}, "
+                  "snapshot {u}, filter {i}, and depth {d}"
+                  .format(o=orientation, t=Type, e=extinction, x=reg,
+                          u=snap, i=f, d=depth))
 
             hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
@@ -199,9 +213,55 @@ for f in filters:
             try:
                 fdepth_group = hdf[str(depth)]
 
-                imgs = fdepth_group["Images"]
+                imgs = fdepth_group["Images"][...]
                 img_ids = fdepth_group["Image_ID"][...]
-                noises = fdepth_group["Noise_value"]
+                noises = fdepth_group["Noise_value"][...]
+
+                if f == filters[0]:
+
+                    detection_img = np.zeros_like(imgs)
+                    weight_img = np.zeros_like(noises)
+
+            except KeyError as e:
+                print(e)
+                hdf.close()
+                continue
+
+        try:
+            segm = phut.detect_sources(sig, thresh, npixels=5)
+            segm = phut.deblend_sources(img, segm, npixels=5,
+                                        nlevels=32, contrast=0.001)
+        except TypeError as e:
+            print(e)
+            continue
+
+        for f in filters:
+
+            # --- initialise ImageCreator object
+            image_creator = imagesim.Idealised(f, field)
+
+            arc_res = image_creator.pixel_scale
+            kpc_res = arc_res / arcsec_per_kpc_proper
+
+            print("Getting sources with orientation {o}, type {t}, "
+                  "and extinction {e} for region {x}, "
+                  "snapshot {u}, filter {i}, and depth {d}"
+                  .format(o=orientation, t=Type, e=extinction, x=reg,
+                          u=snap, i=f, d=depth))
+
+            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                            .format(reg, snap, Type, orientation, f), "r")
+
+            try:
+                fdepth_group = hdf[str(depth)]
+
+                imgs = fdepth_group["Images"][...]
+                img_ids = fdepth_group["Image_ID"][...]
+                noises = fdepth_group["Noise_value"][...]
+
+                if f == filters[0]:
+                    detection_img = np.zeros_like(imgs)
+                    weight_img = np.zeros_like(noises)
 
             except KeyError as e:
                 print(e)
@@ -214,14 +274,6 @@ for f in filters:
                 sig = img / noises[ind]
 
                 if sig.max() < thresh:
-                    continue
-
-                try:
-                    segm = phut.detect_sources(sig, thresh, npixels=5)
-                    segm = phut.deblend_sources(img, segm, npixels=5,
-                                                nlevels=32, contrast=0.001)
-                except TypeError as e:
-                    print(e)
                     continue
 
                 source_cat = SourceCatalog(img, segm, error=None, mask=None,

@@ -171,12 +171,12 @@ for reg in regions:
                 hdf.close()
 
         rgb_img /= rgb_wht
-        print(rgb_img.max(), rgb_img.min())
+        print(rgb_img.max(), rgb_img.min()), np.percentile(rgb_img, 99)
         # plt_img = np.zeros(rgb_img.shape)
         # plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
         # plt_img[rgb_img <= 0] = np.nan
 
-        dpi = rgb_img.shape[0]
+        dpi = rgb_img.shape[0] / 2
         fig = plt.figure(figsize=(1, 1), dpi=dpi)
         ax = fig.add_subplot(111)
 
