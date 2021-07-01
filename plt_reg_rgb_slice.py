@@ -165,7 +165,7 @@ for reg in regions:
                             rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[img_id]**2
                         else:
                             noise_img = image_creator.pixel.noise * np.random.randn(res, res)
-                            rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += noise_img * 1 / noise[0]**2
+                            rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += noise_img / noise[0]**2
                             rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[0]**2
 
                 hdf.close()
@@ -176,13 +176,18 @@ for reg in regions:
         # plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
         # plt_img[rgb_img <= 0] = np.nan
 
-        fig = plt.figure(figsize=(10, 10))
+        dpi = rgb_img.shape[0]
+        fig = plt.figure(figsize=(1, 1), dpi=dpi)
         ax = fig.add_subplot(111)
 
-        norm = mpl.colors.Normalize(vmin=-np.percentile(rgb_img, 33.175),
+        norm = mpl.colors.Normalize(vmin=0,
                                     vmax=np.percentile(rgb_img, 99))
 
-        ax.imshow(rgb_img, norm=norm)
+        rgb_img = norm(rgb_img)
+
+        print(rgb_img.max(), rgb_img.min())
+
+        ax.imshow(rgb_img)
 
         if not os.path.exists("plots/Region_slices"):
             os.makedirs("plots/Region_slices")
@@ -194,7 +199,7 @@ for reg in regions:
                     + "_Type-" + Type
                     + "_Region-" + reg
                     + "_Snap-" + snap + ".png",
-                    dpi=600, bbox_inches="tight")
+                    bbox_inches="tight")
         plt.close(fig)
 
 
