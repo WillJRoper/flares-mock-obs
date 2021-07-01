@@ -149,7 +149,7 @@ for reg in regions:
                     imgs = fdepth_group["Images"]
                     img_ids = fdepth_group["Image_ID"][...]
                     noise = fdepth_group["Noise_value"][...]
-
+                    print(noise)
                 except KeyError as e:
                     print(e)
                     hdf.close()
@@ -163,8 +163,8 @@ for reg in regions:
                             rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[img_id]**2
                         else:
                             noise_img = image_creator.pixel.noise * np.random.randn(res, res)
-                            # rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += noise_img / image_creator.pixel.noise**2
-                            # rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / image_creator.pixel.noise**2
+                            rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += noise_img / image_creator.pixel.noise**2
+                            rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / image_creator.pixel.noise**2
 
                 hdf.close()
 
