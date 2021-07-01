@@ -133,7 +133,8 @@ units = {'label': "None", 'xcentroid': "pixels", 'ycentroid': "pixels",
          'kron_flux': "nJy", 'kron_fluxerr': "nJy",
          "inertia_tensor": "None", "kron_radius": "pixels",
          "Kron_HLR": "pkpc", 'Fluxes': "nJy", "Start_Index": "None",
-         "Image_ID": "None", "Image_Length": "None"}
+         "Image_ID": "None", "Image_Length": "None", "SNR_segm": "None",
+         "SNR_Kron": "None"}
 
 hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                     .format(reg, tag, Type, orientation), "w")
@@ -286,7 +287,7 @@ for num, depth in enumerate(depths):
 
                 imgs = fdepth_group["Images"]
                 # img_ids = fdepth_group["Image_ID"][...]
-                # noises = fdepth_group["Noise_value"][...]
+                noises = fdepth_group["Noise_value"]
 
             except KeyError as e:
                 print(e)
@@ -296,6 +297,7 @@ for num, depth in enumerate(depths):
             for ind, img_id in zip(range(imgs.shape[0]), img_ids):
 
                 img = imgs[ind, :, :]
+                n = noises[ind]
 
                 source_cat = SourceCatalog(img, segm, error=None, mask=None,
                                            kernel=None, background=None,
@@ -313,6 +315,8 @@ for num, depth in enumerate(depths):
                 tab = source_cat.to_table(columns=quantities)
                 for key in tab.colnames:
                     obs_data[f + "." + str(depth)].setdefault(key, []).extend(tab[key])
+                obs_data[f + "." + str(depth)].setdefault("SNR_segm", []).extend(tab['segment_flux'] / n)
+                obs_data[f + "." + str(depth)].setdefault("SNR_Kron", []).extend(tab['kron_flux'] / n)
                 obs_data[f + "." + str(depth)].setdefault("Image_ID", []).extend(np.full(tab["label"].size, img_id))
                 obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_data[f + "." + str(depth)]["Image_ID"]))
                 obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
