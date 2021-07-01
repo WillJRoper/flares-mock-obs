@@ -152,8 +152,10 @@ for reg in regions:
             print(rgb_img.max(), rgb_img.min(), np.percentile(rgb_img, 99))
 
             plt_img = np.zeros(rgb_img.shape)
+            print(np.unique(rgb_img > 0))
+            print(np.log10(rgb_img[rgb_img > 0]))
             plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
-            plt_img[rgb_img <= 0] = np.nan
+            plt_img[rgb_img <= 0] = 0
 
             dpi = rgb_img.shape[0]
             fig = plt.figure(figsize=(1, 1), dpi=dpi)
