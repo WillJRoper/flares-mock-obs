@@ -151,11 +151,9 @@ for reg in regions:
             rgb_img /= rgb_wht
             print(rgb_img.max(), rgb_img.min(), np.percentile(rgb_img, 99))
 
-            plt_img = np.zeros(rgb_img.shape)
-            print(np.unique(rgb_img > 0))
-            print(np.log10(rgb_img[rgb_img > 0]))
-            plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
-            plt_img[rgb_img <= 0] = 0
+            # plt_img = np.zeros(rgb_img.shape)
+            # plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
+            # plt_img[rgb_img <= 0] = np.nan
 
             dpi = rgb_img.shape[0]
             fig = plt.figure(figsize=(1, 1), dpi=dpi)
@@ -166,10 +164,10 @@ for reg in regions:
             ax.tick_params(axis='y', left=False, right=False,
                            labelleft=False, labelright=False)
 
-            norm = mpl.colors.Normalize(vmin=np.percentile(plt_img, 31.75),
-                                        vmax=np.percentile(plt_img, 99))
+            norm = mpl.colors.Normalize(vmin=0,
+                                        vmax=np.percentile(rgb_img, 99))
 
-            plt_img = norm(plt_img)
+            plt_img = norm(rgb_img)
 
             print(plt_img.max(), plt_img.min(), np.percentile(plt_img, 99))
 
