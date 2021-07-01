@@ -150,6 +150,11 @@ for f in filters:
             fig = plt.figure(figsize=(10, 10))
             ax = fig.add_subplot(111)
 
+            ax.tick_params(axis='x', top=False, bottom=False,
+                           labeltop=False, labelbottom=False)
+            ax.tick_params(axis='y', left=False, right=False,
+                           labelleft=False, labelright=False)
+
             ax.imshow(plt_img, cmap="plasma",
                       vmin=np.percentile(plt_img, 33.175),
                       vmax=np.percentile(plt_img, 99))

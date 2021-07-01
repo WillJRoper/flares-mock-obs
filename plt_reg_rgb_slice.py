@@ -187,6 +187,11 @@ for reg in regions:
 
         ax.imshow(plt_img)
 
+        ax.tick_params(axis='x', top=False, bottom=False,
+                       labeltop=False, labelbottom=False)
+        ax.tick_params(axis='y', left=False, right=False,
+                       labelleft=False, labelright=False)
+
         if not os.path.exists("plots/Region_slices"):
             os.makedirs("plots/Region_slices")
         if not os.path.exists("plots/Region_slices/{}".format(reg)):
