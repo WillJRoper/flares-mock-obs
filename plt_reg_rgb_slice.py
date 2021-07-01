@@ -171,23 +171,28 @@ for reg in regions:
                 hdf.close()
 
         rgb_img /= rgb_wht
-        plt_img = np.zeros(rgb_img.shape)
-        plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
-        plt_img[rgb_img <= 0] = np.nan
+        print(rgb_img.max(), rgb_img.min())
+        # plt_img = np.zeros(rgb_img.shape)
+        # plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
+        # plt_img[rgb_img <= 0] = np.nan
 
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111)
 
-        ax.imshow(plt_img, vmin=np.percentile(plt_img, 33.175), vmax=np.percentile(plt_img, 99))
+        norm = mpl.colors.Normalize(vmin=-np.percentile(rgb_img, 33.175), vmax=np.percentile(rgb_img, 99))
+
+        ax.imshow(rgb_img, norm=norm)
 
         if not os.path.exists("plots/Region_slices"):
             os.makedirs("plots/Region_slices")
         if not os.path.exists("plots/Region_slices/{}".format(reg)):
             os.makedirs("plots/Region_slices/{}".format(reg))
 
-        fig.savefig("plots/Region_slices/" + reg + "/rgb_region_img_Filter-" + f + "_Orientation-"
-                    + orientation + "_Type-" + Type
-                    + "_Region-" + reg + "_Snap-" + snap + ".png",
+        fig.savefig("plots/Region_slices/" + reg
+                    + "/rgb_region_img_Orientation-" + orientation
+                    + "_Type-" + Type
+                    + "_Region-" + reg
+                    + "_Snap-" + snap + ".png",
                     dpi=600, bbox_inches="tight")
         plt.close(fig)
 
