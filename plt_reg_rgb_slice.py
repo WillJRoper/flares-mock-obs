@@ -161,12 +161,12 @@ for reg in regions:
                         print(i, j, i * res, (i + 1) * res, j * res,
                               (j + 1) * res)
                         if img_id >= 0:
-                            rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += imgs[img_id, :, :] * noise[img_id]
-                            rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += noise[img_id]
+                            rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += imgs[img_id, :, :] * (1 / noise[img_id]**2)
+                            rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[img_id]**2
                         else:
                             noise_img = image_creator.pixel.noise * np.random.randn(res, res)
-                            rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += noise_img * noise[0]
-                            rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += noise[0]
+                            rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += noise_img * 1 / noise[0]**2
+                            rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[0]**2
 
                 hdf.close()
 
@@ -179,7 +179,8 @@ for reg in regions:
         fig = plt.figure(figsize=(10, 10))
         ax = fig.add_subplot(111)
 
-        norm = mpl.colors.Normalize(vmin=-np.percentile(rgb_img, 33.175), vmax=np.percentile(rgb_img, 99))
+        norm = mpl.colors.Normalize(vmin=-np.percentile(rgb_img, 33.175),
+                                    vmax=np.percentile(rgb_img, 99))
 
         ax.imshow(rgb_img, norm=norm)
 
