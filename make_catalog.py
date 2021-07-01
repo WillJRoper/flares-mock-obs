@@ -65,12 +65,29 @@ print("Computing HLRs with orientation {o}, type {t}, and extinction {e}"
       " for region {x} and snapshot {u}".format(o=orientation, t=Type,
                                                e=extinction, x=reg, u=tag))
 
+z_str = snap.split('z')[1].split('p')
+z = float(z_str[0] + '.' + z_str[1])
+
 # Define filter
 filters = [f'Hubble.ACS.{f}'
            for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
           + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 depths = [0.1, 1, 5, 10, 20, "SUBFIND"]
+
+# Remove filters beyond the lyman break
+detect_filters = []
+for f in filters:
+    filt = f.split(".")[-1]
+    if len(filt) == 5:
+        wl = int(filt[1:-1])
+    else:
+        wl = int(filt[1:-2])
+    if wl * 10 < (912 * (1 + z)):
+        detect_filters.append(f)
+
+print("Lyman break at", 912 * (1 + z), "A")
+print(detect_filters)
 
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
@@ -193,7 +210,7 @@ for num, depth in enumerate(depths):
 
     else:
 
-        for f in filters:
+        for f in detect_filters:
 
             # --- initialise ImageCreator object
             image_creator = imagesim.Idealised(f, field)
@@ -267,13 +284,9 @@ for num, depth in enumerate(depths):
             try:
                 fdepth_group = hdf[str(depth)]
 
-                imgs = fdepth_group["Images"][...]
-                img_ids = fdepth_group["Image_ID"][...]
-                noises = fdepth_group["Noise_value"][...]
-
-                if f == filters[0]:
-                    detection_img = np.zeros_like(imgs)
-                    weight_img = np.zeros_like(noises)
+                imgs = fdepth_group["Images"]
+                # img_ids = fdepth_group["Image_ID"][...]
+                # noises = fdepth_group["Noise_value"][...]
 
             except KeyError as e:
                 print(e)
@@ -283,10 +296,6 @@ for num, depth in enumerate(depths):
             for ind, img_id in zip(range(imgs.shape[0]), img_ids):
 
                 img = imgs[ind, :, :]
-                sig = img / noises[ind]
-
-                if sig.max() < thresh:
-                    continue
 
                 source_cat = SourceCatalog(img, segm, error=None, mask=None,
                                            kernel=None, background=None,
@@ -308,7 +317,7 @@ for num, depth in enumerate(depths):
                 obs_data[f + "." + str(depth)].setdefault("Start_Index", []).append(len(obs_data[f + "." + str(depth)]["Image_ID"]))
                 obs_data[f + "." + str(depth)].setdefault("Image_Length", []).append(tab["label"].size)
 
-        hdf.close()
+            hdf.close()
 
 for f in filters:
     f_cat_group = hdf_cat.create_group(f)
