@@ -112,6 +112,8 @@ for reg in regions:
 
         img_ids = fdepth_group["Image_ID"][...]
 
+        hdf.close()
+
         for img_ind in img_ids:
 
             rgb_img = np.zeros((res,
@@ -129,6 +131,9 @@ for reg in regions:
 
                     print("Filter:", f)
 
+                    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                                    .format(reg, snap, Type, orientation, f),
+                                    "r")
                     try:
                         fdepth_group = hdf[str(depth)]
 
@@ -162,7 +167,7 @@ for reg in regions:
 
             norm = mpl.colors.Normalize(vmin=0,
                                         vmax=np.percentile(plt_img, 99))
-    
+
             plt_img = norm(plt_img)
 
             print(plt_img.max(), plt_img.min())
