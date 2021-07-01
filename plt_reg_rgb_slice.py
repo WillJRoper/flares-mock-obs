@@ -174,7 +174,7 @@ for reg in regions:
         # plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
         # plt_img[rgb_img <= 0] = np.nan
 
-        dpi = rgb_img.shape[0]
+        dpi = rgb_img.shape[0] / 2
         fig = plt.figure(figsize=(1, 1), dpi=dpi)
         ax = fig.add_subplot(111)
 
