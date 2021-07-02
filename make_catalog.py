@@ -301,7 +301,8 @@ for num, depth in enumerate(depths):
                 img = imgs[ind, :, :]
                 n = noises[ind]
 
-                source_cat = SourceCatalog(img, segm, error=None, mask=None,
+                source_cat = SourceCatalog(img, segm.data[ind, :, :],
+                                           error=None, mask=None,
                                            kernel=None, background=None,
                                            wcs=None, localbkg_width=0,
                                            apermask_method='correct',
