@@ -149,7 +149,7 @@ for reg in regions:
                     imgs = fdepth_group["Images"]
                     img_ids = fdepth_group["Image_ID"][...]
                     noise = fdepth_group["Noise_value"][...]
-                    print(noise)
+
                 except KeyError as e:
                     print(e)
                     hdf.close()

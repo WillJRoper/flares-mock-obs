@@ -225,11 +225,8 @@ for num, depth in enumerate(depths):
             arc_res = image_creator.pixel_scale
             kpc_res = arc_res / arcsec_per_kpc_proper
 
-            print("Getting sources with orientation {o}, type {t}, "
-                  "and extinction {e} for region {x}, "
-                  "snapshot {u}, filter {i}, and depth {d}"
-                  .format(o=orientation, t=Type, e=extinction, x=reg,
-                          u=snap, i=f, d=depth))
+            print("Creating detection image for filter {i}, and depth {d}"
+                  .format(i=f, d=depth))
 
             hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
@@ -291,7 +288,7 @@ for num, depth in enumerate(depths):
                 fdepth_group = hdf[str(depth)]
 
                 imgs = fdepth_group["Images"]
-                # img_ids = fdepth_group["Image_ID"][...]
+                img_ids = fdepth_group["Image_ID"][...]
                 noises = fdepth_group["Noise_value"]
 
             except KeyError as e:
