@@ -259,14 +259,6 @@ for num, depth in enumerate(depths):
 
         sig = detection_img / noise_img[:, None, None]
 
-        try:
-            segm = phut.detect_sources(sig, thresh, npixels=5)
-            segm = phut.deblend_sources(detection_img, segm, npixels=5,
-                                        nlevels=32, contrast=0.001)
-        except TypeError as e:
-            print(e)
-            continue
-
         for f in filters:
 
             # --- initialise ImageCreator object
@@ -298,10 +290,19 @@ for num, depth in enumerate(depths):
 
             for ind, img_id in zip(range(imgs.shape[0]), img_ids):
 
+                try:
+                    segm = phut.detect_sources(sig[ind, :, :], thresh, npixels=5)
+                    segm = phut.deblend_sources(detection_img[ind, :, :], segm,
+                                                npixels=5, nlevels=32,
+                                                contrast=0.001)
+                except TypeError as e:
+                    print(e)
+                    continue
+
                 img = imgs[ind, :, :]
                 n = noises[ind]
 
-                source_cat = SourceCatalog(img, segm.data[ind, :, :],
+                source_cat = SourceCatalog(img, segm,
                                            error=None, mask=None,
                                            kernel=None, background=None,
                                            wcs=None, localbkg_width=0,
