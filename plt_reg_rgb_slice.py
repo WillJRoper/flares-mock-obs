@@ -162,9 +162,9 @@ for reg in regions:
                             rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += imgs[img_id, :, :] * (1 / noise[img_id]**2)
                             rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[img_id]**2
                         else:
-                            noise_img = image_creator.pixel.noise * np.random.randn(res, res)
-                            rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += noise_img / image_creator.pixel.noise**2
-                            rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / image_creator.pixel.noise**2
+                            noise_img = noise[img_id] * np.random.randn(res, res)
+                            rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += noise_img / noise[img_id]**2
+                            rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[img_id]**2
 
                 hdf.close()
 
