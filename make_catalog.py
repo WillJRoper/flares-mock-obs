@@ -257,10 +257,10 @@ for num, depth in enumerate(depths):
                 hdf.close()
                 continue
 
-        detection_img /= weight_img
+        detection_img /= weight_img[:, None, None]
         noise_img /= weight_img
 
-        sig = detection_img / noise_img
+        sig = detection_img / noise_img[:, None, None]
 
         try:
             segm = phut.detect_sources(sig, thresh, npixels=5)
