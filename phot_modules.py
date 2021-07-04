@@ -389,7 +389,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     print("There are", len(cops), "groups")
 
     ini_reg_width = 2 * radius
-    ncells = np.ceil(ini_reg_width / width)
+    ncells = int(np.ceil(ini_reg_width / width))
     reg_width = ncells * width
 
     mins = cen - (reg_width / 2)
@@ -397,25 +397,20 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     print(int(reg_width / width), "images along each axis,",
           int(reg_width / width)**3, "total, with a width of", reg_width)
-    xcents = np.linspace(mins[0] + (width / 2), maxs[0] - (width / 2),
-                         ncells - 1)
-    ycents = np.linspace(mins[1] + (width / 2), maxs[1] - (width / 2),
-                         ncells - 1)
-    zcents = np.linspace(mins[2] + (width / 2), maxs[2] - (width / 2),
-                         ncells - 1)
+    xcents = np.linspace(mins[0], maxs[0], ncells)
+    ycents = np.linspace(mins[1], maxs[1], ncells)
+    zcents = np.linspace(mins[2], maxs[2], ncells)
 
     cents = []
     out_cents = []
-    ijk = np.full(
-        (int(reg_width / r), int(reg_width / r), int(reg_width / r)), -1,
-        dtype=np.int16)
+    ijk = np.full((ncells, ncells, ncells), -1, dtype=np.int16)
 
     ijk_dict = {}
     num = 0
     for i, x in enumerate(xcents):
         for j, y in enumerate(ycents):
             for k, z in enumerate(zcents):
-                print(np.array([x, y, z]))
+                print(np.array([x, y, z]), width)
                 cents.append(np.array([x, y, z]))
                 ijk_dict[num] = (i, j, k)
                 num += 1
