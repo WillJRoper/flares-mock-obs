@@ -128,11 +128,11 @@ res = int(np.ceil(ini_res))
 
 # Compute the new width
 width = arc_res * res
+width_pkpc = width / arcsec_per_kpc_proper
 
 print("Filter:", f)
 print("Image width and resolution (in arcseconds):", width, arc_res)
-print("Image width and resolution (in pkpc):",
-      width / arcsec_per_kpc_proper,
+print("Image width and resolution (in pkpc):", width_pkpc,
       arc_res / arcsec_per_kpc_proper)
 print("Image width (in pixels):", res)
 
@@ -142,7 +142,7 @@ reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
                      filters=(f, ), Type=Type, log10t_BC=7.,
                      extinction=extinction, orientation=orientation,
                      masslim=masslim,
-                     width=width / arcsec_per_kpc_proper / 1000)
+                     width=width_pkpc/1000)
 
 print("Got the dictionary for the region's groups:",
       len(reg_dict) - 4, "groups to  test")

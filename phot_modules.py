@@ -397,9 +397,9 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     print(int(reg_width / width), "images along each axis,",
           int(reg_width / width)**3, "total, with a width of", reg_width)
-    xcents = np.linspace(mins[0], maxs[0], ncells)
-    ycents = np.linspace(mins[1], maxs[1], ncells)
-    zcents = np.linspace(mins[2], maxs[2], ncells)
+    xcents = np.linspace(mins[0] + (width / 2), maxs[0] - (width / 2), ncells)
+    ycents = np.linspace(mins[1] + (width / 2), maxs[1] - (width / 2), ncells)
+    zcents = np.linspace(mins[2] + (width / 2), maxs[2] - (width / 2), ncells)
 
     cents = []
     out_cents = []
