@@ -410,7 +410,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     for i, x in enumerate(xcents):
         for j, y in enumerate(ycents):
             for k, z in enumerate(zcents):
-                print(np.array([x, y, z]), width)
                 cents.append(np.array([x, y, z]))
                 ijk_dict[num] = (i, j, k)
                 num += 1
