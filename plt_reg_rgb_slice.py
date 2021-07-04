@@ -138,6 +138,7 @@ for reg in regions:
                                 .format(reg, snap, Type, orientation, f), "r")
 
                 ijk = hdf["Cell_Image_Number"][:]
+                cents = hdf["Image_Centres"][:]
 
                 kth = ijk.shape[0] // 2
 
@@ -158,6 +159,7 @@ for reg in regions:
                 for i in range(ijk.shape[0]):
                     for j in range(ijk.shape[1]):
                         img_id = ijk[i, j, kth]
+                        print(i, j, kth, img_id, cents[img_id])
                         if img_id >= 0:
                             rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += imgs[img_id, :, :] * (1 / noise[img_id]**2)
                             rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[img_id]**2
