@@ -108,8 +108,8 @@ kernel.normalize()
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
 # Define width
-ini_width_pkpc = 500
-ini_width = ini_width_pkpc * arcsec_per_kpc_proper
+ini_width = 160
+ini_width_pkpc = ini_width / arcsec_per_kpc_proper
 
 f = filters[filter_ind]
 
