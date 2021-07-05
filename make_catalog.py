@@ -316,7 +316,6 @@ for num, depth in enumerate(depths):
                     print(e)
                     continue
 
-                img = imgs[ind, :, :]
                 n = noises[0]
 
                 source_cat = SourceCatalog(img, segm,
