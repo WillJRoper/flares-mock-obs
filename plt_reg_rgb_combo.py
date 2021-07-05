@@ -115,7 +115,15 @@ for reg in regions:
 
         ijk = hdf["Cell_Image_Number"][:]
 
-        if reg == regions[0]:
+        if len(sys.argv) > 4:
+            rgb_img = np.zeros((ijk.shape[0] * res,
+                                ijk.shape[1] * res,
+                                3), dtype=np.float32)
+            rgb_wht = np.zeros((ijk.shape[0] * res,
+                                ijk.shape[1] * res,
+                                3), dtype=np.float32)
+
+        elif reg == regions[0]:
             rgb_img = np.zeros((ijk.shape[0] * res,
                                 ijk.shape[1] * res,
                                 3), dtype=np.float32)
