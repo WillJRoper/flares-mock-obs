@@ -65,154 +65,48 @@ depths = [0.1, 1, 5, 10, 20]
 
 depth = depths[int(sys.argv[3])]
 
-reg = regions[int(sys.argv[4])]
-
 for snap in snaps:
+    for reg in regions:
 
-    f = filters[0]
+        img = np.load("mock_data/rgb_region_wrapped_"
+                      + "Orientation-" + orientation
+                      + "_Type-" + Type
+                      + "_Depth-" + str(depth)
+                      + "_Region-" + reg
+                      + "_Snap-" + snap + ".npy")
+        if reg == regions[0]:
+            rgb_img = np.zeros_like(img)
+        rgb_img += img
 
-    z_str = snap.split('z')[1].split('p')
-    z = float(z_str[0] + '.' + z_str[1])
+    plt_img = np.zeros(rgb_img.shape)
+    plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
+    plt_img[rgb_img <= 0] = np.nan
 
-    arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
+    dpi = rgb_img.shape[0] / 2
+    fig = plt.figure(figsize=(1, 1), dpi=dpi)
+    ax = fig.add_subplot(111)
 
-    # Define width
-    ini_width = 160
-    ini_width_pkpc = ini_width / arcsec_per_kpc_proper
+    ax.tick_params(axis='x', top=False, bottom=False,
+                   labeltop=False, labelbottom=False)
+    ax.tick_params(axis='y', left=False, right=False,
+                   labelleft=False, labelright=False)
 
-    survey_id = 'XDF'  # the XDF (updated HUDF)
-    field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
+    for i in range(3):
+        norm = mpl.colors.Normalize(vmin=0,
+                                    vmax=np.percentile(rgb_img[:, :, i],
+                                                       99),
+                                    clip=True)
 
-    # --- get field info object. This contains the filters, depths,
-    # image location etc. (if real image)
-    field = flare.surveys.surveys[survey_id].fields[field_id]
+        plt_img[:, :, i] = norm(rgb_img[:, :, i])
 
-    # --- initialise ImageCreator object
-    image_creator = imagesim.Idealised(f, field)
+    ax.imshow(plt_img)
 
-    arc_res = image_creator.pixel_scale
-
-    # Compute the resolution
-    ini_res = ini_width / arc_res
-    res = int(np.ceil(ini_res))
-    cutout_halfsize = int(res * 0.1)
-
-    # Compute the new width
-    width = arc_res * res
-
-    # Define pixel area in pkpc
-    single_pixel_area = arc_res * arc_res \
-                        / (arcsec_per_kpc_proper * arcsec_per_kpc_proper)
-
-    # Define range and extent for the images in arc seconds
-    imgrange = ((-width / 2, width / 2), (-width / 2, width / 2))
-    imgextent = [-width / 2, width / 2, -width / 2, width / 2]
-
-    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                    .format(reg, snap, Type, orientation, f), "r")
-
-    ijk = hdf["Cell_Image_Number"][:]
-
-    rgb_img = np.zeros((ijk.shape[0] * res,
-                        ijk.shape[1] * res,
-                        3), dtype=np.float32)
-    rgb_wht = np.zeros((ijk.shape[0] * res,
-                        ijk.shape[1] * res,
-                        3), dtype=np.float32)
-
-    hdf.close()
-
-    for ind, key in enumerate(rgb_filters.keys()):
-
-        for f in rgb_filters[key]:
-
-            print(f, reg, snap)
-
-            print("Filter:", f)
-            print("Image width and resolution (in arcseconds):",
-                  width * ijk.shape[0], arc_res)
-            print("Image width and resolution (in pkpc):",
-                  width / arcsec_per_kpc_proper * ijk.shape[0],
-                  arc_res / arcsec_per_kpc_proper)
-            print("Image width (in pixels):", res * ijk.shape[0])
-
-            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                            .format(reg, snap, Type, orientation, f), "r")
-
-            ijk = hdf["Cell_Image_Number"][:]
-            cents = hdf["Image_Centres"][:]
-
-            try:
-                fdepth_group = hdf[str(depth)]
-
-                imgs = fdepth_group["Images"]
-                img_ids = fdepth_group["Image_ID"][...]
-                noise = fdepth_group["Noise_value"][...]
-
-            except KeyError as e:
-                print(e)
-                hdf.close()
-                continue
-
-            for i in range(ijk.shape[0]):
-                for j in range(ijk.shape[1]):
-                    for k in range(ijk.shape[2]):
-                        img_id = ijk[i, j, k]
-                        print(i, j, k, img_id)
-                        if img_id >= 0:
-                            rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += imgs[img_id, :, :] * (1 / noise[img_id]**2)
-                            rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[img_id]**2
-                        else:
-                            noise_img = noise[img_id] * np.random.randn(res, res)
-                            rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += noise_img / noise[img_id]**2
-                            rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[img_id]**2
-
-            hdf.close()
-
-    rgb_img /= rgb_wht
-
-    np.save("mock_data/rgb_region_wrapped_"
-            + "Orientation-" + orientation
-            + "_Type-" + Type
-            + "_Region-" + reg
-            + "_Snap-" + snap + ".npy", rgb_img)
-
-    # plt_img = np.zeros(rgb_img.shape)
-    # plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
-    # plt_img[rgb_img <= 0] = np.nan
-
-    # dpi = rgb_img.shape[0] / 2
-    # fig = plt.figure(figsize=(1, 1), dpi=dpi)
-    # ax = fig.add_subplot(111)
-
-    # ax.tick_params(axis='x', top=False, bottom=False,
-    #                labeltop=False, labelbottom=False)
-    # ax.tick_params(axis='y', left=False, right=False,
-    #                labelleft=False, labelright=False)
-
-    # for i in range(3):
-    #     norm = mpl.colors.Normalize(vmin=0,
-    #                                 vmax=np.percentile(rgb_img[:, :, i],
-    #                                                    99),
-    #                                 clip=True)
-    #
-    #     plt_img[:, :, i] = norm(rgb_img[:, :, i])
-
-    # ax.imshow(plt_img)
-    #
-    # if not os.path.exists("plots/Region_slices"):
-    #     os.makedirs("plots/Region_slices")
-    # if not os.path.exists("plots/Region_slices/{}".format(reg)):
-    #     os.makedirs("plots/Region_slices/{}".format(reg))
-    #
-    # fig.savefig("plots/Region_slices/" + reg
-    #             + "/rgb_region_img_wrapped_"
-    #             + "Orientation-" + orientation
-    #             + "_Type-" + Type
-    #             + "_Region-" + reg
-    #             + "_Snap-" + snap + ".png",
-    #             bbox_inches="tight")
-    # plt.close(fig)
+    fig.savefig("plots/Region_slices/rgb_region_img_wrapped_"
+                + "Orientation-" + orientation
+                + "_Type-" + Type
+                + "_Snap-" + snap + ".png",
+                bbox_inches="tight")
+    plt.close(fig)
 
 
 
