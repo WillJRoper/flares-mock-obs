@@ -66,7 +66,7 @@ depth = depths[int(sys.argv[3])]
 for reg in regions:
 
     if len(sys.argv) > 4:
-        if reg != reg[int(sys.argv[4])]:
+        if reg != regions[int(sys.argv[4])]:
             continue
 
     for snap in snaps:
