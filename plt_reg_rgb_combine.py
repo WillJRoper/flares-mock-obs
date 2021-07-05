@@ -174,7 +174,6 @@ for snap in snaps:
     np.save("mock_data/rgb_region_wrapped_"
             + "Orientation-" + orientation
             + "_Type-" + Type
-            + "_Depth-" + str(depth)
             + "_Region-" + reg
             + "_Snap-" + snap + ".npy", rgb_img)
 
