@@ -169,6 +169,7 @@ for reg in regions:
                     for j in range(ijk.shape[1]):
                         for k in range(ijk.shape[2]):
                             img_id = ijk[i, j, k]
+                            print(i, j, k, img_id)
                             if img_id >= 0:
                                 rgb_img[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += imgs[img_id, :, :] * (1 / noise[img_id]**2)
                                 rgb_wht[i * res: (i + 1) * res, j * res: (j + 1) * res, ind] += 1 / noise[img_id]**2
@@ -210,7 +211,8 @@ for reg in regions:
             os.makedirs("plots/Region_slices/{}".format(reg))
 
         fig.savefig("plots/Region_slices/" + reg
-                    + "/rgb_region_img_Orientation-" + orientation
+                    + "/rgb_region_img_wrapped_"
+                    + "Orientation-" + orientation
                     + "_Type-" + Type
                     + "_Region-" + reg
                     + "_Snap-" + snap + ".png",
