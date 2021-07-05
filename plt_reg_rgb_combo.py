@@ -64,8 +64,8 @@ depths = [0.1, 1, 5, 10, 20]
 depth = depths[int(sys.argv[3])]
 
 for reg in regions:
-    
-    if sys.argv > 4:
+
+    if len(sys.argv) > 4:
         if reg != reg[int(sys.argv[4])]:
             continue
 
