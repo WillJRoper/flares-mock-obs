@@ -119,12 +119,15 @@ for snap in snaps:
 
     for reg in regions:
 
-        img = np.load("mock_data/rgb_region_wrapped_"
-                      + "Orientation-" + orientation
-                      + "_Type-" + Type
-                      + "_Depth-" + str(depth)
-                      + "_Region-" + reg
-                      + "_Snap-" + snap + ".npy")
+        try:
+            img = np.load("mock_data/rgb_region_wrapped_"
+                          + "Orientation-" + orientation
+                          + "_Type-" + Type
+                          + "_Depth-" + str(depth)
+                          + "_Region-" + reg
+                          + "_Snap-" + snap + ".npy")
+        except OSError:
+            continue
 
         left = np.random.choice(np.arange(0, rgb_img.shape[0] - img.shape[0]))
         top = np.random.choice(np.arange(0, rgb_img.shape[1] - img.shape[1]))
@@ -159,7 +162,3 @@ for snap in snaps:
                 + "_Snap-" + snap + ".png",
                 bbox_inches="tight")
     plt.close(fig)
-
-
-
-
