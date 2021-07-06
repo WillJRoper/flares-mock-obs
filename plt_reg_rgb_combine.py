@@ -66,6 +66,57 @@ depths = [0.1, 1, 5, 10, 20]
 depth = depths[int(sys.argv[3])]
 
 for snap in snaps:
+
+    f = filters[0]
+
+    z_str = snap.split('z')[1].split('p')
+    z = float(z_str[0] + '.' + z_str[1])
+
+    arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
+
+    # Define width
+    ini_width = 160
+    ini_width_pkpc = ini_width / arcsec_per_kpc_proper
+
+    survey_id = 'XDF'  # the XDF (updated HUDF)
+    field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
+
+    # --- get field info object. This contains the filters, depths,
+    # image location etc. (if real image)
+    field = flare.surveys.surveys[survey_id].fields[field_id]
+
+    # --- initialise ImageCreator object
+    image_creator = imagesim.Idealised(f, field)
+
+    arc_res = image_creator.pixel_scale
+
+    # Compute the resolution
+    ini_res = ini_width / arc_res
+    res = int(np.ceil(ini_res))
+    cutout_halfsize = int(res * 0.1)
+
+    # Compute the new width
+    width = arc_res * res
+
+    # Define pixel area in pkpc
+    single_pixel_area = arc_res * arc_res \
+                        / (arcsec_per_kpc_proper * arcsec_per_kpc_proper)
+
+    # Define range and extent for the images in arc seconds
+    imgrange = ((-width / 2, width / 2), (-width / 2, width / 2))
+    imgextent = [-width / 2, width / 2, -width / 2, width / 2]
+
+    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                    .format("00", snap, Type, orientation, f), "r")
+
+    ijk = hdf["Cell_Image_Number"][:]
+
+    hdf.close()
+
+    rgb_img = np.zeros((ijk.shape[0] * res * 8,
+                        ijk.shape[1] * res * 8,
+                        3), dtype=np.float32)
+
     for reg in regions:
 
         img = np.load("mock_data/rgb_region_wrapped_"
@@ -74,9 +125,11 @@ for snap in snaps:
                       + "_Depth-" + str(depth)
                       + "_Region-" + reg
                       + "_Snap-" + snap + ".npy")
-        if reg == regions[0]:
-            rgb_img = np.zeros_like(img)
-        rgb_img += img
+
+        left = np.random.choice(rgb_img.shape[0] * res * 8 - img.shape[0])
+        top = np.random.choice(rgb_img.shape[1] * res * 8 - img.shape[0])
+
+        rgb_img[left: left + img.shape[0], top: top + img.shape[1], :] += img
 
     plt_img = np.zeros(rgb_img.shape)
 
@@ -103,7 +156,6 @@ for snap in snaps:
                 + "Orientation-" + orientation
                 + "_Type-" + Type
                 + "_Depth-" + str(depth)
-                + "_Region-" + reg
                 + "_Snap-" + snap + ".png",
                 bbox_inches="tight")
     plt.close(fig)
