@@ -67,13 +67,15 @@ depth = depths[int(sys.argv[3])]
 
 for snap in snaps:
     for reg in regions:
-
-        rgb_img = np.load("mock_data/rgb_region_wrapped_"
-                      + "Orientation-" + orientation
-                      + "_Type-" + Type
-                      + "_Depth-" + str(depth)
-                      + "_Region-" + reg
-                      + "_Snap-" + snap + ".npy")
+        try:
+            rgb_img = np.load("mock_data/rgb_region_wrapped_"
+                          + "Orientation-" + orientation
+                          + "_Type-" + Type
+                          + "_Depth-" + str(depth)
+                          + "_Region-" + reg
+                          + "_Snap-" + snap + ".npy")
+        except OSError:
+            continue
 
         plt_img = np.zeros(rgb_img.shape)
 
