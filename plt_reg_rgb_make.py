@@ -68,47 +68,42 @@ depth = depths[int(sys.argv[3])]
 for snap in snaps:
     for reg in regions:
 
-        img = np.load("mock_data/rgb_region_wrapped_"
+        rgb_img = np.load("mock_data/rgb_region_wrapped_"
                       + "Orientation-" + orientation
                       + "_Type-" + Type
                       + "_Depth-" + str(depth)
                       + "_Region-" + reg
                       + "_Snap-" + snap + ".npy")
-        if reg == regions[0]:
-            rgb_img = np.zeros_like(img)
-        rgb_img += img
 
-    plt_img = np.zeros(rgb_img.shape)
-    plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
-    plt_img[rgb_img <= 0] = np.nan
+        plt_img = np.zeros(rgb_img.shape)
 
-    dpi = rgb_img.shape[0]
-    fig = plt.figure(figsize=(1, 1), dpi=dpi)
-    ax = fig.add_subplot(111)
+        dpi = rgb_img.shape[0]
+        fig = plt.figure(figsize=(1, 1), dpi=dpi)
+        ax = fig.add_subplot(111)
 
-    ax.tick_params(axis='x', top=False, bottom=False,
-                   labeltop=False, labelbottom=False)
-    ax.tick_params(axis='y', left=False, right=False,
-                   labelleft=False, labelright=False)
+        ax.tick_params(axis='x', top=False, bottom=False,
+                       labeltop=False, labelbottom=False)
+        ax.tick_params(axis='y', left=False, right=False,
+                       labelleft=False, labelright=False)
 
-    for i in range(3):
-        norm = mpl.colors.Normalize(vmin=0,
-                                    vmax=np.percentile(rgb_img[:, :, i],
-                                                       99),
-                                    clip=True)
+        for i in range(3):
+            norm = mpl.colors.Normalize(vmin=0,
+                                        vmax=np.percentile(rgb_img[:, :, i],
+                                                           99),
+                                        clip=True)
 
-        plt_img[:, :, i] = norm(rgb_img[:, :, i])
+            plt_img[:, :, i] = norm(rgb_img[:, :, i])
 
-    ax.imshow(plt_img)
+        ax.imshow(plt_img)
 
-    fig.savefig("plots/Region_slices/rgb_region_img_wrapped_"
-                + "Orientation-" + orientation
-                + "_Type-" + Type
-                + "_Depth-" + str(depth)
-                + "_Region-" + reg
-                + "_Snap-" + snap + ".png",
-                bbox_inches="tight")
-    plt.close(fig)
+        fig.savefig("plots/Region_slices/rgb_region_img_wrapped_"
+                    + "Orientation-" + orientation
+                    + "_Type-" + Type
+                    + "_Depth-" + str(depth)
+                    + "_Region-" + reg
+                    + "_Snap-" + snap + ".png",
+                    bbox_inches="tight", pad_inches=0)
+        plt.close(fig)
 
 
 
