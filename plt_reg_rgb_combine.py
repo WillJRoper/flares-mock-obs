@@ -79,8 +79,6 @@ for snap in snaps:
         rgb_img += img
 
     plt_img = np.zeros(rgb_img.shape)
-    plt_img[rgb_img > 0] = np.log10(rgb_img[rgb_img > 0])
-    plt_img[rgb_img <= 0] = np.nan
 
     dpi = rgb_img.shape[0]
     fig = plt.figure(figsize=(1, 1), dpi=dpi)
