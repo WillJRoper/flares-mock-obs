@@ -128,7 +128,7 @@ for snap in snaps:
 
         left = np.random.choice(rgb_img.shape[0] * res * 8 - img.shape[0])
         top = np.random.choice(rgb_img.shape[1] * res * 8 - img.shape[0])
-
+        print(left, right)
         rgb_img[left: left + img.shape[0], top: top + img.shape[1], :] += img
 
     plt_img = np.zeros(rgb_img.shape)
