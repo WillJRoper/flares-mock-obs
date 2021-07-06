@@ -131,7 +131,7 @@ for snap in snaps:
         except OSError:
             continue
 
-        if reg in img_poss:
+        if not reg in img_poss:
             left = np.random.choice(np.arange(0, rgb_img.shape[0] - img.shape[0]))
             top = np.random.choice(np.arange(0, rgb_img.shape[1] - img.shape[1]))
             img_poss[reg] = (left, top)
