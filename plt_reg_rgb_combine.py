@@ -65,6 +65,8 @@ depths = [0.1, 1, 5, 10, 20]
 
 depth = depths[int(sys.argv[3])]
 
+img_poss = {}
+
 for snap in snaps:
 
     f = filters[0]
@@ -129,8 +131,12 @@ for snap in snaps:
         except OSError:
             continue
 
-        left = np.random.choice(np.arange(0, rgb_img.shape[0] - img.shape[0]))
-        top = np.random.choice(np.arange(0, rgb_img.shape[1] - img.shape[1]))
+        if reg in img_poss:
+            left = np.random.choice(np.arange(0, rgb_img.shape[0] - img.shape[0]))
+            top = np.random.choice(np.arange(0, rgb_img.shape[1] - img.shape[1]))
+            img_poss[reg] = (left, top)
+        else:
+            left, top = img_poss[reg]
         print(reg, left, top)
         rgb_img[left: left + img.shape[0], top: top + img.shape[1], :] += img
 
