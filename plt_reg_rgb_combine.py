@@ -126,9 +126,9 @@ for snap in snaps:
                       + "_Region-" + reg
                       + "_Snap-" + snap + ".npy")
 
-        left = np.random.choice(rgb_img.shape[0] * res * 8 - img.shape[0])
-        top = np.random.choice(rgb_img.shape[1] * res * 8 - img.shape[0])
-        print(left, top)
+        left = np.random.choice(rgb_img.shape[0] * res * 2 - img.shape[0])
+        top = np.random.choice(rgb_img.shape[1] * res * 2 - img.shape[0])
+        print(rgb_img.shape[0], res, res * 8, left, top)
         rgb_img[left: left + img.shape[0], top: top + img.shape[1], :] += img
 
     plt_img = np.zeros(rgb_img.shape)
