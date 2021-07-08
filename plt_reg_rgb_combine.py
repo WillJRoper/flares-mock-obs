@@ -161,7 +161,7 @@ for snap in snaps:
 
     ax.imshow(plt_img)
 
-    fig.savefig("plots/Region_slices/rgb_region_img_wrapped_"
+    fig.savefig("plots/Region_slices/all_rgb_region_img_wrapped_"
                 + "Orientation-" + orientation
                 + "_Type-" + Type
                 + "_Depth-" + str(depth)
