@@ -306,8 +306,8 @@ for num, depth in enumerate(depths):
                         img_id = ijk[i, j, k]
                         if img_id >= 0:
                             det_img[i * res: (i + 1) * res, j * res: (j + 1) * res] += detection_img[img_id, :, :]
-                            sig_img[i * res: (i + 1) * res, j * res: (j + 1) * res] += sig[ind, :, :]
-                            img[i * res: (i + 1) * res, j * res: (j + 1) * res] += imgs[ind, :, :]
+                            sig_img[i * res: (i + 1) * res, j * res: (j + 1) * res] += sig[img_id, :, :]
+                            img[i * res: (i + 1) * res, j * res: (j + 1) * res] += imgs[img_id, :, :]
 
                 try:
                     segm = phut.detect_sources(sig_img, thresh, npixels=5)
