@@ -299,6 +299,8 @@ for num, depth in enumerate(depths):
                                    dtype=np.float32)
                 sig_img = np.zeros((ijk.shape[0] * res, ijk.shape[1] * res),
                                    dtype=np.float32)
+                print(img.shape, det_img.shape, sig_img.shape)
+                print(imgs.shape, detection_img.shape, sig.shape)
                 for i in range(ijk.shape[0]):
                     for j in range(ijk.shape[1]):
                         img_id = ijk[i, j, k]
