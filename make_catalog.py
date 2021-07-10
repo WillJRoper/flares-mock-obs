@@ -301,20 +301,25 @@ for num, depth in enumerate(depths):
 
             res = imgs.shape[-1]
 
-            for k in range(ijk.shape[2]):
-                img = np.zeros((ijk.shape[0] * res, ijk.shape[1] * res),
-                               dtype=np.float32)
-                det_img = np.zeros((ijk.shape[0] * res, ijk.shape[1] * res),
-                                   dtype=np.float32)
-                sig_img = np.zeros((ijk.shape[0] * res, ijk.shape[1] * res),
-                                   dtype=np.float32)
-                for i in range(ijk.shape[0]):
-                    for j in range(ijk.shape[1]):
-                        img_id = ijk[i, j, k]
-                        if img_id >= 0:
-                            det_img[i * res: (i + 1) * res, j * res: (j + 1) * res] += detection_img[img_id, :, :]
-                            sig_img[i * res: (i + 1) * res, j * res: (j + 1) * res] += sig[img_id, :, :]
-                            img[i * res: (i + 1) * res, j * res: (j + 1) * res] += imgs[img_id, :, :]
+            for img_id in img_ids:
+                img = imgs[img_id, :, :]
+                det_img = detection_img[img_id, :, :]
+                sig_img = sig[img_id, :, :]
+
+            # for k in range(ijk.shape[2]):
+            #     img = np.zeros((ijk.shape[0] * res, ijk.shape[1] * res),
+            #                    dtype=np.float32)
+            #     det_img = np.zeros((ijk.shape[0] * res, ijk.shape[1] * res),
+            #                        dtype=np.float32)
+            #     sig_img = np.zeros((ijk.shape[0] * res, ijk.shape[1] * res),
+            #                        dtype=np.float32)
+            #     for i in range(ijk.shape[0]):
+            #         for j in range(ijk.shape[1]):
+            #             img_id = ijk[i, j, k]
+            #             if img_id >= 0:
+            #                 det_img[i * res: (i + 1) * res, j * res: (j + 1) * res] += detection_img[img_id, :, :]
+            #                 sig_img[i * res: (i + 1) * res, j * res: (j + 1) * res] += sig[img_id, :, :]
+            #                 img[i * res: (i + 1) * res, j * res: (j + 1) * res] += imgs[img_id, :, :]
 
                 try:
                     segm = phut.detect_sources(sig_img, thresh, npixels=5)
