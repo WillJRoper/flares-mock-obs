@@ -25,6 +25,7 @@ import time
 import eritlux.simulations.imagesim as imagesim
 import flare.surveys
 import flare.plots.image
+import gc
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
@@ -252,12 +253,20 @@ for num, depth in enumerate(depths):
             except KeyError as e:
                 print(e)
                 hdf.close()
+                detection_img = None
+                weight_img = None
+                noise_img = None
+
                 continue
 
         detection_img /= weight_img[:, None, None]
         noise_img /= weight_img
 
         sig = detection_img / noise_img[:, None, None]
+
+        del noise_img
+        del weight_img
+        gc.collect()
 
         for f in filters:
 
@@ -299,8 +308,6 @@ for num, depth in enumerate(depths):
                                    dtype=np.float32)
                 sig_img = np.zeros((ijk.shape[0] * res, ijk.shape[1] * res),
                                    dtype=np.float32)
-                print(img.shape, det_img.shape, sig_img.shape)
-                print(imgs.shape, detection_img.shape, sig.shape)
                 for i in range(ijk.shape[0]):
                     for j in range(ijk.shape[1]):
                         img_id = ijk[i, j, k]
