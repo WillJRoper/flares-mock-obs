@@ -502,8 +502,10 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         # --- calculate rest-frame Luminosity. In units of erg/s/Hz
         for f in filters:
             # --- calculate rest-frame flux of each object in nJy
-            Fnu = models.generate_Fnu_array(model, Masses, Ages, Metallicities,
-                                            tauVs_ISM, tauVs_BC, F, f,
+            Fnu = models.generate_Fnu_array(model, Masses=Masses, Ages=Ages,
+                                            Metallicities=Metallicities,
+                                            tauVs_ISM=tauVs_ISM,
+                                            tauVs_BC=tauVs_BC, F=F, f=f,
                                             fesc=fesc, log10t_BC=log10t_BC)
 
             Fnus[ind][f] = Fnu
