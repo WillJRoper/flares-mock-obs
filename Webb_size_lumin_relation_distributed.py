@@ -18,7 +18,7 @@ from astropy.cosmology import Planck13 as cosmo
 import h5py
 from astropy.convolution import Gaussian2DKernel
 from scipy import signal
-from flare.photm import m_to_flux, flux_to_m
+from flare.photom import m_to_flux, flux_to_m
 import sys
 from scipy.spatial import cKDTree
 import eritlux.simulations.imagesim as imagesim
