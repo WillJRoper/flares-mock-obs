@@ -338,6 +338,8 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     gal_cops, gal_ms, gal_grpid, gal_subgrpid, gal_haloids, \
     cen, radius = get_data(sim, tag, r)
 
+    print(r_200.min(), r_200.max(), np.mean(r_200), np.median(r_200))
+
     Fnus = {}
     Fnus["region_cent"] = cen
     Fnus["region_radius"] = radius
