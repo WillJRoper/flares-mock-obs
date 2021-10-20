@@ -6,7 +6,7 @@ import matplotlib
 import numpy as np
 from photutils import CircularAperture
 
-os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
+# os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
@@ -95,7 +95,7 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 # Define widths
 full_ini_width_kpc = 30000
 full_ini_width = full_ini_width_kpc * arcsec_per_kpc_proper
-ini_width = 160
+ini_width = 50
 ini_width_pkpc = ini_width / arcsec_per_kpc_proper
 
 f = filters[filter_ind]
