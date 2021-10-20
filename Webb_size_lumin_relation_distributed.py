@@ -6,7 +6,8 @@ import matplotlib
 import numpy as np
 from photutils import CircularAperture
 
-# os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
+os.environ['FLARE'] = '/cosma7/data/dp004/dc-rope1/FLARES/' \
+                      'flares-mock-obs/flare/flare/'
 
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
