@@ -6,8 +6,7 @@ import matplotlib
 import numpy as np
 from photutils import CircularAperture
 
-os.environ['FLARE'] = '/cosma7/data/dp004/dc-rope1/FLARES/' \
-                      'flares-mock-obs/flare/flare/'
+os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
@@ -67,9 +66,9 @@ print("Creating images with orientation {o}, type {t}, and extinction {e}"
                                                e=extinction, x=reg, u=tag))
 
 # Define filter
-filters = [f'Hubble.ACS.{f}'
+filters = [f'HST.ACS.{f}'
            for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
-          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+          + [f'HST.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 # Set up depths relative to the Xtreme deep field
 XDF_depth_m = 31.2
