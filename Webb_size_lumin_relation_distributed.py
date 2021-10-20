@@ -19,8 +19,7 @@ from flare.photom import m_to_flux, flux_to_m
 import sys
 from scipy.spatial import cKDTree
 import eritlux.simulations.imagesim as imagesim
-import flare.plots.image
-import flare
+import flare.surveys as survey
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
@@ -81,7 +80,7 @@ field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
 
 # Get field info object. This contains the filters, depths,
 # image location etc. (if real image)
-field = flare.surveys.surveys[survey_id].fields[field_id]
+field = survey.surveys[survey_id].fields[field_id]
 
 # Get the conversion between arcseconds and pkpc at this redshift
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
