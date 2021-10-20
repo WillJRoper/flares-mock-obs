@@ -1,26 +1,21 @@
 import os
 import warnings
-from scipy.interpolate import interp1d
+
 import astropy.units as u
+import eritlux.simulations.imagesim as imagesim
 import matplotlib
+import matplotlib.gridspec as gridspec
+import matplotlib.pyplot as plt
 import numba as nb
 import numpy as np
-import matplotlib.pyplot as plt
 from astropy.cosmology import Planck13 as cosmo
-from photutils import CircularAperture, RectangularAperture, \
-    EllipticalAperture, aperture_photometry, detect_threshold, \
-    detect_sources, deblend_sources
+from photutils import aperture_photometry
 from scipy.interpolate import interp1d
-import matplotlib.gridspec as gridspec
-from scipy.spatial import ConvexHull
 from scipy.optimize import curve_fit
+from scipy.spatial import ConvexHull
+from scipy.spatial import cKDTree
+
 import eagle_IO.eagle_IO as E
-from scipy.spatial import cKDTree
-import schwimmbad
-from functools import partial
-import time
-from scipy.spatial import cKDTree
-import eritlux.simulations.imagesim as imagesim
 
 os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
@@ -42,11 +37,13 @@ def spherical_region(sim, snap):
     """
 
     dm_cood = E.read_array('PARTDATA', sim, snap, '/PartType1/Coordinates',
-                           noH=True, physicalUnits=True, numThreads=4)  # dm particle coordinates
+                           noH=True, physicalUnits=True,
+                           numThreads=4)  # dm particle coordinates
 
     hull = ConvexHull(dm_cood)
 
-    cen = [np.median(dm_cood[:, 0]), np.median(dm_cood[:, 1]), np.median(dm_cood[:, 2])]
+    cen = [np.median(dm_cood[:, 0]), np.median(dm_cood[:, 1]),
+           np.median(dm_cood[:, 2])]
     pedge = dm_cood[hull.vertices]  # edge particles
     y_obs = np.zeros(len(pedge))
     p0 = np.append(cen, 14. / 0.677700)
@@ -124,7 +121,7 @@ def get_Z_LOS(s_cood, g_cood, g_mass, g_Z, g_sml, dimens, lkernel, kbins):
 
     """
 
-    conv = (u.solMass/u.Mpc**2).to(u.solMass/u.pc**2)
+    conv = (u.solMass / u.Mpc ** 2).to(u.solMass / u.pc ** 2)
 
     n = s_cood.shape[0]
     Z_los_SD = np.zeros(n)
@@ -161,7 +158,7 @@ def get_Z_LOS(s_cood, g_cood, g_mass, g_Z, g_sml, dimens, lkernel, kbins):
         kernel_vals = np.array([lkernel[int(kbins * ll)] for ll in boverh])
 
         Z_los_SD[ii] = np.sum((thisgmass * thisgZ /
-                               (thisgsml * thisgsml)) * kernel_vals)\
+                               (thisgsml * thisgsml)) * kernel_vals) \
                        * conv  # in units of Msun/pc^2
 
     return Z_los_SD
@@ -330,7 +327,6 @@ def calc_eigenvec(coods):
 
 
 def img_loop(star_tup, imgrange, Ndim):
-
     # Extract star data
     x, y, l, sml = star_tup
 
@@ -355,15 +351,14 @@ def img_loop(star_tup, imgrange, Ndim):
 
 
 def quartic_spline(q):
-
     w = np.zeros_like(q)
     okinds1 = q < 1 / 2
     okinds2 = np.logical_and(1 / 2 <= q, q < 3 / 2)
     okinds3 = np.logical_and(3 / 2 <= q, q < 5 / 2)
 
-    w[okinds1] = (5 / 2 - q[okinds1])**4 \
-                 - 5 * (3 / 2 - q[okinds1])**4 \
-                 + 10 * (1 / 2 - q[okinds1])**4
+    w[okinds1] = (5 / 2 - q[okinds1]) ** 4 \
+                 - 5 * (3 / 2 - q[okinds1]) ** 4 \
+                 + 10 * (1 / 2 - q[okinds1]) ** 4
     w[okinds2] = (5 / 2 - q[okinds2]) ** 4 \
                  - 5 * (3 / 2 - q[okinds2]) ** 4
     w[okinds3] = (5 / 2 - q[okinds3]) ** 4
@@ -372,8 +367,7 @@ def quartic_spline(q):
 
 
 def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
-                    spline_func=quartic_spline, spline_cut_off=5/2):
-
+                    spline_func=quartic_spline, spline_cut_off=5 / 2):
     # Define 2D projected particle position array
     part_pos = pos[:, (i, j)]
 
@@ -408,15 +402,15 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
         w = spline_func(dist / sml)
 
         # Place the kernel for this particle within the img
-        kernel = k3 * w / sml**3
+        kernel = k3 * w / sml ** 3
         norm_kernel = kernel / np.sum(kernel)
         smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] += l * norm_kernel
 
     return smooth_img
 
 
-def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids, spline_cut_off=5/2):
-
+def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids,
+                            spline_cut_off=5 / 2):
     # Define 2D projected particle position array
     part_pos = pos[:, (i, j)]
 
@@ -452,8 +446,11 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids, spline_
         pix_vals = np.unique(smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]])
         if pix_vals.size > 1:
             pop_vals = smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]]
-            smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][pop_vals == 0] = subgrpid
-            smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][pop_vals != 0] = pop_vals[pop_vals != 0] + (np.abs(pop_vals[pop_vals != 0] - subgrpid) / 2)
+            smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][
+                pop_vals == 0] = subgrpid
+            smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][pop_vals != 0] = \
+            pop_vals[pop_vals != 0] + (
+                        np.abs(pop_vals[pop_vals != 0] - subgrpid) / 2)
         else:
             smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] = subgrpid
 
@@ -462,8 +459,8 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids, spline_
     return smooth_img
 
 
-def make_uni_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids, part_galids, spline_cut_off=5/2):
-
+def make_uni_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids,
+                                part_galids, spline_cut_off=5 / 2):
     # Define 2D projected particle position array
     part_pos = pos[:, (i, j)]
 
@@ -479,7 +476,8 @@ def make_uni_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids, par
     pix_pos[:, 0] = X.ravel()
     pix_pos[:, 1] = Y.ravel()
 
-    for ipos, grpsubgrp, sml, subgrpid in zip(part_pos, ids, smooth, part_galids):
+    for ipos, grpsubgrp, sml, subgrpid in zip(part_pos, ids, smooth,
+                                              part_galids):
 
         if int(str(grpsubgrp).split(".")[1]) == 1073741824:
             continue
@@ -499,8 +497,8 @@ def make_uni_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids, par
     return smooth_img
 
 
-def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=5000, numThreads=1):
-
+def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=5000,
+                  numThreads=1):
     # if numThreads != 1:
     #     pool = schwimmbad.MultiPool(processes=numThreads)
     #
@@ -575,7 +573,8 @@ def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=5000, numThrea
         # If there are stars within the image in this gaussian
         # add it to the image array
         if gsum > 0:
-            gsmooth_img[sub_xlow: sub_xhigh, sub_ylow: sub_yhigh] += g * l / gsum
+            gsmooth_img[sub_xlow: sub_xhigh,
+            sub_ylow: sub_yhigh] += g * l / gsum
 
     # gsmooth_img, xedges, yedges = np.histogram2d(pos[:, i], pos[:, j],
     #                                      bins=Ndim,
@@ -612,14 +611,13 @@ def get_img_hlr(img, apertures, app_rs, res, csoft, radii_frac=0.5):
 
 
 def get_pixel_hlr(img, single_pix_area, radii_frac=0.5):
-
     # Get half the total luminosity
     half_l = np.sum(img) * radii_frac
 
     # Sort pixels into 1D array ordered by decreasing intensity
     sort_1d_img = np.sort(img.flatten())[::-1]
     sum_1d_img = np.cumsum(sort_1d_img)
-    cumal_area = np.full_like(sum_1d_img, single_pix_area)\
+    cumal_area = np.full_like(sum_1d_img, single_pix_area) \
                  * np.arange(1, sum_1d_img.size + 1, 1)
 
     npix = np.argmin(np.abs(sum_1d_img - half_l))
@@ -630,7 +628,8 @@ def get_pixel_hlr(img, single_pix_area, radii_frac=0.5):
 
     # Interpolate the arrays for better resolution
     interp_func = interp1d(cumal_area_cutout, sum_1d_img_cutout, kind="linear")
-    interp_areas = np.linspace(cumal_area_cutout.min(), cumal_area_cutout.max(),
+    interp_areas = np.linspace(cumal_area_cutout.min(),
+                               cumal_area_cutout.max(),
                                500)
     interp_1d_img = interp_func(interp_areas)
 
@@ -664,7 +663,6 @@ def lumin_weighted_centre(poss, ls, i, j):
 
 
 def calc_light_mass_rad(rs, ls, radii_frac=0.5):
-
     # Sort the radii and masses
     sinds = np.argsort(rs)
     rs = rs[sinds]
@@ -692,7 +690,7 @@ def calc_light_mass_rad(rs, ls, radii_frac=0.5):
 
     # Interpolate the arrays for better resolution
     interp_func = interp1d(rs_cutout, l_profile_cutout, kind="linear")
-    interp_rs = np.linspace(rs_cutout.min(),  rs_cutout.max(), 500)
+    interp_rs = np.linspace(rs_cutout.min(), rs_cutout.max(), 500)
     interp_1d_ls = interp_func(interp_rs)
 
     new_hmr_ind = np.argmin(np.abs(interp_1d_ls - half_l))
@@ -758,7 +756,6 @@ def binned_weighted_quantile(x, y, weights, bins, quantiles):
 
 
 def noisy_img(true_img, image_creator):
-
     # --- create an Image object with the required size
     width_pixels = true_img.shape[0]
 
@@ -767,7 +764,7 @@ def noisy_img(true_img, image_creator):
     img.pixel_scale = image_creator.pixel_scale
     img.noise = image_creator.pixel.noise * np.ones((width_pixels,
                                                      width_pixels))
-    img.wht = 1./img.noise**2
+    img.wht = 1. / img.noise ** 2
     img.bkg = image_creator.pixel.noise * np.random.randn(width_pixels,
                                                           width_pixels)
 
@@ -778,7 +775,6 @@ def noisy_img(true_img, image_creator):
 
 def plot_images(img, segm, sig, reg, f, depth, snap, ind, imgextent,
                 ini_width_pkpc, cutout_halfsize=50):
-
     fig = plt.figure(figsize=(4, 6.4))
     gs = gridspec.GridSpec(3, 2)
     gs.update(wspace=0.0, hspace=0.0)

@@ -20,6 +20,7 @@ import sys
 from scipy.spatial import cKDTree
 import eritlux.simulations.imagesim as imagesim
 import flare.plots.image
+import flare
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
