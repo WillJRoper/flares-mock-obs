@@ -39,7 +39,6 @@ def DTM_fit(Z, Age):
 
 
 def get_data(reg, snap, r):
-
     z_str = snap.split('z')[1].split('p')
     z = float(z_str[0] + '.' + z_str[1])
 
@@ -58,17 +57,17 @@ def get_data(reg, snap, r):
                             'Subhalo/CentreOfPotential',
                             noH=True, physicalUnits=True, numThreads=8)
     gal_grpid = E.read_array('SUBFIND', path, snap,
-                            'Subhalo/GroupNumber',
-                            noH=True, physicalUnits=True, numThreads=8)
+                             'Subhalo/GroupNumber',
+                             noH=True, physicalUnits=True, numThreads=8)
     gal_subgrpid = E.read_array('SUBFIND', path, snap,
-                            'Subhalo/SubGroupNumber',
-                            noH=True, physicalUnits=True, numThreads=8)
+                                'Subhalo/SubGroupNumber',
+                                noH=True, physicalUnits=True, numThreads=8)
     gal_ms = E.read_array('SUBFIND', path, snap,
-                            'Subhalo/ApertureMeasurements/Mass/030kpc',
-                            noH=True, physicalUnits=True,
-                          numThreads=8)[:, 4] * 10**10
+                          'Subhalo/ApertureMeasurements/Mass/030kpc',
+                          noH=True, physicalUnits=True,
+                          numThreads=8)[:, 4] * 10 ** 10
     all_grp_ms = E.read_array('SUBFIND', path, snap, 'FOF/Group_M_Mean200',
-                              numThreads=8) * 10**10
+                              numThreads=8) * 10 ** 10
 
     # okinds = all_grp_ms > 10**10
     # grp_cops = grp_cops[okinds]
@@ -78,7 +77,7 @@ def get_data(reg, snap, r):
     # Convert to group.subgroup ID format
     gal_haloids = np.zeros(gal_grpid.size, dtype=float)
     for (ind, g), sg in zip(enumerate(gal_grpid), gal_subgrpid):
-        gal_haloids[ind] = float(str(int(g)) + '.%05d'%int(sg))
+        gal_haloids[ind] = float(str(int(g)) + '.%05d' % int(sg))
 
     S_coords = E.read_array('PARTDATA', path, snap,
                             'PartType4/Coordinates', noH=True,
@@ -86,7 +85,7 @@ def get_data(reg, snap, r):
     G_coords = E.read_array('PARTDATA', path, snap,
                             'PartType0/Coordinates', noH=True,
                             physicalUnits=True, numThreads=8)
-    
+
     stree = cKDTree(S_coords)
     gtree = cKDTree(G_coords)
 
@@ -100,25 +99,25 @@ def get_data(reg, snap, r):
     G_coords = G_coords[g_okinds, :]
 
     print("Stars within images:", S_coords.shape[0], "of", sbefore,
-          "(%.2f"%(S_coords.shape[0]/sbefore * 100) + "%)")
+          "(%.2f" % (S_coords.shape[0] / sbefore * 100) + "%)")
     print("Gas within images:", G_coords.shape[0], "of", gbefore,
-          "(%.2f"%(G_coords.shape[0]/gbefore * 100) + "%)")
+          "(%.2f" % (G_coords.shape[0] / gbefore * 100) + "%)")
 
     # s_okinds = np.full(S_coords.shape[0], True)
     # g_okinds = np.full(G_coords.shape[0], True)
 
     # Load data for luminosities
     S_subgrpid = E.read_array('PARTDATA', path, snap,
-                            'PartType4/SubGroupNumber', noH=True,
-                            physicalUnits=True, numThreads=8)[s_okinds]
+                              'PartType4/SubGroupNumber', noH=True,
+                              physicalUnits=True, numThreads=8)[s_okinds]
     S_grpid = E.read_array('PARTDATA', path, snap,
-                            'PartType4/GroupNumber', noH=True,
-                            physicalUnits=True, numThreads=8)[s_okinds]
+                           'PartType4/GroupNumber', noH=True,
+                           physicalUnits=True, numThreads=8)[s_okinds]
 
     # Convert to group.subgroup ID format
     halo_ids = np.zeros(S_grpid.size, dtype=float)
     for (ind, g), sg in zip(enumerate(S_grpid), S_subgrpid):
-        halo_ids[ind] = float(str(int(g)) + '.%05d'%int(sg))
+        halo_ids[ind] = float(str(int(g)) + '.%05d' % int(sg))
 
     S_sml = E.read_array('PARTDATA', path, snap,
                          'PartType4/SmoothingLength', noH=True,
@@ -152,181 +151,179 @@ def get_data(reg, snap, r):
     else:
         S_age = a_born
 
-
     return S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
            G_coords, S_mass, grp_cops, r_200, all_grp_ms, halo_ids, \
            gal_cops, gal_ms, gal_grpid, gal_subgrpid, gal_haloids, cen, radius
 
 
-def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
-        filters=('FAKE.TH.FUV',), Type='Total', log10t_BC=7.,
-        extinction='default', orientation="sim", masslim=None):
-    kinp = np.load('/cosma7/data/dp004/dc-payy1/my_files/'
-                   'los/kernel_sph-anarchy.npz',
-                   allow_pickle=True)
-    lkernel = kinp['kernel']
-    header = kinp['header']
-    kbins = header.item()['bins']
-
-    if masslim == None:
-        masslim = 100
-
-    S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-    G_coords, S_mass, cops = get_data(sim, tag, masslim)
-
-    Lums = {f: {} for f in filters}
-
-    model = models.define_model(
-        F'BPASSv2.2.1.binary/{IMF}')  # DEFINE SED GRID -
-    if extinction == 'default':
-        model.dust_ISM = (
-            'simple', {'slope': -1.})  # Define dust curve for ISM
-        model.dust_BC = ('simple', {
-            'slope': -1.})  # Define dust curve for birth cloud component
-    elif extinction == 'Calzetti':
-        model.dust_ISM = ('Starburst_Calzetti2000', {''})
-        model.dust_BC = ('Starburst_Calzetti2000', {''})
-    elif extinction == 'SMC':
-        model.dust_ISM = ('SMC_Pei92', {''})
-        model.dust_BC = ('SMC_Pei92', {''})
-    elif extinction == 'MW':
-        model.dust_ISM = ('MW_Pei92', {''})
-        model.dust_BC = ('MW_Pei92', {''})
-    elif extinction == 'N18':
-        model.dust_ISM = ('MW_N18', {''})
-        model.dust_BC = ('MW_N18', {''})
-    else:
-        ValueError("Extinction type not recognised")
-
-    z = float(tag[5:].replace('p', '.'))
-
-    # --- create rest-frame luminosities
-    F = flare.filters.add_filters(filters, new_lam=model.lam)
-    model.create_Lnu_grid(
-        F)  # --- create new L grid for each filter. In units of erg/s/Hz
-
-    if S_coords.shape[0] > 0:
-
-        star_tree = cKDTree(S_coords)
-        gas_tree = cKDTree(G_coords)
-
-    for ind, cop in enumerate(cops):
-
-        okinds = star_tree.query_ball_point(cop, r=1)
-        g_okinds = gas_tree.query_ball_point(cop, r=1)
-
-        # Extract values for this galaxy
-        Masses = S_mass_ini[okinds]
-        Ages = S_age[okinds]
-        Metallicities = S_Z[okinds]
-        Smls = S_sml[okinds]
-        gasMetallicities = G_Z[g_okinds]
-        gasSML = G_sml[g_okinds]
-        gasMasses = G_mass[g_okinds]
-
-        Lums[ind]["smls"] = Smls
-        Lums[ind]["masses"] = Masses
-
-        if orientation == "sim":
-
-            starCoords = S_coords[okinds, :]
-            gasCoords = G_coords[g_okinds, :]
-
-            MetSurfaceDensities = util.get_Z_LOS(starCoords, gasCoords,
-                                                 gasMasses, gasMetallicities,
-                                                 gasSML, (0, 1, 2),
-                                                 lkernel, kbins)
-
-            Lums[ind]["coords"] = starCoords - cops
-
-        # elif orientation == "face-on":
-        #
-        #     starCoords = S_coords[:, begin[jj]: end[jj]].T - cops[:, jj]
-        #     gasCoords = G_coords[:, gbegin[jj]: gend[jj]].T - cops[:, jj]
-        #     gasVels = G_vels[gbegin[jj]: gend[jj], :]
-        #
-        #     # Get angular momentum vector
-        #     ang_vec = util.ang_mom_vector(gasMasses, gasCoords, gasVels)
-        #
-        #     # Rotate positions
-        #     starCoords = util.get_rotated_coords(ang_vec, starCoords)
-        #     gasCoords = util.get_rotated_coords(ang_vec, gasCoords)
-        #     S_coords[:, begin[jj]: end[jj]] = starCoords.T
-        #
-        #     MetSurfaceDensities = util.get_Z_LOS(starCoords, gasCoords,
-        #                                          gasMasses, gasMetallicities,
-        #                                          gasSML, (0, 1, 2),
-        #                                          lkernel, kbins)
-        # elif orientation == "side-on":
-        #
-        #     starCoords = S_coords[:, begin[jj]: end[jj]].T - cops[:, jj]
-        #     gasCoords = G_coords[:, gbegin[jj]: gend[jj]].T - cops[:, jj]
-        #     gasVels = G_vels[:, gbegin[jj]: gend[jj]]
-        #
-        #     # Get angular momentum vector
-        #     ang_vec = util.ang_mom_vector(gasMasses, gasCoords, gasVels)
-        #
-        #     # Rotate positions
-        #     starCoords = util.get_rotated_coords(ang_vec, starCoords)
-        #     gasCoords = util.get_rotated_coords(ang_vec, gasCoords)
-        #     S_coords[:, begin[jj]: end[jj]] = starCoords.T
-        #
-        #     MetSurfaceDensities = util.get_Z_LOS(starCoords, gasCoords,
-        #                                          gasMasses, gasMetallicities,
-        #                                          gasSML, (2, 0, 1),
-        #                                          lkernel, kbins)
-        else:
-            MetSurfaceDensities = None
-            print(orientation,
-                  "is not an recognised orientation. "
-                  "Accepted types are 'sim', 'face-on', or 'side-on'")
-
-        Mage = np.nansum(Masses * Ages) / np.nansum(Masses)
-        Z = np.nanmean(gasMetallicities)
-
-        MetSurfaceDensities = DTM_fit(Z, Mage) * MetSurfaceDensities
-
-        if Type == 'Total':
-            # --- calculate V-band (550nm) optical depth for each star particle
-            tauVs_ISM = kappa * MetSurfaceDensities
-            tauVs_BC = BC_fac * (Metallicities / 0.01)
-            fesc = 0.0
-
-        elif Type == 'Pure-stellar':
-            tauVs_ISM = np.zeros(len(Masses))
-            tauVs_BC = np.zeros(len(Masses))
-            fesc = 1.0
-
-        elif Type == 'Intrinsic':
-            tauVs_ISM = np.zeros(len(Masses))
-            tauVs_BC = np.zeros(len(Masses))
-            fesc = 0.0
-
-        elif Type == 'Only-BC':
-            tauVs_ISM = np.zeros(len(Masses))
-            tauVs_BC = BC_fac * (Metallicities / 0.01)
-            fesc = 0.0
-
-        else:
-            tauVs_ISM = None
-            tauVs_BC = None
-            fesc = None
-            ValueError(F"Undefined Type {Type}")
-
-        # --- calculate rest-frame Luminosity. In units of erg/s/Hz
-        for f in filters:
-            Lnu = models.generate_Lnu_array(model, Masses, Ages, Metallicities,
-                                            tauVs_ISM, tauVs_BC, F, f,
-                                            fesc=fesc, log10t_BC=log10t_BC)
-            
-            Lums[f][ind] = Lnu
-
-    return Lums
+# def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
+#         filters=('FAKE.TH.FUV',), Type='Total', log10t_BC=7.,
+#         extinction='default', orientation="sim"):
+#     kinp = np.load('/cosma7/data/dp004/dc-payy1/my_files/'
+#                    'los/kernel_sph-anarchy.npz',
+#                    allow_pickle=True)
+#     lkernel = kinp['kernel']
+#     header = kinp['header']
+#     kbins = header.item()['bins']
+#
+#     if masslim == None:
+#         masslim = 100
+#
+#     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
+#     G_coords, S_mass, cops = get_data(sim, tag, masslim)
+#
+#     Lums = {f: {} for f in filters}
+#
+#     model = models.define_model(
+#         F'BPASSv2.2.1.binary/{IMF}')  # DEFINE SED GRID -
+#     if extinction == 'default':
+#         model.dust_ISM = (
+#             'simple', {'slope': -1.})  # Define dust curve for ISM
+#         model.dust_BC = ('simple', {
+#             'slope': -1.})  # Define dust curve for birth cloud component
+#     elif extinction == 'Calzetti':
+#         model.dust_ISM = ('Starburst_Calzetti2000', {''})
+#         model.dust_BC = ('Starburst_Calzetti2000', {''})
+#     elif extinction == 'SMC':
+#         model.dust_ISM = ('SMC_Pei92', {''})
+#         model.dust_BC = ('SMC_Pei92', {''})
+#     elif extinction == 'MW':
+#         model.dust_ISM = ('MW_Pei92', {''})
+#         model.dust_BC = ('MW_Pei92', {''})
+#     elif extinction == 'N18':
+#         model.dust_ISM = ('MW_N18', {''})
+#         model.dust_BC = ('MW_N18', {''})
+#     else:
+#         ValueError("Extinction type not recognised")
+#
+#     z = float(tag[5:].replace('p', '.'))
+#
+#     # --- create rest-frame luminosities
+#     F = flare.filters.add_filters(filters, new_lam=model.lam)
+#     model.create_Lnu_grid(
+#         F)  # --- create new L grid for each filter. In units of erg/s/Hz
+#
+#     if S_coords.shape[0] > 0:
+#         star_tree = cKDTree(S_coords)
+#         gas_tree = cKDTree(G_coords)
+#
+#     for ind, cop in enumerate(cops):
+#
+#         okinds = star_tree.query_ball_point(cop, r=1)
+#         g_okinds = gas_tree.query_ball_point(cop, r=1)
+#
+#         # Extract values for this galaxy
+#         Masses = S_mass_ini[okinds]
+#         Ages = S_age[okinds]
+#         Metallicities = S_Z[okinds]
+#         Smls = S_sml[okinds]
+#         gasMetallicities = G_Z[g_okinds]
+#         gasSML = G_sml[g_okinds]
+#         gasMasses = G_mass[g_okinds]
+#
+#         Lums[ind]["smls"] = Smls
+#         Lums[ind]["masses"] = Masses
+#
+#         if orientation == "sim":
+#
+#             starCoords = S_coords[okinds, :]
+#             gasCoords = G_coords[g_okinds, :]
+#
+#             MetSurfaceDensities = util.get_Z_LOS(starCoords, gasCoords,
+#                                                  gasMasses, gasMetallicities,
+#                                                  gasSML, (0, 1, 2),
+#                                                  lkernel, kbins)
+#
+#             Lums[ind]["coords"] = starCoords - cops
+#
+#         # elif orientation == "face-on":
+#         #
+#         #     starCoords = S_coords[:, begin[jj]: end[jj]].T - cops[:, jj]
+#         #     gasCoords = G_coords[:, gbegin[jj]: gend[jj]].T - cops[:, jj]
+#         #     gasVels = G_vels[gbegin[jj]: gend[jj], :]
+#         #
+#         #     # Get angular momentum vector
+#         #     ang_vec = util.ang_mom_vector(gasMasses, gasCoords, gasVels)
+#         #
+#         #     # Rotate positions
+#         #     starCoords = util.get_rotated_coords(ang_vec, starCoords)
+#         #     gasCoords = util.get_rotated_coords(ang_vec, gasCoords)
+#         #     S_coords[:, begin[jj]: end[jj]] = starCoords.T
+#         #
+#         #     MetSurfaceDensities = util.get_Z_LOS(starCoords, gasCoords,
+#         #                                          gasMasses, gasMetallicities,
+#         #                                          gasSML, (0, 1, 2),
+#         #                                          lkernel, kbins)
+#         # elif orientation == "side-on":
+#         #
+#         #     starCoords = S_coords[:, begin[jj]: end[jj]].T - cops[:, jj]
+#         #     gasCoords = G_coords[:, gbegin[jj]: gend[jj]].T - cops[:, jj]
+#         #     gasVels = G_vels[:, gbegin[jj]: gend[jj]]
+#         #
+#         #     # Get angular momentum vector
+#         #     ang_vec = util.ang_mom_vector(gasMasses, gasCoords, gasVels)
+#         #
+#         #     # Rotate positions
+#         #     starCoords = util.get_rotated_coords(ang_vec, starCoords)
+#         #     gasCoords = util.get_rotated_coords(ang_vec, gasCoords)
+#         #     S_coords[:, begin[jj]: end[jj]] = starCoords.T
+#         #
+#         #     MetSurfaceDensities = util.get_Z_LOS(starCoords, gasCoords,
+#         #                                          gasMasses, gasMetallicities,
+#         #                                          gasSML, (2, 0, 1),
+#         #                                          lkernel, kbins)
+#         else:
+#             MetSurfaceDensities = None
+#             print(orientation,
+#                   "is not an recognised orientation. "
+#                   "Accepted types are 'sim', 'face-on', or 'side-on'")
+#
+#         Mage = np.nansum(Masses * Ages) / np.nansum(Masses)
+#         Z = np.nanmean(gasMetallicities)
+#
+#         MetSurfaceDensities = DTM_fit(Z, Mage) * MetSurfaceDensities
+#
+#         if Type == 'Total':
+#             # --- calculate V-band (550nm) optical depth for each star particle
+#             tauVs_ISM = kappa * MetSurfaceDensities
+#             tauVs_BC = BC_fac * (Metallicities / 0.01)
+#             fesc = 0.0
+#
+#         elif Type == 'Pure-stellar':
+#             tauVs_ISM = np.zeros(len(Masses))
+#             tauVs_BC = np.zeros(len(Masses))
+#             fesc = 1.0
+#
+#         elif Type == 'Intrinsic':
+#             tauVs_ISM = np.zeros(len(Masses))
+#             tauVs_BC = np.zeros(len(Masses))
+#             fesc = 0.0
+#
+#         elif Type == 'Only-BC':
+#             tauVs_ISM = np.zeros(len(Masses))
+#             tauVs_BC = BC_fac * (Metallicities / 0.01)
+#             fesc = 0.0
+#
+#         else:
+#             tauVs_ISM = None
+#             tauVs_BC = None
+#             fesc = None
+#             ValueError(F"Undefined Type {Type}")
+#
+#         # --- calculate rest-frame Luminosity. In units of erg/s/Hz
+#         for f in filters:
+#             Lnu = models.generate_Lnu_array(model, Masses, Ages, Metallicities,
+#                                             tauVs_ISM, tauVs_BC, F, f,
+#                                             fesc=fesc, log10t_BC=log10t_BC)
+#
+#             Lums[f][ind] = Lnu
+#
+#     return Lums
 
 
 def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
-        filters=('FAKE.TH.FUV',), Type='Total', log10t_BC=7.,
-        extinction='default', orientation="sim", masslim=None, width=1):
+         filters=('FAKE.TH.FUV',), Type='Total', log10t_BC=7.,
+         extinction='default', orientation="sim", width=1):
     kinp = np.load('/cosma7/data/dp004/dc-payy1/my_files/'
                    'los/kernel_sph-anarchy.npz',
                    allow_pickle=True)
@@ -334,14 +331,16 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     header = kinp['header']
     kbins = header.item()['bins']
 
-    r = np.sqrt(width**2/2)
+    r = np.sqrt(width ** 2 / 2)
 
     S_mass_ini, S_Z, S_age, G_Z, G_sml, S_sml, G_mass, S_coords, \
-    G_coords, S_mass, cops, r_200, all_gal_ms, S_subgrpid,\
+    G_coords, S_mass, cops, r_200, all_gal_ms, S_subgrpid, \
     gal_cops, gal_ms, gal_grpid, gal_subgrpid, gal_haloids, \
     cen, radius = get_data(sim, tag, r)
 
     Fnus = {}
+    Fnus["region_cent"] = cen
+    Fnus["region_radius"] = radius
     Fnus["gal_cop"] = gal_cops
     Fnus["gal_ms"] = gal_ms
     Fnus["gal_haloids"] = gal_haloids
@@ -377,7 +376,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     model.create_Fnu_grid(F, z, cosmo)
 
     if S_coords.shape[0] > 0:
-
         star_tree = cKDTree(S_coords)
 
         print("Built stellar KD-Tree")
@@ -388,47 +386,17 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     print("There are", len(cops), "groups")
 
-    ini_reg_width = 2 * radius
-    ncells = int(np.ceil(ini_reg_width / width))
-    reg_width = ncells * width
-
-    mins = cen - (reg_width / 2)
-    maxs = cen + (reg_width / 2)
-
-    print(int(reg_width / width), "images along each axis,",
-          int(reg_width / width)**3, "total, with a width of", reg_width)
-    xcents = np.linspace(mins[0] + (width / 2), maxs[0] - (width / 2), ncells)
-    ycents = np.linspace(mins[1] + (width / 2), maxs[1] - (width / 2), ncells)
-    zcents = np.linspace(mins[2] + (width / 2), maxs[2] - (width / 2), ncells)
-
-    cents = []
     out_cents = []
-    ijk = np.full((ncells, ncells, ncells), -1, dtype=np.int16)
-
-    ijk_dict = {}
-    num = 0
-    for i, x in enumerate(xcents):
-        for j, y in enumerate(ycents):
-            for k, z in enumerate(zcents):
-                cents.append(np.array([x, y, z]))
-                ijk_dict[num] = (i, j, k)
-                num += 1
-
-    cents = np.array(cents)
-
     ind = 0
 
-    for num, cop in enumerate(cents):
+    for num, cop in enumerate(cops):
 
         okinds = star_tree.query_ball_point(cop, r=r)
 
         g_okinds = gas_tree.query_ball_point(cop, r=r)
 
-        if len(okinds) < 700:
-            continue
-
         Fnus[ind] = {f: {} for f in filters}
-        ijk[ijk_dict[num]] = ind
+
         out_cents.append(cop)
 
         # Extract values for this galaxy
@@ -440,6 +408,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
         gasSML = G_sml[g_okinds]
         gasMasses = G_mass[g_okinds]
 
+        Fnus[ind]["cent"] = cop
         Fnus[ind]["smls"] = Smls
         Fnus[ind]["masses"] = Masses
         Fnus[ind]["part_subgrpids"] = S_subgrpid[okinds]
@@ -539,9 +508,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
             Fnus[ind][f] = Fnu
         ind += 1
-
-    Fnus["ijk"] = ijk
-    Fnus["cents"] = np.array(out_cents)
 
     return Fnus
 
