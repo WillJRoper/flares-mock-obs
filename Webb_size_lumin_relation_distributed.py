@@ -4,30 +4,25 @@ import warnings
 
 import matplotlib
 import numpy as np
-from photutils import CircularAperture
 
 os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
 import seaborn as sns
-from scipy.stats import binned_statistic
 import phot_modules as phot
 import utilities as util
 from astropy.cosmology import Planck13 as cosmo
 import h5py
-from astropy.convolution import Gaussian2DKernel
 from scipy import signal
 from flare.photom import m_to_flux, flux_to_m
 import sys
 from scipy.spatial import cKDTree
 import eritlux.simulations.imagesim as imagesim
-import flare.surveys
 import flare.plots.image
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
-
 
 regions = []
 for reg in range(0, 40):
@@ -45,9 +40,7 @@ reg_snaps = []
 for reg in reversed(regions):
 
     for snap in snaps:
-
         reg_snaps.append((reg, snap))
-
 
 ind = int(sys.argv[1])
 
@@ -63,10 +56,10 @@ filter_ind = int(sys.argv[4])
 reg, tag = reg_snaps[ind]
 print("Creating images with orientation {o}, type {t}, and extinction {e}"
       " for region {x} and snapshot {u}".format(o=orientation, t=Type,
-                                               e=extinction, x=reg, u=tag))
+                                                e=extinction, x=reg, u=tag))
 
 # Define filter
-filters = [f'HST.ACS.{f}'
+filters = [f'Hubble.ACS.{f}'
            for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
           + [f'HST.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
@@ -136,9 +129,9 @@ print("Region width (in pixels):", full_npix)
 # Kappa with DTM 0.0795, BC_fac=1., without 0.0063 BC_fac=1.25
 reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
                      IMF='Chabrier_300',
-                     filters=(f, ), Type=Type, log10t_BC=7.,
+                     filters=(f,), Type=Type, log10t_BC=7.,
                      extinction=extinction, orientation=orientation,
-                     width=width_pkpc/1000)
+                     width=width_pkpc / 1000)
 
 print("Got the dictionary for the region's groups:",
       len(reg_dict) - 5, "groups to  test")
@@ -157,10 +150,10 @@ region_extent = [region_cent - region_rad, region_cent + region_rad,
                  region_cent - region_rad, region_cent + region_rad,
                  region_cent - region_rad, region_cent + region_rad]
 
-# Set up aperture objects
-positions = [(npix / 2, npix / 2)]
-app_radii = np.linspace(0.001, npix / 4, 100)
-apertures = [CircularAperture(positions, r=r) for r in app_radii]
+# # Set up aperture objects
+# positions = [(npix / 2, npix / 2)]
+# app_radii = np.linspace(0.001, npix / 4, 100)
+# apertures = [CircularAperture(positions, r=r) for r in app_radii]
 
 # Define x and y positions of pixels
 X, Y = np.meshgrid(np.linspace(imgrange[0][0], imgrange[0][1], npix),
@@ -310,21 +303,21 @@ for num, depth in enumerate(depths):
     fdepth_group = hdf.create_group(str(depth))
 
     dset = fdepth_group.create_dataset("Images", data=imgs,
-                                  dtype=imgs.dtype,
-                                  shape=imgs.shape,
-                                  compression="gzip")
+                                       dtype=imgs.dtype,
+                                       shape=imgs.shape,
+                                       compression="gzip")
     dset.attrs["units"] = "$nJy$"
 
     dset = fdepth_group.create_dataset("IJK", data=ijk,
-                                  dtype=ijk.dtype,
-                                  shape=ijk.shape,
-                                  compression="gzip")
+                                       dtype=ijk.dtype,
+                                       shape=ijk.shape,
+                                       compression="gzip")
     dset.attrs["units"] = "None"
 
     dset = fdepth_group.create_dataset("Noise_value", data=noise,
-                                  dtype=noise.dtype,
-                                  shape=noise.shape,
-                                  compression="gzip")
+                                       dtype=noise.dtype,
+                                       shape=noise.shape,
+                                       compression="gzip")
     dset.attrs["units"] = "None"
 
     fluxes = np.array(fluxes)
@@ -333,39 +326,39 @@ for num, depth in enumerate(depths):
     star_pos = np.array(star_pos)
 
     dset = fdepth_group.create_dataset("Start_Index", data=begin,
-                                  dtype=begin.dtype,
-                                  shape=begin.shape,
-                                  compression="gzip")
+                                       dtype=begin.dtype,
+                                       shape=begin.shape,
+                                       compression="gzip")
     dset.attrs["units"] = "None"
 
     dset = fdepth_group.create_dataset("Smoothing_Length", data=smls,
-                                  dtype=smls.dtype,
-                                  shape=smls.shape,
-                                  compression="gzip")
+                                       dtype=smls.dtype,
+                                       shape=smls.shape,
+                                       compression="gzip")
     dset.attrs["units"] = "Mpc"
 
     dset = fdepth_group.create_dataset("Star_Pos", data=star_pos,
-                                  dtype=star_pos.dtype,
-                                  shape=star_pos.shape,
-                                  compression="gzip")
+                                       dtype=star_pos.dtype,
+                                       shape=star_pos.shape,
+                                       compression="gzip")
     dset.attrs["units"] = "kpc"
 
     dset = fdepth_group.create_dataset("Fluxes", data=fluxes,
-                                  dtype=fluxes.dtype,
-                                  shape=fluxes.shape,
-                                  compression="gzip")
+                                       dtype=fluxes.dtype,
+                                       shape=fluxes.shape,
+                                       compression="gzip")
     dset.attrs["units"] = "nJy"
 
     dset = fdepth_group.create_dataset("Part_subgrpids", data=subgrpids,
-                                  dtype=subgrpids.dtype,
-                                  shape=subgrpids.shape,
-                                  compression="gzip")
+                                       dtype=subgrpids.dtype,
+                                       shape=subgrpids.shape,
+                                       compression="gzip")
     dset.attrs["units"] = "None"
 
     dset = fdepth_group.create_dataset("Image_Length", data=Slen,
-                                  dtype=Slen.dtype,
-                                  shape=Slen.shape,
-                                  compression="gzip")
+                                       dtype=Slen.dtype,
+                                       shape=Slen.shape,
+                                       compression="gzip")
     dset.attrs["units"] = "None"
 
 # depth = "SUBFIND"
