@@ -395,6 +395,9 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         g_okinds = gas_tree.query_ball_point(cop, r=r)
 
+        if S_mass_ini[okinds].size < 50:
+            continue
+
         Fnus[ind] = {f: {} for f in filters}
 
         out_cents.append(cop)
