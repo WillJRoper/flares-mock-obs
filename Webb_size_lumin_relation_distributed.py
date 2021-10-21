@@ -88,7 +88,7 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 # Define widths
 full_ini_width_kpc = 30000
 full_ini_width = full_ini_width_kpc * arcsec_per_kpc_proper
-ini_width = 50
+ini_width = 15
 ini_width_pkpc = ini_width / arcsec_per_kpc_proper
 
 f = filters[filter_ind]
@@ -225,6 +225,7 @@ for num, depth in enumerate(depths):
         this_cop = reg_dict[key]["cent"] * 10 ** 3
 
         # Find the pixel in the region image this occupies
+        print(this_cop)
         i = (this_cop[0] - region_extent[0]) * arc_res_kpc
         j = (this_cop[1] - region_extent[2]) * arc_res_kpc
         k = (this_cop[2] - region_extent[4]) * arc_res_kpc
