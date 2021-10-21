@@ -21,7 +21,7 @@ source activate flares-env
 i=$(($SLURM_ARRAY_TASK_ID - 1))
 
 # Run the program
-./Webb_size_lumin_relation_distributed.py $i sim Total
+./Webb_size_lumin_relation_distributed.py $i sim Total 
 #./UV_size_lumin_relation_distributed.py $i sim Total 1
 #./UV_size_lumin_relation_distributed.py $i sim Total 2
 #./UV_size_lumin_relation_distributed.py $i sim Intrinsic 0
