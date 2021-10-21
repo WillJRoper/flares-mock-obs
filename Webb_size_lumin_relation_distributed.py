@@ -228,7 +228,7 @@ for num, depth in enumerate(depths):
         i = (this_cop[0] - region_extent[0]) * arc_res_kpc
         j = (this_cop[1] - region_extent[2]) * arc_res_kpc
         k = (this_cop[2] - region_extent[4]) * arc_res_kpc
-
+        print(i, j, k)
         shift = (np.array([i - int(i),
                            j - int(j),
                            k - int(k)]) + 0.5) * arc_res
