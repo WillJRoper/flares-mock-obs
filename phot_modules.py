@@ -393,13 +393,13 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     for (num, cop), r in zip(enumerate(cops), r_200):
 
-        print(num, cop, r, end="\r")
+        print(num, end="\r")
 
         okinds = star_tree.query_ball_point(cop, r=r)
 
         g_okinds = gas_tree.query_ball_point(cop, r=r)
 
-        if np.sum(S_mass[okinds].size) < 10**8:
+        if S_mass[okinds].size < 50:
             continue
 
         Fnus[ind] = {f: {} for f in filters}
