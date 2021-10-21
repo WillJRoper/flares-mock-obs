@@ -146,9 +146,9 @@ single_pixel_area = arc_res * arc_res \
 # Define range and extent for the images in arc seconds
 imgrange = ((-width / 2, width / 2), (-width / 2, width / 2))
 imgextent = [-width / 2, width / 2, -width / 2, width / 2]
-region_extent = [region_cent - region_rad, region_cent + region_rad,
-                 region_cent - region_rad, region_cent + region_rad,
-                 region_cent - region_rad, region_cent + region_rad]
+region_extent = [region_cent[0] - region_rad, region_cent[0] + region_rad,
+                 region_cent[1] - region_rad, region_cent[1] + region_rad,
+                 region_cent[2] - region_rad, region_cent[2] + region_rad]
 
 # # Set up aperture objects
 # positions = [(npix / 2, npix / 2)]
@@ -225,11 +225,10 @@ for num, depth in enumerate(depths):
         this_cop = reg_dict[key]["cent"] * 10 ** 3
 
         # Find the pixel in the region image this occupies
-        print(this_cop)
         i = (this_cop[0] - region_extent[0]) * arc_res_kpc
         j = (this_cop[1] - region_extent[2]) * arc_res_kpc
         k = (this_cop[2] - region_extent[4]) * arc_res_kpc
-        print(i, j, k)
+
         shift = (np.array([i - int(i),
                            j - int(j),
                            k - int(k)]) + 0.5) * arc_res

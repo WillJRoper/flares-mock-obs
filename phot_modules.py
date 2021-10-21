@@ -391,7 +391,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     out_cents = []
     ind = 0
 
-    for num, cop in enumerate(cops):
+    for (num, cop), r in enumerate(cops, r_200):
 
         print(num, end="\r")
 
@@ -399,7 +399,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
         g_okinds = gas_tree.query_ball_point(cop, r=r)
 
-        if S_mass[okinds].size < 100:
+        if S_mass[okinds].size < 50:
             continue
 
         Fnus[ind] = {f: {} for f in filters}
