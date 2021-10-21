@@ -4,9 +4,9 @@
 #SBATCH -p cosma6 #or some other partition, e.g. cosma, cosma6, etc.
 #SBATCH -A dp004
 #SBATCH --cpus-per-task=1
-#SBATCH -J MEGA-FLARES #Give it something meaningful.
-#SBATCH -o logs/output_hlr_job.%A_%a.out
-#SBATCH -e logs/error_hlr_job.%A_%a.err
+#SBATCH -J MOCK-OBS #Give it something meaningful.
+#SBATCH -o logs/output_mock_job.%A_%a.out
+#SBATCH -e logs/error_mock_job.%A_%a.err
 #SBATCH -t 72:00:00
 
 # Run the job from the following directory - change this to point to your own personal space on /lustre
@@ -21,14 +21,10 @@ source activate flares-env
 i=$(($SLURM_ARRAY_TASK_ID - 1))
 
 # Run the program
-./Webb_size_lumin_relation_distributed.py $i sim Total 
-#./UV_size_lumin_relation_distributed.py $i sim Total 1
-#./UV_size_lumin_relation_distributed.py $i sim Total 2
-#./UV_size_lumin_relation_distributed.py $i sim Intrinsic 0
-#./UV_size_lumin_relation_distributed.py $i sim Intrinsic 1
-#./UV_size_lumin_relation_distributed.py $i sim Intrinsic 2
-#./UV_size_lumin_relation_distributed.py $i face-on Total
-#./UV_size_lumin_relation_distributed.py $i face-on Intrinsic
+for j in {0..8}
+  do
+    ./Webb_size_lumin_relation_distributed.py $i sim Total $j
+  done
 
 source deactivate
 
