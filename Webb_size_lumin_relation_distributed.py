@@ -221,7 +221,7 @@ for num, depth in enumerate(depths):
             continue
 
         ind = int(key)
-
+        print(ind)
         this_cop = reg_dict[key]["cent"] * 10 ** 3
 
         # Find the pixel in the region image this occupies
@@ -286,7 +286,7 @@ for num, depth in enumerate(depths):
                 img = signal.fftconvolve(img, psf, mode="same")
 
             img, img_obj = util.noisy_img(img, image_creator)
-
+        print(ind)
         imgs[ind, :, :] = img
         noise[ind] = image_creator.pixel.noise
 
