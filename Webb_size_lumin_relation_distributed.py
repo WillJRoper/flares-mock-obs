@@ -221,7 +221,7 @@ for num, depth in enumerate(depths):
             continue
 
         ind = int(key)
-        print(ind)
+
         this_cop = reg_dict[key]["cent"] * 10 ** 3
 
         # Find the pixel in the region image this occupies
