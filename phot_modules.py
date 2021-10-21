@@ -391,7 +391,7 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
     out_cents = []
     ind = 0
 
-    for (num, cop), r in enumerate(cops, r_200):
+    for (num, cop), r in zip(enumerate(cops), r_200):
 
         print(num, end="\r")
 
