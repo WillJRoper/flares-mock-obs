@@ -200,8 +200,8 @@ for num, depth in enumerate(depths):
 
     fdepth = f + "." + str(depth)
 
-    imgs = []
-    noise = []
+    imgs = np.full((len(image_keys), npix, npix), np.nan, dtype=np.int32)
+    noise = np.full((len(image_keys), npix, npix), np.nan, dtype=np.int32)
     img_cop = []
 
     begin = np.full(len(image_keys), np.nan, dtype=np.int32)
@@ -286,7 +286,7 @@ for num, depth in enumerate(depths):
                 img = signal.fftconvolve(img, psf, mode="same")
 
             img, img_obj = util.noisy_img(img, image_creator)
-        print(ind)
+
         imgs[ind, :, :] = img
         noise[ind] = image_creator.pixel.noise
 
