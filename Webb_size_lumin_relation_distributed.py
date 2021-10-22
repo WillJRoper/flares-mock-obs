@@ -210,9 +210,12 @@ for num, depth in enumerate(depths):
 
     fdepth = f + "." + str(depth)
 
-    imgs = np.full((len(image_keys), npix, npix), np.nan, dtype=np.int32)
-    mass_imgs = np.full((len(image_keys), npix, npix), np.nan, dtype=np.int32)
-    noise = np.full((len(image_keys), npix, npix), np.nan, dtype=np.int32)
+    imgs = np.full((len(image_keys), npix, npix),
+                   np.nan, dtype=np.float64)
+    mass_imgs = np.full((len(image_keys), npix, npix),
+                        np.nan, dtype=np.float64)
+    noise = np.full(len(image_keys),
+                    np.nan, dtype=np.float64)
     img_cop = []
 
     begin = np.full(len(image_keys), np.nan, dtype=np.int32)

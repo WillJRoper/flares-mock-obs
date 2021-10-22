@@ -94,7 +94,7 @@ while ind < n_img:
 
             img = fdepth_group["Images"][img_ind]
             mimg = fdepth_group["Mass_Images"][img_ind]
-            print(depth, depths_m, fdepth_group["Noise_value"][img_ind])
+            print(depth, mdepth, np.max(fdepth_group["Noise_value"][img_ind]))
 
             if np.max(mimg) > mass_vmax:
                 mass_vmax = np.max(mimg)
