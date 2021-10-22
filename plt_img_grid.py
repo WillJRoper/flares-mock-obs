@@ -107,8 +107,8 @@ while ind < n_img:
             hdf.close()
 
     all_imgs = np.array(list(img_dict.values()))
-    img_norm = LogNorm(vmin=np.log10(vmin), vmax=np.log10(vmax))
-    mimg_norm = LogNorm(vmax=np.log10(mass_vmax))
+    img_norm = Normalize(vmin=vmin, vmax=vmax)
+    mimg_norm = LogNorm(vmax=mass_vmax)
     print(vmin, vmax, mass_vmax)
     fig = plt.figure()
     gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
