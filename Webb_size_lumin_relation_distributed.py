@@ -279,9 +279,13 @@ for num, depth in enumerate(depths):
         if orientation == "sim" or orientation == "face-on":
 
             img = util.make_spline_img(this_pos, npix, 0, 1, tree,
-                                       this_flux, this_smls)
+                                       this_flux, this_smls,
+                                       spline_func=util.cubic_spline,
+                                       spline_cut_off=1)
             mimg = util.make_spline_img(this_pos, npix, 0, 1, tree,
-                                       this_masses, this_smls)
+                                        this_masses, this_smls,
+                                        spline_func=util.cubic_spline,
+                                        spline_cut_off=1)
 
             if Type != "Intrinsic":
                 img = signal.fftconvolve(img, psf, mode="same")
@@ -299,9 +303,13 @@ for num, depth in enumerate(depths):
             this_radii = util.calc_rad(this_pos, i=2, j=0)
 
             img = util.make_spline_img(this_pos, npix, 2, 0, tree,
-                                       this_flux, this_smls)
+                                       this_flux, this_smls,
+                                       spline_func=util.cubic_spline,
+                                       spline_cut_off=1)
             mimg = util.make_spline_img(this_pos, npix, 2, 0, tree,
-                                       this_masses, this_smls)
+                                        this_masses, this_smls,
+                                        spline_func=util.cubic_spline,
+                                        spline_cut_off=1)
 
             if Type != "Intrinsic":
                 img = signal.fftconvolve(img, psf, mode="same")

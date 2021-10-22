@@ -98,6 +98,8 @@ while ind < n_img:
 
             if np.max(mimg) > mass_vmax:
                 mass_vmax = np.max(mimg)
+            if np.min(mimg) < mass_vmin:
+                mass_vmin = np.min(mimg)
 
             img_dict.setdefault(mdepth, {})[f] = img
             img_dict.setdefault(mdepth, {})["Mass"] = mimg
@@ -105,10 +107,13 @@ while ind < n_img:
             hdf.close()
 
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
-    vmin = np.percentile(all_imgs[all_imgs > 0], 50)
+    all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
+    vmin = -np.percentile(all_imgs[all_imgs > 0], 32)
     vmax = np.percentile(all_imgs[all_imgs > 0], 99)
+    mass_vmin = np.percentile(all_imgs[all_mimgs > 0], 16)
+    mass_vmax = np.percentile(all_imgs[all_mimgs > 0], 99)
     img_norm = Normalize(vmin=vmin, vmax=vmax, clip=True)
-    mimg_norm = LogNorm(vmax=mass_vmax, clip=True)
+    mimg_norm = LogNorm(vmin=mass_vmin, vmax=mass_vmax, clip=True)
     print(vmin, vmax, mass_vmax)
     fig = plt.figure(figsize=(len(filters) + 1, len(depths)),
                      dpi=all_imgs.shape[-1])
@@ -139,7 +144,7 @@ while ind < n_img:
             if i == 0:
                 ax.set_title(f.split(".")[-1])
             if j == 0:
-                ax.set_ylabel("$m=$%.2f"%d)
+                ax.set_ylabel("$m=$%.1f" % d)
 
         ax = axes[i, -1]
         ax.tick_params(axis='both', top=False, bottom=False,
@@ -156,11 +161,19 @@ while ind < n_img:
     cmap = mpl.cm.magma
     cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
                                      norm=img_norm)
+    cbar.ax.set_aspect('auto')
+    pos = cbar.ax.get_position()
+    cax2 = cbar.ax.twinx()
+    cax2.set_ylim([mass_vmin, mass_vmax])
+    pos.x0 += 0.05
+    cbar.ax.set_position(pos)
+    cax2.set_position(pos)
+    cax2.set_yscale("log")
     # cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap,
     #                                   norm=mimg_norm, alpha=0)
 
     cbar.set_label("$F/[\mathrm{nJy}]$")
-    # cbar2.set_label("$M/M_\odot$")
+    cax2.set_ylabel("$M/M_\odot$")
 
     fig.savefig("plots/gal_img_grid_Orientation-"
                 + orientation + "_Type-" + Type
