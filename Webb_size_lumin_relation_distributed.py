@@ -20,6 +20,15 @@ import sys
 from scipy.spatial import cKDTree
 import eritlux.simulations.imagesim as imagesim
 import flare.surveys as survey
+import mpi4py
+from mpi4py import MPI
+
+mpi4py.rc.recv_mprobe = False
+
+# Initializations and preliminaries
+comm = MPI.COMM_WORLD  # get MPI communicator object
+size = comm.size  # total number of processes
+rank = comm.rank  # rank of this process
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
@@ -51,7 +60,7 @@ orientation = sys.argv[2]
 Type = sys.argv[3]
 extinction = 'default'
 
-filter_ind = int(sys.argv[4])
+filter_ind = int(rank)
 
 reg, tag = reg_snaps[ind]
 print("Creating images with orientation {o}, type {t}, and extinction {e}"

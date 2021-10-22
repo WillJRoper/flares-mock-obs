@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --ntasks 1 # The number of cores you need...
+#SBATCH --ntasks 9 # The number of cores you need...
 #SBATCH --array=1-480
 #SBATCH -p cosma6 #or some other partition, e.g. cosma, cosma6, etc.
 #SBATCH -A dp004
@@ -14,17 +14,14 @@ cd /cosma7/data/dp004/dc-rope1/FLARES/flares-mock-obs
 
 module purge
 #load the modules used to build your program.
-module load pythonconda3/4.5.4
+module load pythonconda3/4.5.4 gnu_comp/7.3.0 openmpi/3.0.1 hdf5/1.10.3
 
 source activate flares-env
 
 i=$(($SLURM_ARRAY_TASK_ID - 1))
 
 # Run the program
-for j in {0..8}
-  do
-    ./Webb_size_lumin_relation_distributed.py $i sim Total $j
-  done
+mpiexec -np 9 ./Webb_size_lumin_relation_distributed.py $i sim Total
 
 source deactivate
 
