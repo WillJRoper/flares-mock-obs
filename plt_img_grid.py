@@ -94,7 +94,7 @@ while ind < n_img:
             img = fdepth_group["Images"][img_ind]
             mimg = fdepth_group["Mass_Images"][img_ind]
 
-            if -np.min(img) < vmin:
+            if np.min(img) < vmin:
                 vmin = -np.min(img)
             if np.max(img) > vmax:
                 vmax = np.max(img)
