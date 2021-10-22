@@ -120,14 +120,14 @@ while ind < n_img:
     gs1.update(wspace=0.2, hspace=0.0)
     cax = fig.add_subplot(gs[:, -1])
     cax2 = cax.twinx()
-    axes = np.zeros((len(filters) + 1, len(depths)), dtype=object)
+    axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
         for j in range(len(filters) + 1):
-            axes[j, i] = fig.add_subplot(gs[j, i])
+            axes[i, j] = fig.add_subplot(gs[i, j])
 
     for i, d in enumerate(depths_m):
         for j, f in enumerate(filters):
-            ax = axes[j, i]
+            ax = axes[i, j]
             ax.tick_params(axis='both', top=False, bottom=False,
                            labeltop=False, labelbottom=False,
                            left=False, right=False,
@@ -141,7 +141,7 @@ while ind < n_img:
             if j == 0:
                 ax.set_ylabel(f"$m=${d}")
 
-        ax = axes[-1, i]
+        ax = axes[i, -1]
         ax.tick_params(axis='both', top=False, bottom=False,
                        labeltop=False, labelbottom=False,
                        left=False, right=False,
