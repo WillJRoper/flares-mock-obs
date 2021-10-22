@@ -62,7 +62,7 @@ reg, snap = regions[reg_ind], snaps[snap_ind]
 z_str = snap.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
 
-n_img = int(sys.argv[4])
+n_img = int(sys.argv[5])
 
 ind = 0
 
