@@ -393,8 +393,6 @@ def flux(sim, kappa, tag, BC_fac, IMF='Chabrier_300',
 
     for (num, cop), r in zip(enumerate(cops), r_200):
 
-        print(num, end="\r")
-
         okinds = star_tree.query_ball_point(cop, r=r)
 
         g_okinds = gas_tree.query_ball_point(cop, r=r)
