@@ -104,7 +104,7 @@ while ind < n_img:
             hdf.close()
 
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
-    vmin = 3
+    vmin = np.percentile(all_imgs[all_imgs > 0], 32)
     vmax = np.percentile(all_imgs[all_imgs > 0], 99)
     img_norm = Normalize(vmin=vmin, vmax=vmax, clip=True)
     mimg_norm = LogNorm(vmax=mass_vmax, clip=True)
