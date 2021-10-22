@@ -112,9 +112,9 @@ while ind < n_img:
     mimg_norm = LogNorm(vmin=0, vmax=mass_vmax)
 
     fig = plt.figure(figsize=(len(filters) + 1, len(depths)), dpi=img.shape[0])
-    gs = gridspec.GridSpec(len(filters) + 2, len(depths),
+    gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
                            width_ratios=(len(filters) + 1) * [15, ] + [1, ])
-    gs1 = gridspec.GridSpec(len(filters) + 2, len(depths),
+    gs1 = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
                             width_ratios=(len(filters) + 1) * [15, ] + [1, ])
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=0.2, hspace=0.0)
