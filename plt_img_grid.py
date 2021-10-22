@@ -110,7 +110,7 @@ while ind < n_img:
     img_norm = Normalize(vmin=vmin, vmax=vmax)
     mimg_norm = LogNorm(vmax=np.log10(mass_vmax))
 
-    fig = plt.figure(figsize=(len(filters) + 1, len(depths)), dpi=img.shape[0])
+    fig = plt.figure(figsize=(len(depths), len(filters) + 1 + 0.1), dpi=img.shape[0])
     gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
                            width_ratios=(len(filters) + 1) * [15, ] + [1, ])
     gs1 = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
