@@ -69,7 +69,7 @@ ind = 0
 hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                 .format(reg, snap, Type, orientation, filters[0]), "r")
 
-mimgs = hdf["Mass_Images"][:]
+mimgs = hdf[str(depths[0])]["Mass_Images"][:]
 sinds = np.argsort(np.sum(mimgs, axis=(1, 2)))[::-1]
 hdf.close()
 
