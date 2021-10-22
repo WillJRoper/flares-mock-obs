@@ -70,8 +70,8 @@ ind = 0
 hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                 .format(reg, snap, Type, orientation, filters[0]), "r")
 
-mimgs = hdf[str(depths[0])]["Mass_Images"][:]
-sinds = np.argsort(np.sum(mimgs, axis=(1, 2)))[::-1]
+imgs = hdf[str(depths[0])]["Images"][:]
+sinds = np.argsort(np.sum(imgs, axis=(1, 2)))[::-1]
 hdf.close()
 
 while ind < n_img:
@@ -104,10 +104,10 @@ while ind < n_img:
             hdf.close()
 
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
-    vmin = 0
+    vmin = 3
     vmax = np.percentile(all_imgs[all_imgs > 0], 99)
-    img_norm = Normalize(vmin=vmin, vmax=vmax)
-    mimg_norm = LogNorm(vmax=mass_vmax)
+    img_norm = Normalize(vmin=vmin, vmax=vmax, clip=True)
+    mimg_norm = LogNorm(vmax=mass_vmax, clip=True)
     print(vmin, vmax, mass_vmax)
     fig = plt.figure(figsize=(len(filters) + 1, len(depths)),
                      dpi=all_imgs.shape[-1])
