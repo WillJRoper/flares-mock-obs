@@ -159,7 +159,7 @@ while ind < n_img:
     #                                   norm=mimg_norm, alpha=0)
 
     cbar.set_label("$F/[\mathrm{nJy}]$")
-    cbar2.set_label("$M/M_\odot$")
+    # cbar2.set_label("$M/M_\odot$")
 
     fig.savefig("plots/gal_img_grid_Orientation-"
                 + orientation + "_Type-" + Type
