@@ -80,7 +80,6 @@ while ind < n_img:
 
     img_dict = {}
 
-    vmin, vmax = np.inf, 0
     mass_vmin, mass_vmax = np.inf, 0
 
     for depth, mdepth in zip(depths, depths_m):
@@ -94,10 +93,6 @@ while ind < n_img:
             img = fdepth_group["Images"][img_ind]
             mimg = fdepth_group["Mass_Images"][img_ind]
 
-            if np.min(img) < vmin:
-                vmin = -np.min(img)
-            if np.max(img) > vmax:
-                vmax = np.max(img)
             if np.max(mimg) > mass_vmax:
                 mass_vmax = np.max(mimg)
 
@@ -106,7 +101,9 @@ while ind < n_img:
 
             hdf.close()
 
-    all_imgs = np.array(list(img_dict.values()))
+    all_imgs = [img_dict[d][f] for f in filters for d in depths_m]
+    vmin = -np.percentile(all_imgs, 32)
+    vmax = np.percentile(all_imgs, 99)
     img_norm = Normalize(vmin=vmin, vmax=vmax)
     mimg_norm = LogNorm(vmax=mass_vmax)
     print(vmin, vmax, mass_vmax)
