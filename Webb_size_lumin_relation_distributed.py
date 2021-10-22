@@ -201,6 +201,7 @@ for num, depth in enumerate(depths):
     fdepth = f + "." + str(depth)
 
     imgs = np.full((len(image_keys), npix, npix), np.nan, dtype=np.int32)
+    mass_imgs = np.full((len(image_keys), npix, npix), np.nan, dtype=np.int32)
     noise = np.full((len(image_keys), npix, npix), np.nan, dtype=np.int32)
     img_cop = []
 
@@ -208,6 +209,7 @@ for num, depth in enumerate(depths):
     Slen = np.full(len(image_keys), np.nan, dtype=np.int32)
     ijk = np.full((len(image_keys), 3), np.nan, dtype=np.int32)
     smls = []
+    masses = []
     fluxes = []
     subgrpids = []
     star_pos = []
@@ -240,6 +242,7 @@ for num, depth in enumerate(depths):
                     * 10 ** 3 * arcsec_per_kpc_proper + shift)
         this_smls = reg_dict[key]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
         this_subgrpids = reg_dict[key]["part_subgrpids"]
+        this_masses = reg_dict[key]["masses"]
 
         xcond = np.logical_and(this_pos[:, 0] < imgextent[1],
                                this_pos[:, 0] > imgextent[0])
@@ -253,6 +256,7 @@ for num, depth in enumerate(depths):
         this_pos = this_pos[okinds]
         this_smls = this_smls[okinds]
         this_subgrpids = this_subgrpids[okinds]
+        this_masses = this_masses[okinds]
 
         subfind_ids = np.unique(this_subgrpids)
 
@@ -263,6 +267,8 @@ for num, depth in enumerate(depths):
 
             img = util.make_spline_img(this_pos, npix, 0, 1, tree,
                                        this_flux, this_smls)
+            mimg = util.make_spline_img(this_pos, npix, 0, 1, tree,
+                                       this_masses, this_smls)
 
             if Type != "Intrinsic":
                 img = signal.fftconvolve(img, psf, mode="same")
@@ -281,18 +287,23 @@ for num, depth in enumerate(depths):
 
             img = util.make_spline_img(this_pos, npix, 2, 0, tree,
                                        this_flux, this_smls)
+            mimg = util.make_spline_img(this_pos, npix, 2, 0, tree,
+                                       this_masses, this_smls)
 
             if Type != "Intrinsic":
                 img = signal.fftconvolve(img, psf, mode="same")
+                mimg = signal.fftconvolve(img, psf, mode="same")
 
             img, img_obj = util.noisy_img(img, image_creator)
 
         imgs[ind, :, :] = img
+        mass_imgs[ind, :, :] = mimg
         noise[ind] = image_creator.pixel.noise
 
         begin[ind] = len(fluxes)
         Slen[ind] = len(this_smls)
 
+        masses.extend(this_masses)
         star_pos.extend(this_pos)
         smls.extend(this_smls)
         fluxes.extend(this_flux)
@@ -307,6 +318,12 @@ for num, depth in enumerate(depths):
                                        shape=imgs.shape,
                                        compression="gzip")
     dset.attrs["units"] = "$nJy$"
+
+    dset = fdepth_group.create_dataset("Mass_Images", data=mass_imgs,
+                                       dtype=mass_imgs.dtype,
+                                       shape=mass_imgs.shape,
+                                       compression="gzip")
+    dset.attrs["units"] = "$M_\odot$"
 
     dset = fdepth_group.create_dataset("IJK", data=ijk,
                                        dtype=ijk.dtype,
@@ -324,6 +341,7 @@ for num, depth in enumerate(depths):
     subgrpids = np.array(subgrpids)
     smls = np.array(smls)
     star_pos = np.array(star_pos)
+    masses = np.array(masses)
 
     dset = fdepth_group.create_dataset("Start_Index", data=begin,
                                        dtype=begin.dtype,
@@ -348,6 +366,12 @@ for num, depth in enumerate(depths):
                                        shape=fluxes.shape,
                                        compression="gzip")
     dset.attrs["units"] = "nJy"
+
+    dset = fdepth_group.create_dataset("Masses", data=masses,
+                                       dtype=masses.dtype,
+                                       shape=masses.shape,
+                                       compression="gzip")
+    dset.attrs["units"] = "$M_\odot$"
 
     dset = fdepth_group.create_dataset("Part_subgrpids", data=subgrpids,
                                        dtype=subgrpids.dtype,
