@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH -J MOCK-OBS #Give it something meaningful.
 #SBATCH -o logs/output_mock_job.%A_%a.out
-#SBATCH -t 72:00:00
+#SBATCH -t 8:00:00
 
 # Run the job from the following directory - change this to point to your own personal space on /lustre
 cd /cosma7/data/dp004/dc-rope1/FLARES/flares-mock-obs
