@@ -107,7 +107,8 @@ while ind < n_img:
     img_norm = Normalize(vmin=vmin, vmax=vmax)
     mimg_norm = LogNorm(vmax=mass_vmax)
     print(vmin, vmax, mass_vmax)
-    fig = plt.figure()
+    fig = plt.figure(figsize=(len(filters) + 1, len(depths)),
+                     dpi=all_imgs.shape[-1])
     gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
                            width_ratios=(len(filters) + 1) * [15, ] + [1, ])
     gs1 = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
@@ -135,7 +136,7 @@ while ind < n_img:
             if i == 0:
                 ax.set_title(f.split(".")[-1])
             if j == 0:
-                ax.set_ylabel(f"$m=${d}")
+                ax.set_ylabel("$m=$%.2f"%d)
 
         ax = axes[i, -1]
         ax.tick_params(axis='both', top=False, bottom=False,
