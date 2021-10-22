@@ -94,12 +94,12 @@ while ind < n_img:
             img = fdepth_group["Images"][img_ind]
             mimg = fdepth_group["Mass_Images"][img_ind]
 
-            if -np.percentile(img, 31.75) < vmin:
-                vmin = -np.percentile(img, 31.75)
-            if np.percentile(img, 99) > vmax:
-                vmax = np.percentile(img, 99)
-            if np.percentile(mimg, 99) > mass_vmax:
-                mass_vmax = np.percentile(mimg, 99)
+            if np.min(img) < vmin:
+                vmin = np.min(img)
+            if np.max(img) > vmax:
+                vmax = np.max(img)
+            if np.max(mimg) > mass_vmax:
+                mass_vmax = np.max(mimg)
 
             img_dict.setdefault(mdepth, {})[f] = img
             img_dict.setdefault(mdepth, {})["Mass"] = mimg
@@ -107,9 +107,9 @@ while ind < n_img:
             hdf.close()
 
     all_imgs = np.array(list(img_dict.values()))
-    img_norm = Normalize(vmin=vmin, vmax=vmax)
-    mimg_norm = LogNorm(vmax=np.log10(mass_vmax))
-
+    img_norm = LogNorm(vmin=vmin, vmax=vmax)
+    mimg_norm = LogNorm(vmax=mass_vmax)
+    print((len(filters) + 1) * [15, ] + [1, ])
     fig = plt.figure()
     gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
                            width_ratios=(len(filters) + 1) * [15, ] + [1, ])
@@ -118,7 +118,7 @@ while ind < n_img:
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=0.2, hspace=0.0)
     cax = fig.add_subplot(gs[:, -1])
-    cax2 = cax.twinx()
+    # cax2 = cax.twinx()
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
         for j in range(len(filters) + 1):
@@ -155,8 +155,8 @@ while ind < n_img:
     cmap = mpl.cm.magma
     cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
                                      norm=img_norm)
-    cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap,
-                                      norm=mimg_norm, alpha=0)
+    # cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap,
+    #                                   norm=mimg_norm, alpha=0)
 
     cbar.set_label("$F/[\mathrm{nJy}]$")
     cbar2.set_label("$M/M_\odot$")
