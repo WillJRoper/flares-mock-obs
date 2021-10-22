@@ -112,9 +112,9 @@ while ind < n_img:
 
     fig = plt.figure()
     gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
-                           width_ratios=(len(filters) + 1) * [15, ] + [1, ])
+                           )
     gs1 = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
-                            width_ratios=(len(filters) + 1) * [15, ] + [1, ])
+                            )
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=0.2, hspace=0.0)
     cax = fig.add_subplot(gs[:, -1])
