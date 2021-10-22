@@ -80,8 +80,8 @@ while ind < n_img:
 
     img_dict = {}
 
-    vmin, vmax = 0, 0
-    mass_vmin, mass_vmax = 0, 0
+    vmin, vmax = np.nan, 0
+    mass_vmin, mass_vmax = np.nan, 0
 
     for depth, mdepth in zip(depths, depths_m):
         for f in filters:
@@ -117,7 +117,7 @@ while ind < n_img:
                             width_ratios=(len(filters) + 1) * [15, ] + [1, ])
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=0.2, hspace=0.0)
-    cax = fig.add_subplot(gs[:, -1])
+    cax = fig.add_subplot(gs1[:, -1])
     # cax2 = cax.twinx()
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
