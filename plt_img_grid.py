@@ -123,8 +123,9 @@ while ind < n_img:
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
         for j in range(len(filters) + 1):
+            print(i, j)
             axes[i, j] = fig.add_subplot(gs[i, j])
-
+    print(axes.shape)
     for i, d in enumerate(depths_m):
         for j, f in enumerate(filters):
             ax = axes[i, j]
