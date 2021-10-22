@@ -94,6 +94,7 @@ while ind < n_img:
 
             img = fdepth_group["Images"][img_ind]
             mimg = fdepth_group["Mass_Images"][img_ind]
+            print(depth, depths_m, fdepth_group["Noise_value"][img_ind])
 
             if np.max(mimg) > mass_vmax:
                 mass_vmax = np.max(mimg)
@@ -104,7 +105,7 @@ while ind < n_img:
             hdf.close()
 
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
-    vmin = np.percentile(all_imgs[all_imgs > 0], 32)
+    vmin = np.percentile(all_imgs[all_imgs > 0], 50)
     vmax = np.percentile(all_imgs[all_imgs > 0], 99)
     img_norm = Normalize(vmin=vmin, vmax=vmax, clip=True)
     mimg_norm = LogNorm(vmax=mass_vmax, clip=True)
