@@ -52,6 +52,8 @@ depths = [XDF_depth_flux * 0.1, XDF_depth_flux,
           2 * XDF_depth_flux, 10 * XDF_depth_flux]
 depths_m = [flux_to_m(XDF_depth_flux * 0.01), flux_to_m(XDF_depth_flux * 0.1),
             flux_to_m(XDF_depth_flux), flux_to_m(10 * XDF_depth_flux)]
+print(depths)
+print([d / 5 for d in depths])
 
 reg_ind = int(sys.argv[1])
 snap_ind = int(sys.argv[2])
@@ -102,7 +104,7 @@ while ind < n_img:
             hdf.close()
 
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
-    vmin = -np.percentile(all_imgs[all_imgs > 0], 32)
+    vmin = 0
     vmax = np.percentile(all_imgs[all_imgs > 0], 99)
     img_norm = Normalize(vmin=vmin, vmax=vmax)
     mimg_norm = LogNorm(vmax=mass_vmax)
@@ -110,9 +112,9 @@ while ind < n_img:
     fig = plt.figure(figsize=(len(filters) + 1, len(depths)),
                      dpi=all_imgs.shape[-1])
     gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
-                           width_ratios=(len(filters) + 1) * [15, ] + [1, ])
+                           width_ratios=(len(filters) + 1) * [10, ] + [1, ])
     gs1 = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
-                            width_ratios=(len(filters) + 1) * [15, ] + [1, ])
+                            width_ratios=(len(filters) + 1) * [10, ] + [1, ])
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=0.2, hspace=0.0)
     cax = fig.add_subplot(gs1[:, -1])
