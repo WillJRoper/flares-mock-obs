@@ -6,7 +6,6 @@
 #SBATCH --cpus-per-task=1
 #SBATCH -J MOCK-OBS #Give it something meaningful.
 #SBATCH -o logs/output_mock_job.%A_%a.out
-#SBATCH -e logs/error_mock_job.%A_%a.err
 #SBATCH -t 72:00:00
 
 # Run the job from the following directory - change this to point to your own personal space on /lustre
