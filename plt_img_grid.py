@@ -80,8 +80,8 @@ while ind < n_img:
 
     img_dict = {}
 
-    vmin, vmax = np.nan, 0
-    mass_vmin, mass_vmax = np.nan, 0
+    vmin, vmax = np.inf, 0
+    mass_vmin, mass_vmax = np.inf, 0
 
     for depth, mdepth in zip(depths, depths_m):
         for f in filters:
