@@ -11,19 +11,15 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
 import seaborn as sns
-from matplotlib.colors import LogNorm
+from matplotlib.colors import LogNorm, Normalize
 import matplotlib.gridspec as gridspec
 import matplotlib as mpl
-from astropy.cosmology import Planck13 as cosmo
 import h5py
 import sys
-import eritlux.simulations.imagesim as imagesim
-import flare.surveys
-import flare.plots.image
+from flare.photom import m_to_flux, flux_to_m
 
 sns.set_context("paper")
 sns.set_style('white')
-
 
 regions = []
 for reg in range(0, 40):
@@ -37,145 +33,139 @@ snaps = ['000_z015p000', '001_z014p000', '002_z013p000',
          '006_z009p000', '007_z008p000', '008_z007p000',
          '009_z006p000', '010_z005p000', '011_z004p770']
 
-reg_snaps = []
-for reg in reversed(regions):
-
-    for snap in snaps:
-
-        reg_snaps.append((reg, snap))
-
 # Set orientation
-orientation = sys.argv[2]
+orientation = sys.argv[3]
 
 # Define luminosity and dust model types
-Type = sys.argv[3]
+Type = sys.argv[4]
 extinction = 'default'
 
 # Define filter
-f = 'Hubble.WFC3.f160w'
+filters = [f'Hubble.ACS.{f}'
+           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
+          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
-depths = [0.1, 1, 5, 10, 20]
+# Set up depths relative to the Xtreme deep field
+XDF_depth_m = 31.2
+XDF_depth_flux = m_to_flux(XDF_depth_m)
+depths = [XDF_depth_flux * 0.1, XDF_depth_flux,
+          2 * XDF_depth_flux, 10 * XDF_depth_flux]
+depths_m = [flux_to_m(XDF_depth_flux * 0.01), flux_to_m(XDF_depth_flux * 0.1),
+            flux_to_m(XDF_depth_flux), flux_to_m(10 * XDF_depth_flux),
+            flux_to_m(100 * XDF_depth_flux)]
 
 reg_ind = int(sys.argv[1])
+snap_ind = int(sys.argv[2])
 
-reg, snap = reg_snaps[reg_ind]
+reg, snap = regions[reg_ind], snaps[snap_ind]
 
 z_str = snap.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
 
 n_img = int(sys.argv[4])
 
-arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
-
-# Define width
-ini_width_pkpc = 500
-ini_width = ini_width_pkpc * arcsec_per_kpc_proper
-
-survey_id = 'XDF'  # the XDF (updated HUDF)
-field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
-
-# --- get field info object. This contains the filters, depths,
-# image location etc. (if real image)
-field = flare.surveys.surveys[survey_id].fields[field_id]
-
-# --- initialise ImageCreator object
-image_creator = imagesim.Idealised(f, field)
-
-arc_res = image_creator.pixel_scale
-
-# Compute the resolution
-ini_res = ini_width / arc_res
-res = int(np.ceil(ini_res))
-cutout_halfsize = int(res * 0.1)
-
-# Compute the new width
-width = arc_res * res
-
-print("Filter:", f)
-print("Image width and resolution (in arcseconds):", width, arc_res)
-print("Image width and resolution (in pkpc):",
-      width / arcsec_per_kpc_proper,
-      arc_res / arcsec_per_kpc_proper)
-print("Image width (in pixels):", res)
-
-# Define pixel area in pkpc
-single_pixel_area = arc_res * arc_res \
-                    / (arcsec_per_kpc_proper * arcsec_per_kpc_proper)
-
-# Define range and extent for the images in arc seconds
-imgrange = ((-width / 2, width / 2), (-width / 2, width / 2))
-imgextent = [-width / 2, width / 2, -width / 2, width / 2]
-
 ind = 0
+
+hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                .format(reg, snap, Type, orientation, filters[0]), "r")
+
+mimgs = hdf["Mass_Images"][:]
+sinds = np.argsort(np.sum(mimgs, axis=(1, 2)))[::-1]
+hdf.close()
 
 while ind < n_img:
 
-    print("Creating image", ind)
+    img_ind = sinds[ind]
+
+    print("Creating image", ind, img_ind)
 
     img_dict = {}
 
-    for depth in depths:
+    vmin, vmax = 0, 0
+    mass_vmin, mass_vmax = 0, 0
 
-        hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}.hdf5"
-                        .format(reg, snap, Type, orientation),
-                        "r")
+    for depth, mdepth in zip(depths, depths_m):
+        for f in filters:
 
-        f_group = hdf[f]
-        fdepth_group = f_group[str(depth)]
+            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                            .format(reg, snap, Type, orientation, f), "r")
 
-        imgs = fdepth_group["Images"]
+            fdepth_group = hdf[str(depth)]
 
-        if ind > imgs.shape[0]:
-            ind += 1
-            continue
+            img = fdepth_group["Images"][img_ind]
+            mimg = fdepth_group["Mass_Images"][img_ind]
 
-        img_dict[depth] = imgs[ind, :, :]
+            if -np.percentile(img, 31.75) < vmin:
+                vmin = -np.percentile(img, 31.75)
+            if np.percentile(img, 99) > vmax:
+                vmax = np.percentile(img, 99)
+            if np.percentile(mimg, 99) > mass_vmax:
+                mass_vmax = np.percentile(mimg, 99)
 
-        hdf.close()
+            img_dict.setdefault(mdepth, {})[f] = img
+            img_dict.setdefault(mdepth, {})["Mass"] = mimg
+
+            hdf.close()
 
     all_imgs = np.array(list(img_dict.values()))
-    img_norm = LogNorm(vmin=-np.percentile(all_imgs, 31.75),
-                       vmax=np.percentile(all_imgs, 99))
+    img_norm = Normalize(vmin=vmin, vmax=vmax)
+    mimg_norm = LogNorm(vmin=0, vmax=mass_vmax)
 
-    # np.percentile(all_imgs, 31.75)
-    
-    print(np.percentile(all_imgs, 31.75), np.percentile(all_imgs, 99),
-          np.std(all_imgs))
-
-    fig = plt.figure(figsize=(10, 3))
-    gs = gridspec.GridSpec(2, len(depths), height_ratios=[20, 1])
+    fig = plt.figure(figsize=(len(filters) + 1, len(depths)), dpi=img.shape[0])
+    gs = gridspec.GridSpec(len(filters) + 2, len(depths),
+                           width_ratios=(len(filters) + 1) * [15, ] + [1, ])
+    gs1 = gridspec.GridSpec(len(filters) + 2, len(depths),
+                            width_ratios=(len(filters) + 1) * [15, ] + [1, ])
     gs.update(wspace=0.0, hspace=0.0)
-    cax = fig.add_subplot(gs[1, :])
-    axes = []
+    gs1.update(wspace=0.2, hspace=0.0)
+    cax = fig.add_subplot(gs[:, -1])
+    cax2 = cax.twinx()
+    axes = np.zeros((len(filters) + 1, len(depths)), dtype=object)
     for i in range(len(depths)):
-        axes.append(fig.add_subplot(gs[0, i]))
+        for j in range(len(filters) + 1):
+            axes[j, i] = fig.add_subplot(gs[j, i])
 
-    for ax, depth in zip(axes, depths):
+    for i, d in enumerate(depths_m):
+        for j, f in enumerate(filters):
+            ax = axes[j, i]
+            ax.tick_params(axis='both', top=False, bottom=False,
+                           labeltop=False, labelbottom=False,
+                           left=False, right=False,
+                           labelleft=False, labelright=False)
+
+            plt_img = img_dict[d][f]
+            ax.imshow(plt_img, cmap="magma", norm=img_norm)
+
+            if i == 0:
+                ax.set_title(f.split(".")[-1])
+            if j == 0:
+                ax.set_ylabel(f"$m=${d}")
+
+        ax = axes[-1, i]
         ax.tick_params(axis='both', top=False, bottom=False,
                        labeltop=False, labelbottom=False,
                        left=False, right=False,
                        labelleft=False, labelright=False)
 
-        plt_img = img_dict[depth]
-        ax.imshow(plt_img, extent=imgextent, cmap="plasma", norm=img_norm)
+        plt_img = img_dict[d]["Mass"]
+        ax.imshow(plt_img, cmap="magma", norm=mimg_norm)
 
-        ax.set_title("Depth {} (nJy)".format(depth))
+        if i == 0:
+            ax.set_title("Mass")
 
-    cmap = mpl.cm.plasma
+    cmap = mpl.cm.magma
     cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
-                                     norm=img_norm,
-                                     orientation='horizontal')
+                                     norm=img_norm)
+    cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap,
+                                      norm=mimg_norm, alpha=0)
 
     cbar.set_label("$F/[\mathrm{nJy}]$")
+    cbar2.set_label("$M/M_\odot$")
 
-    fig.savefig("plots/gal_img_comp_Filter-" + f + "_Orientation-"
+    fig.savefig("plots/gal_img_grid_Orientation-"
                 + orientation + "_Type-" + Type
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
-                + str(ind) + ".png", dpi=600, bbox_inches="tight")
+                + str(img_ind) + ".png", bbox_inches="tight")
     plt.close(fig)
 
     ind += 1
-
-
-
-
