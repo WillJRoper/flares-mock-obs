@@ -71,7 +71,7 @@ hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                 .format(reg, snap, Type, orientation, filters[0]), "r")
 
 imgs = hdf[str(depths[0])]["Images"][:]
-sinds = np.argsort(np.sum(imgs, axis=(1, 2)))[::-1]
+sinds = np.argsort(np.nansum(imgs, axis=(1, 2)))[::-1]
 hdf.close()
 
 while ind < n_img:
