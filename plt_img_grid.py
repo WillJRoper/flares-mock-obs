@@ -96,10 +96,10 @@ while ind < n_img:
             mimg = fdepth_group["Mass_Images"][img_ind]
             print(depth, mdepth, np.max(fdepth_group["Noise_value"][img_ind]))
 
-            if np.max(mimg) > mass_vmax:
-                mass_vmax = np.max(mimg)
-            if np.min(mimg) < mass_vmin:
-                mass_vmin = np.min(mimg)
+            # if np.max(mimg) > mass_vmax:
+            #     mass_vmax = np.max(mimg)
+            # if np.min(mimg) < mass_vmin:
+            #     mass_vmin = np.min(mimg)
 
             img_dict.setdefault(mdepth, {})[f] = img
             img_dict.setdefault(mdepth, {})["Mass"] = mimg
