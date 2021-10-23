@@ -108,7 +108,7 @@ while ind < n_img:
 
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
-    vmin = -np.percentile(all_imgs, 16)
+    vmin = np.percentile(all_imgs, 16)
     vmax = np.percentile(all_imgs, 99)
     mass_vmin = np.percentile(all_mimgs[all_mimgs > 0], 16)
     mass_vmax = np.percentile(all_mimgs[all_mimgs > 0], 99)
