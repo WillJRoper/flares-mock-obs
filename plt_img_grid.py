@@ -110,6 +110,7 @@ while ind < n_img:
             lams.append(int(re.findall(r'\d+', f.split(".")[-1])[0]) * 100)
         else:
             lams.append(int(re.findall(r'\d+', f.split(".")[-1])[0]) * 10)
+    lams = np.array(lams)
     lams_sinds = np.argsort(lams)
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
