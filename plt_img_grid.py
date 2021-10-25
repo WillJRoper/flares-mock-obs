@@ -104,8 +104,12 @@ while ind < n_img:
 
             hdf.close()
 
-    lams = np.array([int(re.findall(r'\d+', f.split(".")[-1])[0])
-                     for f in filters]) * 10
+    lams = []
+    for f in filters:
+        if f.split(".")[1] == "WFC3":
+            lams.append(int(re.findall(r'\d+', f.split(".")[-1])[0]) * 100)
+        else:
+            lams.append(int(re.findall(r'\d+', f.split(".")[-1])[0]) * 10)
     lams_sinds = np.argsort(lams)
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
