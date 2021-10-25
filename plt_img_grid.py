@@ -114,16 +114,17 @@ while ind < n_img:
 
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
-    vmin = np.percentile(all_imgs, 5)
+    vmins = {d: np.percentile([img_dict[d][f] for f in filters], 16)
+             for d in depths_m}
     # vmin = np.min(all_imgs)
-    vmax = np.percentile(all_imgs, 99)
+    vmaxs = {d: np.percentile([img_dict[d][f] for f in filters], 99)
+             for d in depths_m}
     mass_vmin = np.percentile(all_mimgs[all_mimgs > 0], 16)
     # mass_vmin = np.min(all_mimgs)
     mass_vmax = np.percentile(all_mimgs[all_mimgs > 0], 99)
 
     img_norm = Normalize(vmin=vmin, vmax=vmax, clip=True)
     mimg_norm = LogNorm(vmin=mass_vmin, vmax=mass_vmax, clip=True)
-    print(vmin, vmax, mass_vmax)
 
     fig = plt.figure(figsize=(len(filters) + 1, len(depths) + 1.5),
                      dpi=all_imgs.shape[-1])
@@ -141,6 +142,8 @@ while ind < n_img:
             axes[i, j] = fig.add_subplot(gs[i, j])
 
     for i, d in enumerate(depths_m):
+
+        img_norm = Normalize(vmin=vmins[d], vmax=vmaxs[d], clip=True)
 
         if d == flux_to_m(XDF_depth_flux):
             line = "-"
