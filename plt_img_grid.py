@@ -128,7 +128,7 @@ while ind < n_img:
     cax = fig.add_subplot(gs1[:, -1])
     # cax2 = cax.twinx()
     flux_ax = fig.add_subplot(gs[-1, :])
-    # flux_ax.semil()
+
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
         for j in range(len(filters) + 1):
