@@ -125,23 +125,23 @@ while ind < n_img:
     print(vmin, vmax, mass_vmax)
     fig = plt.figure(figsize=(len(filters) + 1, len(depths) + 1.5),
                      dpi=all_imgs.shape[-1])
-    gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths) + 1,
+    gs = gridspec.GridSpec(ncols=len(filters) + 3, nrows=len(depths) + 1,
                            width_ratios=(len(filters) + 1) * [10, ] + [1, ],
                            height_ratios=len(depths) * [1., ] + [1.5, ])
-    gs1 = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths) + 1,
+    gs1 = gridspec.GridSpec(ncols=len(filters) + 3, nrows=len(depths) + 1,
                             width_ratios=(len(filters) + 1) * [10, ] + [1, ],
                             height_ratios=len(depths) * [1., ] + [1.5, ])
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=0.2, hspace=0.0)
     cax = fig.add_subplot(gs1[:, -1])
-    # cax2 = cax.twinx()
+    cax2 = fig.add_subplot(gs1[:, 0])
     flux_ax = fig.add_subplot(gs[-1, :-1])
     flux_ax.grid(True)
 
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
         for j in range(len(filters) + 1):
-            axes[i, j] = fig.add_subplot(gs[i, j])
+            axes[i, j] = fig.add_subplot(gs[i, j + 1])
 
     for i, d in enumerate(depths_m):
 
@@ -180,27 +180,21 @@ while ind < n_img:
                        labelleft=False, labelright=False)
 
         plt_img = img_dict[d]["Mass"]
-        ax.imshow(plt_img, cmap="magma", norm=mimg_norm)
+        ax.imshow(plt_img, cmap="plasma", norm=mimg_norm)
 
         if i == 0:
             ax.set_title("Mass")
 
     cmap = mpl.cm.magma
+    cmap2 = mpl.cm.plasma
     cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
                                      norm=img_norm)
-    cbar.ax.set_aspect('auto')
-    cbar.set_label("$F/[\mathrm{nJy}]$")
-    # pos = cbar.ax.get_position()
-    cax2 = cbar.ax.twinx()
-    # cax2.set_ylim([mass_vmin, mass_vmax])
-    # pos.x0 += 0.05
-    # cbar.ax.set_position(pos)
-    # cax2.set_position(pos)
-    # cax2.set_yscale("log")
-    cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap,
+    cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap2,
                                       norm=mimg_norm)
-
+    cbar.set_label("$F/[\mathrm{nJy}]$")
     cbar2.set_label("$M/M_\odot$")
+    cbar2.ax.tick_params(axis='y', left=True, right=False,
+                         labelleft=True, labelright=False)
 
     flux_ax.set_ylabel("$F / [\mathrm{nJy}]$")
     flux_ax.set_xlabel(r"$\lambda / [\AA]$")
