@@ -114,8 +114,8 @@ while ind < n_img:
     lams_sinds = np.argsort(lams)
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
-    # vmin = np.percentile(all_imgs, 16)
-    vmin = np.min(all_imgs)
+    vmin = np.percentile(all_imgs, 5)
+    # vmin = np.min(all_imgs)
     vmax = np.percentile(all_imgs, 99)
     mass_vmin = np.percentile(all_mimgs[all_mimgs > 0], 16)
     # mass_vmin = np.min(all_mimgs)
@@ -189,12 +189,12 @@ while ind < n_img:
     cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
                                      norm=img_norm)
     cbar.ax.set_aspect('auto')
-    pos = cbar.ax.get_position()
+    # pos = cbar.ax.get_position()
     cax2 = cbar.ax.twinx()
     cax2.set_ylim([mass_vmin, mass_vmax])
-    pos.x0 += 0.05
-    cbar.ax.set_position(pos)
-    cax2.set_position(pos)
+    # pos.x0 += 0.05
+    # cbar.ax.set_position(pos)
+    # cax2.set_position(pos)
     cax2.set_yscale("log")
     # cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap,
     #                                   norm=mimg_norm, alpha=0)
