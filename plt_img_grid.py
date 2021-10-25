@@ -123,7 +123,6 @@ while ind < n_img:
     # mass_vmin = np.min(all_mimgs)
     mass_vmax = np.percentile(all_mimgs[all_mimgs > 0], 99)
 
-    img_norm = Normalize(vmin=vmin, vmax=vmax, clip=True)
     mimg_norm = LogNorm(vmin=mass_vmin, vmax=mass_vmax, clip=True)
 
     fig = plt.figure(figsize=(len(filters) + 1, len(depths) + 1.5),
