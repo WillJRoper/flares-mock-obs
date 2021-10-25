@@ -137,14 +137,13 @@ while ind < n_img:
     for i, d in enumerate(depths_m):
 
         if d == XDF_depth_m:
-            marker = "-"
+            line = "-"
         else:
-            marker = "--"
+            line = "--"
 
-        flux_ax.plot(lams, fluxes[d], label=r"$m=%.1f "
-                                            r"\times m_{\mathrm{XDF}}$"
-                                            % (depths[i] / XDF_depth_flux),
-                     marker=marker)
+        flux_ax.plot(lams, fluxes[d], linestyle=line, marker="+",
+                     label=r"$m=%.1f \times m_{\mathrm{XDF}}$"
+                           % (depths[i] / XDF_depth_flux))
 
         for j, f in enumerate(filters):
             ax = axes[i, j]
