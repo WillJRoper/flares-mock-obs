@@ -126,17 +126,17 @@ while ind < n_img:
     fig = plt.figure(figsize=(len(filters) + 1, len(depths) + 1.5),
                      dpi=all_imgs.shape[-1])
     gs = gridspec.GridSpec(ncols=len(filters) + 3, nrows=len(depths) + 1,
-                           width_ratios=[1, ] + (len(filters) + 1) * [10, ]
-                                        + [1, ],
+                           width_ratios=(len(filters) + 1)
+                                        * [10, ] + [1, 1, ],
                            height_ratios=len(depths) * [1., ] + [1.5, ])
     gs1 = gridspec.GridSpec(ncols=len(filters) + 3, nrows=len(depths) + 1,
-                            width_ratios=[1, ] + (len(filters) + 1) * [10, ]
-                                         + [1, ],
+                            width_ratios=(len(filters) + 1)
+                                         * [10, ] + [1, 1, ],
                             height_ratios=len(depths) * [1., ] + [1.5, ])
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=0.2, hspace=0.0)
-    cax = fig.add_subplot(gs1[:, -1])
-    cax2 = fig.add_subplot(gs1[:, 0])
+    cax = fig.add_subplot(gs1[:, -2])
+    cax2 = fig.add_subplot(gs1[:, -1])
     flux_ax = fig.add_subplot(gs[-1, :-1])
     flux_ax.grid(True)
 
@@ -189,14 +189,12 @@ while ind < n_img:
 
     cmap = mpl.cm.magma
     cmap2 = mpl.cm.plasma
-    cbar = mpl.colorbar.ColorbarBase(cax2, cmap=cmap,
+    cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
                                      norm=img_norm)
-    cbar2 = mpl.colorbar.ColorbarBase(cax, cmap=cmap2,
+    cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap2,
                                       norm=mimg_norm)
     cbar.set_label("$F/[\mathrm{nJy}]$")
     cbar2.set_label("$M/M_\odot$")
-    cbar2.ax.tick_params(axis='y', left=True, right=False,
-                         labelleft=True, labelright=False)
 
     flux_ax.set_ylabel("$F / [\mathrm{nJy}]$")
     flux_ax.set_xlabel(r"$\lambda / [\AA]$")
