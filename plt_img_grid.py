@@ -252,7 +252,7 @@ while ind < n_img:
         ax.imshow(plt_img, cmap="turbo")
 
         if i == 0:
-            ax.set_title("Segmentation")
+            ax.set_title("Segm")
 
         ax = axes[i, -2]
         ax.tick_params(axis='both', top=False, bottom=False,
@@ -262,6 +262,9 @@ while ind < n_img:
 
         plt_img = db_segms[d]
         ax.imshow(plt_img, cmap="turbo")
+
+        if i == 0:
+            ax.set_title("Deblend")
 
         ax = axes[i, -1]
         ax.tick_params(axis='both', top=False, bottom=False,
@@ -282,7 +285,7 @@ while ind < n_img:
                       norm=mimg_norm, alpha=0.2)
 
         if i == 0:
-            ax.set_title("Deblend")
+            ax.set_title("Mass Deblend")
 
     # cmap = mpl.cm.magma
     # cmap2 = mpl.cm.plasma
