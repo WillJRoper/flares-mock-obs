@@ -134,10 +134,10 @@ while ind < n_img:
                                          * [10, ] + [1, 1, ],
                             height_ratios=len(depths) * [1., ] + [1.5, ])
     gs.update(wspace=0.0, hspace=0.0)
-    gs1.update(wspace=0.2, hspace=0.0)
+    gs1.update(wspace=1.0, hspace=0.0)
     cax = fig.add_subplot(gs1[:, -2])
     cax2 = fig.add_subplot(gs1[:, -1])
-    flux_ax = fig.add_subplot(gs[-1, :-1])
+    flux_ax = fig.add_subplot(gs[-1, :-2])
     flux_ax.grid(True)
 
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
