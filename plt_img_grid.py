@@ -135,8 +135,8 @@ while ind < n_img:
                             height_ratios=len(depths) * [1., ] + [1.5, ])
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=1.0, hspace=0.0)
-    cax = fig.add_subplot(gs1[:, len(filters) + 2])
-    cax2 = fig.add_subplot(gs1[:, len(filters) + 1])
+    cax = fig.add_subplot(gs1[:, len(filters) + 3])
+    cax2 = fig.add_subplot(gs1[:, len(filters) + 2])
     flux_ax = fig.add_subplot(gs[-1, :-2])
     flux_ax.grid(True)
 
@@ -147,17 +147,14 @@ while ind < n_img:
 
     for i, d in enumerate(depths_m):
 
-        if d == XDF_depth_m:
+        if d == flux_to_m(XDF_depth_flux):
             line = "-"
-        else:
-            line = "--"
+            fs = np.array(fluxes[d])
 
-        fs = np.array(fluxes[d])
-
-        flux_ax.plot(lams[lams_sinds], fs[lams_sinds],
-                     linestyle=line, marker="+",
-                     label=r"$m=%.1f \times m_{\mathrm{XDF}}$"
-                           % (depths[i] / XDF_depth_flux))
+            flux_ax.plot(lams[lams_sinds], fs[lams_sinds],
+                         linestyle=line, marker="+",
+                         label=r"$m=%.1f \times m_{\mathrm{XDF}}$"
+                               % (depths[i] / XDF_depth_flux))
 
         for j, f in enumerate(filters):
             ax = axes[i, j]
