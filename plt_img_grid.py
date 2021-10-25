@@ -125,7 +125,7 @@ while ind < n_img:
     mimg_norm = LogNorm(vmin=mass_vmin, vmax=mass_vmax, clip=True)
     print(vmin, vmax, mass_vmax)
 
-    fig = plt.figure(figsize=(len(filters) + 1.2, len(depths) + 1.5),
+    fig = plt.figure(figsize=(len(filters) + 1, len(depths) + 1.5),
                      dpi=all_imgs.shape[-1])
     gs = gridspec.GridSpec(ncols=len(filters) + 1, nrows=len(depths) + 1,
                            width_ratios=(len(filters) + 1) * [10, ],
@@ -179,24 +179,24 @@ while ind < n_img:
         if i == 0:
             ax.set_title("Mass")
 
-    cmap = mpl.cm.magma
-    cmap2 = mpl.cm.plasma
+    # cmap = mpl.cm.magma
+    # cmap2 = mpl.cm.plasma
 
-    cax = flux_ax.inset_axes([0.9, 0.1, 0.02, 0.5])
-    cax2 = flux_ax.inset_axes([0.8, 0.1, 0.02, 0.5])
-
-    for ax in (cax, cax2):
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.spines['bottom'].set_visible(False)
-        ax.spines['left'].set_visible(False)
-
-    cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
-                                     norm=img_norm)
-    cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap2,
-                                      norm=mimg_norm)
-    cbar.set_label("$F/[\mathrm{nJy}]$")
-    cbar2.set_label("$M/M_\odot$")
+    # cax = flux_ax.inset_axes([0.9, 0.1, 0.02, 0.5])
+    # cax2 = flux_ax.inset_axes([0.8, 0.1, 0.02, 0.5])
+    #
+    # for ax in (cax, cax2):
+    #     ax.spines['top'].set_visible(False)
+    #     ax.spines['right'].set_visible(False)
+    #     ax.spines['bottom'].set_visible(False)
+    #     ax.spines['left'].set_visible(False)
+    #
+    # cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
+    #                                  norm=img_norm)
+    # cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap2,
+    #                                   norm=mimg_norm)
+    # cbar.set_label("$F/[\mathrm{nJy}]$")
+    # cbar2.set_label("$M/M_\odot$")
 
     flux_ax.set_ylabel("$F / [\mathrm{nJy}]$")
     flux_ax.set_xlabel(r"$\lambda / [\AA]$")
