@@ -75,9 +75,8 @@ filters = [f'Hubble.ACS.{f}'
 # Set up depths relative to the Xtreme deep field
 XDF_depth_m = 31.2
 XDF_depth_flux = m_to_flux(XDF_depth_m)
-depths = [XDF_depth_flux * 0.1, XDF_depth_flux,
-          2 * XDF_depth_flux, 10 * XDF_depth_flux,
-          100 * XDF_depth_flux]
+depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
+          XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
 depths_m = [flux_to_m(XDF_depth_flux * 0.01), flux_to_m(XDF_depth_flux * 0.1),
             flux_to_m(XDF_depth_flux), flux_to_m(10 * XDF_depth_flux),
             flux_to_m(100 * XDF_depth_flux)]

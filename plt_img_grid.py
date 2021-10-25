@@ -49,8 +49,8 @@ filters = [f'Hubble.ACS.{f}'
 # Set up depths relative to the Xtreme deep field
 XDF_depth_m = 31.2
 XDF_depth_flux = m_to_flux(XDF_depth_m)
-depths = [XDF_depth_flux * 0.1, XDF_depth_flux,
-          2 * XDF_depth_flux, 10 * XDF_depth_flux]
+depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
+          XDF_depth_flux, 10 * XDF_depth_flux]
 depths_m = [flux_to_m(XDF_depth_flux * 0.01), flux_to_m(XDF_depth_flux * 0.1),
             flux_to_m(XDF_depth_flux), flux_to_m(10 * XDF_depth_flux)]
 print(depths)
@@ -125,13 +125,11 @@ while ind < n_img:
     print(vmin, vmax, mass_vmax)
     fig = plt.figure(figsize=(len(filters) + 1.2, len(depths) + 1.5),
                      dpi=all_imgs.shape[-1])
-    gs = gridspec.GridSpec(ncols=len(filters) + 4, nrows=len(depths) + 1,
-                           width_ratios=(len(filters) + 1)
-                                        * [10, ] + [2, 2, 2],
+    gs = gridspec.GridSpec(ncols=len(filters), nrows=len(depths) + 1,
+                           width_ratios=(len(filters) + 1) * [10, ],
                            height_ratios=len(depths) * [1., ] + [1.5, ])
-    gs1 = gridspec.GridSpec(ncols=len(filters) + 4, nrows=len(depths) + 1,
-                            width_ratios=(len(filters) + 1)
-                                         * [10, ] + [2, 2, 2],
+    gs1 = gridspec.GridSpec(ncols=len(filters), nrows=len(depths) + 1,
+                            width_ratios=(len(filters) + 1) * [10, ],
                             height_ratios=len(depths) * [1., ] + [1.5, ])
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=1.0, hspace=0.0)
@@ -154,7 +152,7 @@ while ind < n_img:
             flux_ax.plot(lams[lams_sinds], fs[lams_sinds],
                          linestyle=line, marker="+",
                          label=r"$m=%.1f \times m_{\mathrm{XDF}}$"
-                               % (depths[i] / XDF_depth_flux))
+                               % (depths[i] / flux_to_m(XDF_depth_flux)))
 
         for j, f in enumerate(filters):
             ax = axes[i, j]
@@ -170,7 +168,7 @@ while ind < n_img:
                 ax.set_title(f.split(".")[-1])
             if j == 0:
                 ax.set_ylabel(r"$%.1f \times m_{\mathrm{XDF}}$"
-                              % (depths[i] / XDF_depth_flux), fontsize=6)
+                              % (depths[i] / XDF_depth_flux), fontsize=8)
 
         ax = axes[i, -1]
         ax.tick_params(axis='both', top=False, bottom=False,
