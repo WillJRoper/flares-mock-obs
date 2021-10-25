@@ -123,7 +123,7 @@ while ind < n_img:
     img_norm = Normalize(vmin=vmin, vmax=vmax, clip=True)
     mimg_norm = LogNorm(vmin=mass_vmin, vmax=mass_vmax, clip=True)
     print(vmin, vmax, mass_vmax)
-    fig = plt.figure(figsize=(len(filters) + 1, len(depths)),
+    fig = plt.figure(figsize=(len(filters) + 1, len(depths) + 2),
                      dpi=all_imgs.shape[-1])
     gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths) + 1,
                            width_ratios=(len(filters) + 1) * [10, ] + [1, ],
@@ -136,6 +136,7 @@ while ind < n_img:
     cax = fig.add_subplot(gs1[:, -1])
     # cax2 = cax.twinx()
     flux_ax = fig.add_subplot(gs[-1, :-1])
+    flux_ax.gird(True)
 
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
@@ -169,8 +170,8 @@ while ind < n_img:
             if i == 0:
                 ax.set_title(f.split(".")[-1])
             if j == 0:
-                ax.set_ylabel(r"$m=%.1f \times m_{\mathrm{XDF}}$"
-                              % (depths[i] / XDF_depth_flux))
+                ax.set_ylabel(r"$%.1f \times m_{\mathrm{XDF}}$"
+                              % (depths[i] / XDF_depth_flux), fontsize=6)
 
         ax = axes[i, -1]
         ax.tick_params(axis='both', top=False, bottom=False,
