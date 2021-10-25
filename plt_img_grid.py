@@ -123,14 +123,14 @@ while ind < n_img:
     img_norm = Normalize(vmin=vmin, vmax=vmax, clip=True)
     mimg_norm = LogNorm(vmin=mass_vmin, vmax=mass_vmax, clip=True)
     print(vmin, vmax, mass_vmax)
-    fig = plt.figure(figsize=(len(filters) + 1, len(depths) + 2),
+    fig = plt.figure(figsize=(len(filters) + 1, len(depths) + 1.5),
                      dpi=all_imgs.shape[-1])
     gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths) + 1,
                            width_ratios=(len(filters) + 1) * [10, ] + [1, ],
-                           height_ratios=len(depths) * [1., ] + [2.0, ])
+                           height_ratios=len(depths) * [1., ] + [1.5, ])
     gs1 = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths) + 1,
                             width_ratios=(len(filters) + 1) * [10, ] + [1, ],
-                            height_ratios=len(depths) * [1., ] + [2.0, ])
+                            height_ratios=len(depths) * [1., ] + [1.5, ])
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=0.2, hspace=0.0)
     cax = fig.add_subplot(gs1[:, -1])
@@ -189,18 +189,18 @@ while ind < n_img:
     cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
                                      norm=img_norm)
     cbar.ax.set_aspect('auto')
+    cbar.set_label("$F/[\mathrm{nJy}]$")
     # pos = cbar.ax.get_position()
     cax2 = cbar.ax.twinx()
-    cax2.set_ylim([mass_vmin, mass_vmax])
+    # cax2.set_ylim([mass_vmin, mass_vmax])
     # pos.x0 += 0.05
     # cbar.ax.set_position(pos)
     # cax2.set_position(pos)
-    cax2.set_yscale("log")
-    # cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap,
-    #                                   norm=mimg_norm, alpha=0)
+    # cax2.set_yscale("log")
+    cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap,
+                                      norm=mimg_norm)
 
-    cbar.set_label("$F/[\mathrm{nJy}]$")
-    cax2.set_ylabel("$M/M_\odot$")
+    cbar2.set_label("$M/M_\odot$")
 
     flux_ax.set_ylabel("$F / [\mathrm{nJy}]$")
     flux_ax.set_xlabel(r"$\lambda / [\AA]$")
