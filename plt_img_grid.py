@@ -111,6 +111,7 @@ while ind < n_img:
             lams.append(int(re.findall(r'\d+', f.split(".")[-1])[0]) * 10)
     lams = np.array(lams)
     lams_sinds = np.argsort(lams)
+    
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
     vmin = np.percentile(all_imgs, 5)
@@ -124,14 +125,10 @@ while ind < n_img:
     print(vmin, vmax, mass_vmax)
     fig = plt.figure(figsize=(len(filters) + 1.2, len(depths) + 1.5),
                      dpi=all_imgs.shape[-1])
-    gs = gridspec.GridSpec(ncols=len(filters), nrows=len(depths) + 1,
+    gs = gridspec.GridSpec(ncols=len(filters) + 1, nrows=len(depths) + 1,
                            width_ratios=(len(filters) + 1) * [10, ],
                            height_ratios=len(depths) * [1., ] + [1.5, ])
-    gs1 = gridspec.GridSpec(ncols=len(filters), nrows=len(depths) + 1,
-                            width_ratios=(len(filters) + 1) * [10, ],
-                            height_ratios=len(depths) * [1., ] + [1.5, ])
     gs.update(wspace=0.0, hspace=0.0)
-    gs1.update(wspace=1.0, hspace=0.0)
 
     flux_ax = fig.add_subplot(gs[-1, :-2])
     flux_ax.grid(True)

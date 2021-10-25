@@ -75,14 +75,15 @@ filters = [f'Hubble.ACS.{f}'
            for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
           + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
-# Set up depths relative to the Xtreme deep field
+# Set up depths relative to the Hubble Xtreme deep field
 XDF_depth_m = 31.2
 XDF_depth_flux = m_to_flux(XDF_depth_m)
 depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
           XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
 depths_m = [flux_to_m(d) for d in depths]
 
-depths = [0.1, 1, 5, 10, 20, "SUBFIND"]
+depths.append("SUBFIND")
+depths_m.append("SUBFIND")
 
 # Remove filters beyond the lyman break
 detect_filters = []
@@ -102,13 +103,10 @@ for f in filters:
             detect_filters.append(f)
 
 print("Lyman break at", 912 * (1 + z), "A")
-print(detect_filters)
+print("Filters rdder then the Lyman break:", detect_filters)
 
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
-
-# Set mass limit
-masslim = 700
 
 z_str = tag.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
@@ -119,22 +117,20 @@ field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
 # --- get field info object. This contains the filters, depths,
 # image location etc. (if real image)
 field = flare.surveys.surveys[survey_id].fields[field_id]
-
-if z <= 2.8:
-    csoft = 0.000474390 / 0.6777 * 1e3
-else:
-    csoft = 0.001802390 / (0.6777 * (1 + z)) * 1e3
     
 # Define smoothing kernel for deblending
 kernel_sigma = 8 / (2.0 * np.sqrt(2.0 * np.log(2.0)))  # FWHM = 3
 kernel = Gaussian2DKernel(kernel_sigma)
 kernel.normalize()
 
+# Get the conversion between arcseconds and pkpc at this redshift
 arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 
-# Define width
-ini_width_pkpc = 500
-ini_width = ini_width_pkpc * arcsec_per_kpc_proper
+# Define widths
+full_ini_width_kpc = 30000
+full_ini_width = full_ini_width_kpc * arcsec_per_kpc_proper
+ini_width = 15
+ini_width_pkpc = ini_width / arcsec_per_kpc_proper
 
 thresh = 2.5
 
@@ -294,9 +290,10 @@ for num, depth in enumerate(depths):
                             .format(reg, snap, Type, orientation, f), "r")
 
             try:
-                ijk = hdf["Cell_Image_Number"][:]
 
                 fdepth_group = hdf[str(depth)]
+
+                ijk = fdepth_group["IJK"][:]
 
                 imgs = fdepth_group["Images"]
                 img_ids = fdepth_group["Image_ID"][...]
