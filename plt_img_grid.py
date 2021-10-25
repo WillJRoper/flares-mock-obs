@@ -143,7 +143,9 @@ while ind < n_img:
         else:
             line = "--"
 
-        flux_ax.plot(lams[lams_sinds], fluxes[d][lams_sinds],
+        fs = np.array(fluxes[d])
+
+        flux_ax.plot(lams[lams_sinds], fs[lams_sinds],
                      linestyle=line, marker="+",
                      label=r"$m=%.1f \times m_{\mathrm{XDF}}$"
                            % (depths[i] / XDF_depth_flux))
