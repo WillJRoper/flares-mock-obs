@@ -111,7 +111,7 @@ while ind < n_img:
             lams.append(int(re.findall(r'\d+', f.split(".")[-1])[0]) * 10)
     lams = np.array(lams)
     lams_sinds = np.argsort(lams)
-    
+
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
     vmin = np.percentile(all_imgs, 5)
@@ -120,17 +120,19 @@ while ind < n_img:
     mass_vmin = np.percentile(all_mimgs[all_mimgs > 0], 16)
     # mass_vmin = np.min(all_mimgs)
     mass_vmax = np.percentile(all_mimgs[all_mimgs > 0], 99)
+
     img_norm = Normalize(vmin=vmin, vmax=vmax, clip=True)
     mimg_norm = LogNorm(vmin=mass_vmin, vmax=mass_vmax, clip=True)
     print(vmin, vmax, mass_vmax)
+
     fig = plt.figure(figsize=(len(filters) + 1.2, len(depths) + 1.5),
                      dpi=all_imgs.shape[-1])
     gs = gridspec.GridSpec(ncols=len(filters) + 1, nrows=len(depths) + 1,
                            width_ratios=(len(filters) + 1) * [10, ],
-                           height_ratios=len(depths) * [1., ] + [1.5, ])
+                           height_ratios=len(depths) * [1., ] + [2., ])
     gs.update(wspace=0.0, hspace=0.0)
 
-    flux_ax = fig.add_subplot(gs[-1, :-2])
+    flux_ax = fig.add_subplot(gs[-1, :])
     flux_ax.grid(True)
 
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
@@ -180,8 +182,14 @@ while ind < n_img:
     cmap = mpl.cm.magma
     cmap2 = mpl.cm.plasma
 
-    cax = flux_ax.inset_axes([0.85, 0.1, 0.05, 0.3])
-    cax2 = flux_ax.inset_axes([0.7, 0.1, 0.05, 0.3])
+    cax = flux_ax.inset_axes([0.9, 0.1, 0.02, 0.5])
+    cax2 = flux_ax.inset_axes([0.8, 0.1, 0.02, 0.5])
+
+    for ax in (cax, cax2):
+        ax.spines['top'].set_visible(False)
+        ax.spines['right'].set_visible(False)
+        ax.spines['bottom'].set_visible(False)
+        ax.spines['left'].set_visible(False)
 
     cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
                                      norm=img_norm)
