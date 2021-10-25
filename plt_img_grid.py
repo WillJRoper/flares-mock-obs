@@ -270,11 +270,11 @@ while ind < n_img:
                        labelleft=False, labelright=False)
 
         plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
-        plt_img[db_segms[d].value > 0] = img_dict[d]["Mass"][db_segms[d].value > 0]
+        plt_img[db_segms[d].data > 0] = img_dict[d]["Mass"][db_segms[d].data > 0]
         ax.imshow(plt_img, cmap="plasma", norm=mimg_norm)
 
         plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
-        plt_img[db_segms[d].value == 0] = img_dict[d]["Mass"][db_segms[d].value == 0]
+        plt_img[db_segms[d].data == 0] = img_dict[d]["Mass"][db_segms[d].data == 0]
         ax.imshow(plt_img, cmap="plasma", norm=mimg_norm, alpha=0.2)
 
         if i == 0:
