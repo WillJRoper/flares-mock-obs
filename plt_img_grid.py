@@ -12,6 +12,7 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
 import seaborn as sns
+import photutils as phut
 from matplotlib.colors import LogNorm, Normalize
 import matplotlib.gridspec as gridspec
 import matplotlib as mpl
@@ -71,9 +72,11 @@ hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                 .format(reg, snap, Type, orientation, filters[-1]), "r")
 
 imgs = hdf[str(depths[0])]["Images"][:]
-# sinds = np.argsort(np.nansum(imgs, axis=(1, 2)))
-sinds = np.arange(0, imgs.shape[0])
+sinds = np.argsort(np.nansum(imgs, axis=(1, 2)))
+# sinds = np.arange(0, imgs.shape[0])
 hdf.close()
+
+thresh = 2.5
 
 while ind < n_img:
 
@@ -82,6 +85,7 @@ while ind < n_img:
     print("Creating image", ind, img_ind)
 
     img_dict = {}
+    noise_dict = {}
 
     # Set up dictionary to store the flux in each filter
     fluxes = {}
@@ -95,11 +99,13 @@ while ind < n_img:
             fdepth_group = hdf[str(depth)]
 
             img = fdepth_group["Images"][img_ind]
+            noise = fdepth_group["Noise_value"][img_ind]
             mimg = fdepth_group["Mass_Images"][img_ind]
 
             fluxes.setdefault(mdepth, []).append(np.nansum(img))
 
             img_dict.setdefault(mdepth, {})[f] = img
+            noise_dict.setdefault(mdepth, {})[f] = noise
             img_dict.setdefault(mdepth, {})["Mass"] = mimg
 
             hdf.close()
@@ -112,6 +118,32 @@ while ind < n_img:
             lams.append(int(re.findall(r'\d+', f.split(".")[-1])[0]) * 10)
     lams = np.array(lams)
     lams_sinds = np.argsort(lams)
+
+    segms = {}
+    db_segms = {}
+
+    for d in depths:
+
+        detection_img = np.zeros(img_dict[d][filters[0]].shape)
+        weight_img = np.zeros(img_dict[d][filters[0]].shape)
+        noise_img = np.zeros(img_dict[d][filters[0]].shape)
+
+        for f in filters:
+            detection_img += (img_dict[d][f] / noise_dict[d][f] ** 2)
+            weight_img += (1 / noise_dict[d][f] ** 2)
+            noise_img += (1 / noise_dict[d][f])
+
+        detection_img /= weight_img
+        noise_img /= weight_img
+
+        sig = detection_img / noise_img
+
+        segm = phut.detect_sources(sig, thresh, npixels=5)
+        segms[d] = segm
+        segm = phut.deblend_sources(detection_img, segm,
+                                    npixels=5, nlevels=32,
+                                    contrast=0.001)
+        db_segms[d] = segm
 
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
@@ -126,10 +158,10 @@ while ind < n_img:
 
     mimg_norm = LogNorm(vmin=mass_vmin, vmax=mass_vmax, clip=True)
 
-    fig = plt.figure(figsize=(len(filters) + 1, len(depths) + 2),
+    fig = plt.figure(figsize=(len(filters) + 4, len(depths) + 2),
                      dpi=all_imgs.shape[-1])
-    gs = gridspec.GridSpec(ncols=len(filters) + 1, nrows=len(depths) + 1,
-                           width_ratios=(len(filters) + 1) * [10, ],
+    gs = gridspec.GridSpec(ncols=len(filters) + 4, nrows=len(depths) + 1,
+                           width_ratios=(len(filters) + 4) * [1, ],
                            height_ratios=len(depths) * [1., ] + [2., ])
     gs.update(wspace=0.0, hspace=0.0)
 
@@ -137,7 +169,7 @@ while ind < n_img:
     flux_ax.grid(True)
     flux_ax.semilogy()
 
-    axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
+    axes = np.zeros((len(depths), len(filters) + 4), dtype=object)
     for i in range(len(depths)):
         for j in range(len(filters) + 1):
             axes[i, j] = fig.add_subplot(gs[i, j])
@@ -156,7 +188,7 @@ while ind < n_img:
                                % (depths[i] / XDF_depth_flux))
 
         for j, f in enumerate(filters):
-            ax = axes[i, j]
+            ax = axes[i, j + 1]
             ax.tick_params(axis='both', top=False, bottom=False,
                            labeltop=False, labelbottom=False,
                            left=False, right=False,
@@ -167,11 +199,11 @@ while ind < n_img:
 
             if i == 0:
                 ax.set_title(f.split(".")[-1])
-            if j == 0:
-                ax.set_ylabel(r"$%.2f \times m_{\mathrm{XDF}}$"
-                              % (depths[i] / XDF_depth_flux), fontsize=6)
+            # if j == 0:
+            #     ax.set_ylabel(r"$%.2f \times m_{\mathrm{XDF}}$"
+            #                   % (depths[i] / XDF_depth_flux), fontsize=6)
 
-        ax = axes[i, -1]
+        ax = axes[i, 0]
         ax.tick_params(axis='both', top=False, bottom=False,
                        labeltop=False, labelbottom=False,
                        left=False, right=False,
@@ -180,8 +212,49 @@ while ind < n_img:
         plt_img = img_dict[d]["Mass"]
         ax.imshow(plt_img, cmap="plasma", norm=mimg_norm)
 
+        ax.set_ylabel(r"$%.2f \times m_{\mathrm{XDF}}$"
+                      % (depths[i] / XDF_depth_flux), fontsize=6)
+
         if i == 0:
             ax.set_title("Mass")
+
+        ax = axes[i, -3]
+        ax.tick_params(axis='both', top=False, bottom=False,
+                       labeltop=False, labelbottom=False,
+                       left=False, right=False,
+                       labelleft=False, labelright=False)
+
+        plt_img = segms[d]
+        ax.imshow(plt_img, cmap="turbo")
+
+        if i == 0:
+            ax.set_title("Segmentation")
+
+        ax = axes[i, -2]
+        ax.tick_params(axis='both', top=False, bottom=False,
+                       labeltop=False, labelbottom=False,
+                       left=False, right=False,
+                       labelleft=False, labelright=False)
+
+        plt_img = db_segms[d]
+        ax.imshow(plt_img, cmap="turbo")
+
+        ax = axes[i, -1]
+        ax.tick_params(axis='both', top=False, bottom=False,
+                       labeltop=False, labelbottom=False,
+                       left=False, right=False,
+                       labelleft=False, labelright=False)
+
+        plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
+        plt_img[db_segms[d] > 0] = img_dict[d]["Mass"][db_segms[d] > 0]
+        ax.imshow(plt_img, cmap="plasma", norm=mimg_norm)
+
+        plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
+        plt_img[db_segms[d] == 0] = img_dict[d]["Mass"][db_segms[d] == 0]
+        ax.imshow(plt_img, cmap="plasma", norm=mimg_norm, alpha=0.2)
+
+        if i == 0:
+            ax.set_title("Deblend")
 
     # cmap = mpl.cm.magma
     # cmap2 = mpl.cm.plasma
