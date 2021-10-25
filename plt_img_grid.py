@@ -105,8 +105,8 @@ while ind < n_img:
             hdf.close()
 
     for f in filters:
-        print(f, re.findall(r'\d+', f), int(re.findall(r'\d+', f)[0]) * 10)
-    lams = [int(re.findall(r'\d+', f)[0]) * 10 for f in filters]
+        print(f, re.findall(r'\d+', f), int(re.findall(r'\d+', f.split(".")[-1])[0]) * 10)
+    lams = [int(re.findall(r'\d+', f.split(".")[-1])[0]) * 10 for f in filters]
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
     # vmin = np.percentile(all_imgs, 16)
@@ -195,7 +195,7 @@ while ind < n_img:
     cax2.set_ylabel("$M/M_\odot$")
 
     flux_ax.set_ylabel("$F / [\mathrm{nJy}]$")
-    flux_ax.set_xlabel(r"$\lambda /$ [\AA]")
+    flux_ax.set_xlabel(r"$\lambda / [\AA]$")
     flux_ax.legend()
 
     fig.savefig("plots/gal_img_grid_Orientation-"
