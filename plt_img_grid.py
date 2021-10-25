@@ -122,7 +122,7 @@ while ind < n_img:
     segms = {}
     db_segms = {}
 
-    for d in depths:
+    for d in depths_m:
 
         detection_img = np.zeros(img_dict[d][filters[0]].shape)
         weight_img = np.zeros(img_dict[d][filters[0]].shape)
