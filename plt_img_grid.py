@@ -127,7 +127,7 @@ while ind < n_img:
     gs1.update(wspace=0.2, hspace=0.0)
     cax = fig.add_subplot(gs1[:, -1])
     # cax2 = cax.twinx()
-    flux_ax = fig.add_subplot(gs[-1, :])
+    flux_ax = fig.add_subplot(gs[-2, :])
 
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
@@ -141,6 +141,7 @@ while ind < n_img:
         else:
             line = "--"
 
+        print(lams)
         print(fluxes[d])
         flux_ax.plot(lams, fluxes[d], linestyle=line, marker="+",
                      label=r"$m=%.1f \times m_{\mathrm{XDF}}$"
@@ -193,6 +194,7 @@ while ind < n_img:
 
     flux_ax.set_ylabel("$F / [\mathrm{nJy}]$")
     flux_ax.set_xlabel(r"$\lambda /$ [\AA]")
+    flux_ax.legend()
 
     fig.savefig("plots/gal_img_grid_Orientation-"
                 + orientation + "_Type-" + Type
