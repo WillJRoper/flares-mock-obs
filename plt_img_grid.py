@@ -184,8 +184,8 @@ while ind < n_img:
     cmap = mpl.cm.magma
     cmap2 = mpl.cm.plasma
 
-    cax = flux_ax.inset_axes([0.8, 0.1, 0.2, 0.05])
-    cax2 = flux_ax.inset_axes([0.6, 0.1, 0.15, 0.05])
+    cax = flux_ax.inset_axes([0.85, 0.1, 0.05, 0.3])
+    cax2 = flux_ax.inset_axes([0.7, 0.1, 0.05, 0.3])
 
     cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
                                      norm=img_norm)
