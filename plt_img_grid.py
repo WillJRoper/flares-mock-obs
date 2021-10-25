@@ -127,9 +127,10 @@ while ind < n_img:
                      dpi=all_imgs.shape[-1])
     gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths) + 1,
                            width_ratios=(len(filters) + 1) * [10, ] + [1, ],
-                           height_ratios=len(depths) * [1., ] + [1.5, ])
+                           height_ratios=len(depths) * [1., ] + [2.0, ])
     gs1 = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
-                            width_ratios=(len(filters) + 1) * [10, ] + [1, ])
+                            width_ratios=(len(filters) + 1) * [10, ] + [1, ],
+                            height_ratios=len(depths) * [1., ] + [2.0, ])
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=0.2, hspace=0.0)
     cax = fig.add_subplot(gs1[:, -1])
