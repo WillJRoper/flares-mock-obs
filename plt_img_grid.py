@@ -269,13 +269,17 @@ while ind < n_img:
                        left=False, right=False,
                        labelleft=False, labelright=False)
 
-        plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
-        plt_img[db_segms[d].data_ma] = img_dict[d]["Mass"][db_segms[d].data_ma]
-        ax.imshow(plt_img, cmap="plasma", norm=mimg_norm)
+        try:
+            plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
+            plt_img[db_segms[d].data_ma] = img_dict[d]["Mass"][db_segms[d].data_ma]
+            ax.imshow(plt_img, cmap="plasma", norm=mimg_norm)
 
-        plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
-        plt_img[~db_segms[d].data_ma] = img_dict[d]["Mass"][~db_segms[d].data_ma]
-        ax.imshow(plt_img, cmap="plasma", norm=mimg_norm, alpha=0.2)
+            plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
+            plt_img[~db_segms[d].data_ma] = img_dict[d]["Mass"][~db_segms[d].data_ma]
+            ax.imshow(plt_img, cmap="plasma", norm=mimg_norm, alpha=0.2)
+        except AttributeError:
+            ax.imshow(img_dict[d]["Mass"], cmap="plasma",
+                      norm=mimg_norm, alpha=0.2)
 
         if i == 0:
             ax.set_title("Deblend")
