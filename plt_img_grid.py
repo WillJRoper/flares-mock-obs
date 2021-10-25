@@ -110,8 +110,8 @@ while ind < n_img:
     # vmin = np.percentile(all_imgs, 16)
     vmin = np.min(all_imgs)
     vmax = np.percentile(all_imgs, 99)
-    # mass_vmin = np.percentile(all_mimgs[all_mimgs > 0], 16)
-    mass_vmin = np.min(all_mimgs)
+    mass_vmin = np.percentile(all_mimgs[all_mimgs > 0], 16)
+    # mass_vmin = np.min(all_mimgs)
     mass_vmax = np.percentile(all_mimgs[all_mimgs > 0], 99)
     img_norm = Normalize(vmin=vmin, vmax=vmax, clip=True)
     mimg_norm = LogNorm(vmin=mass_vmin, vmax=mass_vmax, clip=True)
@@ -192,7 +192,7 @@ while ind < n_img:
     cax2.set_ylabel("$M/M_\odot$")
 
     flux_ax.set_ylabel("$F / [\mathrm{nJy}]$")
-    flux_ax.set_ylabel(r"$\lambda /$ [\AA]")
+    flux_ax.set_xlabel(r"$\lambda /$ [\AA]")
 
     fig.savefig("plots/gal_img_grid_Orientation-"
                 + orientation + "_Type-" + Type
