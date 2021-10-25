@@ -142,7 +142,7 @@ while ind < n_img:
 
         flux_ax.loglog(lams, fluxes[d], label=r"$m=%.1f "
                                               r"\times m_{\mathrm{XDF}}$"
-                                              % depths[i] / XDF_depth_flux,
+                                              % (depths[i] / XDF_depth_flux),
                        marker=marker)
 
         for j, f in enumerate(filters):
