@@ -152,7 +152,7 @@ while ind < n_img:
             flux_ax.plot(lams[lams_sinds], fs[lams_sinds],
                          linestyle=line, marker="+",
                          label=r"$m=%.1f \times m_{\mathrm{XDF}}$"
-                               % (depths[i] / flux_to_m(XDF_depth_flux)))
+                               % (depths[i] / XDF_depth_flux))
 
         for j, f in enumerate(filters):
             ax = axes[i, j]
@@ -167,8 +167,8 @@ while ind < n_img:
             if i == 0:
                 ax.set_title(f.split(".")[-1])
             if j == 0:
-                ax.set_ylabel(r"$%.1f \times m_{\mathrm{XDF}}$"
-                              % (depths[i] / XDF_depth_flux), fontsize=8)
+                ax.set_ylabel(r"$%.2f \times m_{\mathrm{XDF}}$"
+                              % (depths[i] / XDF_depth_flux), fontsize=6)
 
         ax = axes[i, -1]
         ax.tick_params(axis='both', top=False, bottom=False,
