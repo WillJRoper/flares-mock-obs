@@ -141,6 +141,7 @@ while ind < n_img:
         else:
             line = "--"
 
+        print(fluxes[d])
         flux_ax.plot(lams, fluxes[d], linestyle=line, marker="+",
                      label=r"$m=%.1f \times m_{\mathrm{XDF}}$"
                            % (depths[i] / XDF_depth_flux))
