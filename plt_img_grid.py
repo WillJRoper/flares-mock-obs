@@ -74,6 +74,9 @@ imgs = hdf[str(depths[0])]["Images"][:]
 sinds = np.argsort(np.nansum(imgs, axis=(1, 2)))[::-1]
 hdf.close()
 
+# Set up dictionary to store the flux in each filter
+fluxes = {}
+
 while ind < n_img:
 
     img_ind = sinds[ind]
@@ -101,23 +104,28 @@ while ind < n_img:
             # if np.min(mimg) < mass_vmin:
             #     mass_vmin = np.min(mimg)
 
+            fluxes.setdefault(mdepth, []).append(np.nansum(img))
+
             img_dict.setdefault(mdepth, {})[f] = img
             img_dict.setdefault(mdepth, {})["Mass"] = mimg
 
             hdf.close()
 
+    lams = [int(f.split(".")[-1][1:-1]) * 10 for f in filters]
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
-    vmin = np.percentile(all_imgs, 16)
+    # vmin = np.percentile(all_imgs, 16)
+    vmin = np.min(all_imgs)
     vmax = np.percentile(all_imgs, 99)
-    mass_vmin = np.percentile(all_mimgs[all_mimgs > 0], 16)
+    # mass_vmin = np.percentile(all_mimgs[all_mimgs > 0], 16)
+    mass_vmin = np.min(all_mimgs)
     mass_vmax = np.percentile(all_mimgs[all_mimgs > 0], 99)
     img_norm = Normalize(vmin=vmin, vmax=vmax, clip=True)
     mimg_norm = LogNorm(vmin=mass_vmin, vmax=mass_vmax, clip=True)
     print(vmin, vmax, mass_vmax)
     fig = plt.figure(figsize=(len(filters) + 1, len(depths)),
                      dpi=all_imgs.shape[-1])
-    gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
+    gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths) + 1,
                            width_ratios=(len(filters) + 1) * [10, ] + [1, ])
     gs1 = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
                             width_ratios=(len(filters) + 1) * [10, ] + [1, ])
@@ -125,12 +133,24 @@ while ind < n_img:
     gs1.update(wspace=0.2, hspace=0.0)
     cax = fig.add_subplot(gs1[:, -1])
     # cax2 = cax.twinx()
+    flux_ax = fig.add_subplot(gs[-1, :])
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
         for j in range(len(filters) + 1):
             axes[i, j] = fig.add_subplot(gs[i, j])
 
     for i, d in enumerate(depths_m):
+
+        if d == XDF_depth_m:
+            marker = "-"
+        else:
+            marker = "--"
+
+        flux_ax.loglog(lams, fluxes[d], label=r"$m=%.1f "
+                                              r"\times m_{\mathrm{XDF}}$"
+                                              % depths[i] / XDF_depth_flux,
+                       marker=marker)
+
         for j, f in enumerate(filters):
             ax = axes[i, j]
             ax.tick_params(axis='both', top=False, bottom=False,
@@ -144,7 +164,8 @@ while ind < n_img:
             if i == 0:
                 ax.set_title(f.split(".")[-1])
             if j == 0:
-                ax.set_ylabel("$m=$%.1f" % d)
+                ax.set_ylabel(r"$m=%.1f \times m_{\mathrm{XDF}}$"
+                              % depths[i] / XDF_depth_flux)
 
         ax = axes[i, -1]
         ax.tick_params(axis='both', top=False, bottom=False,
@@ -174,6 +195,9 @@ while ind < n_img:
 
     cbar.set_label("$F/[\mathrm{nJy}]$")
     cax2.set_ylabel("$M/M_\odot$")
+
+    flux_ax.set_ylabel("$F / [\mathrm{nJy}]$")
+    flux_ax.set_ylabel(r"$\lambda / [\r{A}]$")
 
     fig.savefig("plots/gal_img_grid_Orientation-"
                 + orientation + "_Type-" + Type
