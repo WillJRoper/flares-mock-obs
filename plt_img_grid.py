@@ -159,7 +159,7 @@ while ind < n_img:
                 ax.set_title(f.split(".")[-1])
             if j == 0:
                 ax.set_ylabel(r"$m=%.1f \times m_{\mathrm{XDF}}$"
-                              % depths[i] / XDF_depth_flux)
+                              % (depths[i] / XDF_depth_flux))
 
         ax = axes[i, -1]
         ax.tick_params(axis='both', top=False, bottom=False,
