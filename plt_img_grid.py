@@ -138,12 +138,16 @@ while ind < n_img:
 
         sig = detection_img / noise_img
 
-        segm = phut.detect_sources(sig, thresh, npixels=5)
-        segms[d] = segm
-        segm = phut.deblend_sources(detection_img, segm,
-                                    npixels=5, nlevels=32,
-                                    contrast=0.001)
-        db_segms[d] = segm
+        try:
+            segm = phut.detect_sources(sig, thresh, npixels=5)
+            segms[d] = segm
+            segm = phut.deblend_sources(detection_img, segm,
+                                        npixels=5, nlevels=32,
+                                        contrast=0.001)
+            db_segms[d] = segm
+        except TypeError:
+            segms[d] = np.zeros(img_dict[d][filters[0]].shape)
+            db_segms[d] = np.zeros(img_dict[d][filters[0]].shape)
 
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
