@@ -1,6 +1,7 @@
 #!/cosma/home/dp004/dc-rope1/.conda/envs/flares-env/bin/python
 import os
 import warnings
+import re
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -85,8 +86,6 @@ while ind < n_img:
 
     img_dict = {}
 
-    mass_vmin, mass_vmax = np.inf, 0
-
     for depth, mdepth in zip(depths, depths_m):
         for f in filters:
 
@@ -97,12 +96,6 @@ while ind < n_img:
 
             img = fdepth_group["Images"][img_ind]
             mimg = fdepth_group["Mass_Images"][img_ind]
-            print(depth, mdepth, np.max(fdepth_group["Noise_value"][img_ind]))
-
-            # if np.max(mimg) > mass_vmax:
-            #     mass_vmax = np.max(mimg)
-            # if np.min(mimg) < mass_vmin:
-            #     mass_vmin = np.min(mimg)
 
             fluxes.setdefault(mdepth, []).append(np.nansum(img))
 
@@ -111,7 +104,7 @@ while ind < n_img:
 
             hdf.close()
 
-    lams = [int(f.split(".")[-1][1:-1]) * 10 for f in filters]
+    lams = [int(re.findall(r'\d+', f)[0]) * 10 for f in filters]
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
     # vmin = np.percentile(all_imgs, 16)
@@ -126,7 +119,8 @@ while ind < n_img:
     fig = plt.figure(figsize=(len(filters) + 1, len(depths)),
                      dpi=all_imgs.shape[-1])
     gs = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths) + 1,
-                           width_ratios=(len(filters) + 1) * [10, ] + [1, ])
+                           width_ratios=(len(filters) + 1) * [10, ] + [1, ],
+                           height_ratios=len(depths) * [1., ] + [1.5, ])
     gs1 = gridspec.GridSpec(ncols=len(filters) + 2, nrows=len(depths),
                             width_ratios=(len(filters) + 1) * [10, ] + [1, ])
     gs.update(wspace=0.0, hspace=0.0)
