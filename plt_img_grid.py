@@ -125,18 +125,18 @@ while ind < n_img:
     print(vmin, vmax, mass_vmax)
     fig = plt.figure(figsize=(len(filters) + 1.2, len(depths) + 1.5),
                      dpi=all_imgs.shape[-1])
-    gs = gridspec.GridSpec(ncols=len(filters) + 3, nrows=len(depths) + 1,
+    gs = gridspec.GridSpec(ncols=len(filters) + 4, nrows=len(depths) + 1,
                            width_ratios=(len(filters) + 1)
                                         * [10, ] + [2, 2, ],
                            height_ratios=len(depths) * [1., ] + [1.5, ])
-    gs1 = gridspec.GridSpec(ncols=len(filters) + 3, nrows=len(depths) + 1,
+    gs1 = gridspec.GridSpec(ncols=len(filters) + 4, nrows=len(depths) + 1,
                             width_ratios=(len(filters) + 1)
                                          * [10, ] + [2, 2, ],
                             height_ratios=len(depths) * [1., ] + [1.5, ])
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=1.0, hspace=0.0)
-    cax = fig.add_subplot(gs1[:, len(filters) + 3])
-    cax2 = fig.add_subplot(gs1[:, len(filters) + 2])
+    cax = fig.add_subplot(gs1[:, -2])
+    cax2 = fig.add_subplot(gs1[:, -1])
     flux_ax = fig.add_subplot(gs[-1, :-2])
     flux_ax.grid(True)
 
