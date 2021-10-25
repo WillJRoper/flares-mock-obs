@@ -104,9 +104,9 @@ while ind < n_img:
 
             hdf.close()
 
-    for f in filters:
-        print(f, re.findall(r'\d+', f), int(re.findall(r'\d+', f.split(".")[-1])[0]) * 10)
-    lams = [int(re.findall(r'\d+', f.split(".")[-1])[0]) * 10 for f in filters]
+    lams = np.array([int(re.findall(r'\d+', f.split(".")[-1])[0])
+                     for f in filters]) * 10
+    lams_sinds = np.argsort(lams)
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
     # vmin = np.percentile(all_imgs, 16)
@@ -129,7 +129,7 @@ while ind < n_img:
     gs1.update(wspace=0.2, hspace=0.0)
     cax = fig.add_subplot(gs1[:, -1])
     # cax2 = cax.twinx()
-    flux_ax = fig.add_subplot(gs[-2, :])
+    flux_ax = fig.add_subplot(gs[-1, :-1])
 
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
@@ -143,9 +143,8 @@ while ind < n_img:
         else:
             line = "--"
 
-        print(lams)
-        print(fluxes[d])
-        flux_ax.plot(lams, fluxes[d], linestyle=line, marker="+",
+        flux_ax.plot(lams[lams_sinds], fluxes[d][lams_sinds],
+                     linestyle=line, marker="+",
                      label=r"$m=%.1f \times m_{\mathrm{XDF}}$"
                            % (depths[i] / XDF_depth_flux))
 
