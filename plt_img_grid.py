@@ -128,6 +128,7 @@ while ind < n_img:
     cax = fig.add_subplot(gs1[:, -1])
     # cax2 = cax.twinx()
     flux_ax = fig.add_subplot(gs[-1, :])
+    flux_ax.loglog()
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
         for j in range(len(filters) + 1):
@@ -140,10 +141,10 @@ while ind < n_img:
         else:
             marker = "--"
 
-        flux_ax.loglog(lams, fluxes[d], label=r"$m=%.1f "
-                                              r"\times m_{\mathrm{XDF}}$"
-                                              % (depths[i] / XDF_depth_flux),
-                       marker=marker)
+        flux_ax.plot(lams, fluxes[d], label=r"$m=%.1f "
+                                            r"\times m_{\mathrm{XDF}}$"
+                                            % (depths[i] / XDF_depth_flux),
+                     marker=marker)
 
         for j, f in enumerate(filters):
             ax = axes[i, j]
