@@ -133,8 +133,7 @@ while ind < n_img:
                             height_ratios=len(depths) * [1., ] + [1.5, ])
     gs.update(wspace=0.0, hspace=0.0)
     gs1.update(wspace=1.0, hspace=0.0)
-    cax = fig.add_subplot(gs1[:, -2])
-    cax2 = fig.add_subplot(gs1[:, -1])
+
     flux_ax = fig.add_subplot(gs[-1, :-2])
     flux_ax.grid(True)
 
@@ -184,6 +183,10 @@ while ind < n_img:
 
     cmap = mpl.cm.magma
     cmap2 = mpl.cm.plasma
+
+    cax = flux_ax.inset_axes([0.8, 0.1, 0.2, 0.05])
+    cax2 = flux_ax.inset_axes([0.6, 0.1, 0.15, 0.05])
+
     cbar = mpl.colorbar.ColorbarBase(cax, cmap=cmap,
                                      norm=img_norm)
     cbar2 = mpl.colorbar.ColorbarBase(cax2, cmap=cmap2,
