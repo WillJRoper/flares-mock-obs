@@ -78,6 +78,26 @@ hdf.close()
 
 thresh = 2.5
 
+# Remove filters beyond the lyman break
+detect_filters = []
+for f in filters:
+    f_split = f.split(".")
+    inst = f.split(".")[1]
+    filt = f.split(".")[-1]
+    if len(filt) == 5:
+        wl = int(filt[1:-1])
+    else:
+        wl = int(filt[1:-2])
+    if inst == "ACS":
+        if wl * 10 > (912 * (1 + z)):
+            detect_filters.append(f)
+    else:
+        if wl * 100 > (912 * (1 + z)):
+            detect_filters.append(f)
+
+print("Lyman break at", 912 * (1 + z), "A")
+print("Filters rdder then the Lyman break:", detect_filters)
+
 while ind < n_img:
 
     img_ind = sinds[ind]
@@ -128,7 +148,7 @@ while ind < n_img:
         weight_img = np.zeros(img_dict[d][filters[0]].shape)
         noise_img = np.zeros(img_dict[d][filters[0]].shape)
 
-        for f in filters:
+        for f in detect_filters:
             detection_img += (img_dict[d][f] / noise_dict[d][f] ** 2)
             weight_img += (1 / noise_dict[d][f] ** 2)
             noise_img += (1 / noise_dict[d][f])
