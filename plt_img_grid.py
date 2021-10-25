@@ -134,6 +134,7 @@ while ind < n_img:
 
     flux_ax = fig.add_subplot(gs[-1, :])
     flux_ax.grid(True)
+    flux_ax.semilogy()
 
     axes = np.zeros((len(depths), len(filters) + 1), dtype=object)
     for i in range(len(depths)):
