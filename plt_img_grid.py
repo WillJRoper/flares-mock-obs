@@ -191,7 +191,7 @@ while ind < n_img:
     cax2.set_ylabel("$M/M_\odot$")
 
     flux_ax.set_ylabel("$F / [\mathrm{nJy}]$")
-    flux_ax.set_ylabel(r"$\lambda / [\r{A}]$")
+    flux_ax.set_ylabel(r"$\lambda /$ [\AA]")
 
     fig.savefig("plots/gal_img_grid_Orientation-"
                 + orientation + "_Type-" + Type
