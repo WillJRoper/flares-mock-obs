@@ -75,9 +75,6 @@ imgs = hdf[str(depths[0])]["Images"][:]
 sinds = np.argsort(np.nansum(imgs, axis=(1, 2)))[::-1]
 hdf.close()
 
-# Set up dictionary to store the flux in each filter
-fluxes = {}
-
 while ind < n_img:
 
     img_ind = sinds[ind]
@@ -85,6 +82,9 @@ while ind < n_img:
     print("Creating image", ind, img_ind)
 
     img_dict = {}
+
+    # Set up dictionary to store the flux in each filter
+    fluxes = {}
 
     for depth, mdepth in zip(depths, depths_m):
         for f in filters:
@@ -104,6 +104,8 @@ while ind < n_img:
 
             hdf.close()
 
+    for f in filters:
+        print(f, re.findall(r'\d+', f), int(re.findall(r'\d+', f)[0]) * 10)
     lams = [int(re.findall(r'\d+', f)[0]) * 10 for f in filters]
     all_imgs = np.array([img_dict[d][f] for f in filters for d in depths_m])
     all_mimgs = np.array([img_dict[d]["Mass"] for d in depths_m])
