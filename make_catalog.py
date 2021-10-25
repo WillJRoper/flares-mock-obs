@@ -22,6 +22,7 @@ import sys
 from scipy.spatial import cKDTree
 from scipy.ndimage import gaussian_filter
 import time
+from flare.photom import m_to_flux, flux_to_m
 import eritlux.simulations.imagesim as imagesim
 import flare.surveys
 import flare.plots.image
@@ -73,6 +74,13 @@ z = float(z_str[0] + '.' + z_str[1])
 filters = [f'Hubble.ACS.{f}'
            for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
           + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+
+# Set up depths relative to the Xtreme deep field
+XDF_depth_m = 31.2
+XDF_depth_flux = m_to_flux(XDF_depth_m)
+depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
+          XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
+depths_m = [flux_to_m(d) for d in depths]
 
 depths = [0.1, 1, 5, 10, 20, "SUBFIND"]
 

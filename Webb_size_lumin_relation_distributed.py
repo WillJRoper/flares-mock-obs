@@ -77,9 +77,7 @@ XDF_depth_m = 31.2
 XDF_depth_flux = m_to_flux(XDF_depth_m)
 depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
           XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
-depths_m = [flux_to_m(XDF_depth_flux * 0.01), flux_to_m(XDF_depth_flux * 0.1),
-            flux_to_m(XDF_depth_flux), flux_to_m(10 * XDF_depth_flux),
-            flux_to_m(100 * XDF_depth_flux)]
+depths_m = [flux_to_m(d) for d in depths]
 
 z_str = tag.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
@@ -405,130 +403,121 @@ for num, depth in enumerate(depths):
                                        compression="gzip")
     dset.attrs["units"] = "None"
 
-# depth = "SUBFIND"
-#
-# # --- initialise ImageCreator object
-# image_creator = imagesim.Idealised(f, field)
-#
-# print("Creating image for Filter, Pixel noise, Depth:",
-#       f, image_creator.pixel.noise, field.depths[f])
-#
-# fdepth = f + "." + str(depth)
-#
-# img_num = []
-#
-# begin = []
-# Slen = []
-# grp_mass = []
-# smls = []
-# fluxes = []
-# subgrpids = []
-# star_pos = []
-#
-# pre_cut = 0
-# post_cut = 0
-#
-# for key in image_keys:
-#
-#     ind = key
-#
-#     this_pos = reg_dict[key]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
-#     this_smls = reg_dict[key]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
-#     this_subgrpids = reg_dict[key]["part_subgrpids"]
-#
-#     pre_cut += len(this_smls)
-#
-#     xcond = np.logical_and(this_pos[:, 0] < imgextent[1],
-#                            this_pos[:, 0] > imgextent[0])
-#     ycond = np.logical_and(this_pos[:, 1] < imgextent[1],
-#                            this_pos[:, 1] > imgextent[0])
-#     zcond = np.logical_and(this_pos[:, 2] < imgextent[1],
-#                            this_pos[:, 2] > imgextent[0])
-#     okinds = np.logical_and(np.logical_and(xcond, ycond), zcond)
-#
-#     this_flux = reg_dict[key][f][okinds]
-#     this_pos = this_pos[okinds]
-#     this_smls = this_smls[okinds]
-#     this_subgrpids = this_subgrpids[okinds]
-#
-#     post_cut += len(this_smls)
-#
-#     img_num.append(key)
-#
-#     begin.append(len(fluxes))
-#     Slen.append(len(this_smls))
-#
-#     star_pos.extend(this_pos)
-#     smls.extend(this_smls)
-#     fluxes.extend(this_flux)
-#     subgrpids.extend(this_subgrpids)
-#
-# fdepth_group = hdf.create_group(str(depth))
-#
-# img_num = np.array(img_num)
-# fluxes = np.array(fluxes)
-# subgrpids = np.array(subgrpids)
-# smls = np.array(smls)
-# star_pos = np.array(star_pos)
-# begin = np.array(begin)
-# Slen = np.array(Slen)
-#
-# dset = fdepth_group.create_dataset("Image_ID", data=img_num,
-#                                    dtype=img_num.dtype,
-#                                    shape=img_num.shape,
-#                                    compression="gzip")
-# dset.attrs["units"] = "None"
-#
-# dset = fdepth_group.create_dataset("Subgroup_IDs",
-#                                    data=gal_haloids,
-#                                    dtype=gal_haloids.dtype,
-#                                    shape=gal_haloids.shape,
-#                                    compression="gzip")
-# dset.attrs["units"] = "None"
-#
-# dset = fdepth_group.create_dataset("Galaxy Mass",
-#                                    data=gal_mass,
-#                                    dtype=gal_mass.dtype,
-#                                    shape=gal_mass.shape,
-#                                    compression="gzip")
-# dset.attrs["units"] = "$M_\odot$"
-#
-# dset = fdepth_group.create_dataset("Start_Index", data=begin,
-#                                    dtype=begin.dtype,
-#                                    shape=begin.shape,
-#                                    compression="gzip")
-# dset.attrs["units"] = "None"
-#
-# dset = fdepth_group.create_dataset("Smoothing_Length", data=smls,
-#                                    dtype=smls.dtype,
-#                                    shape=smls.shape,
-#                                    compression="gzip")
-# dset.attrs["units"] = "Mpc"
-#
-# dset = fdepth_group.create_dataset("Star_Pos", data=star_pos,
-#                                    dtype=star_pos.dtype,
-#                                    shape=star_pos.shape,
-#                                    compression="gzip")
-# dset.attrs["units"] = "kpc"
-#
-# dset = fdepth_group.create_dataset("Fluxes", data=fluxes,
-#                                    dtype=fluxes.dtype,
-#                                    shape=fluxes.shape,
-#                                    compression="gzip")
-# dset.attrs["units"] = "nJy"
-#
-# dset = fdepth_group.create_dataset("Part_subgrpids", data=subgrpids,
-#                                    dtype=subgrpids.dtype,
-#                                    shape=subgrpids.shape,
-#                                    compression="gzip")
-# dset.attrs["units"] = "None"
-#
-# dset = fdepth_group.create_dataset("Image_Length", data=Slen,
-#                                    dtype=Slen.dtype,
-#                                    shape=Slen.shape,
-#                                    compression="gzip")
-# dset.attrs["units"] = "None"
-#
+depth = "SUBFIND"
+
+# --- initialise ImageCreator object
+image_creator = imagesim.Idealised(f, field)
+
+print("Creating image for Filter, Pixel noise, Depth:",
+      f, image_creator.pixel.noise, field.depths[f])
+
+fdepth = f + "." + str(depth)
+
+img_num = []
+
+begin = []
+Slen = []
+grp_mass = []
+smls = []
+fluxes = []
+subgrpids = []
+star_pos = []
+
+for key in image_keys:
+
+    ind = key
+
+    this_pos = reg_dict[key]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
+    this_smls = reg_dict[key]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
+    this_subgrpids = reg_dict[key]["part_subgrpids"]
+
+    xcond = np.logical_and(this_pos[:, 0] < imgextent[1],
+                           this_pos[:, 0] > imgextent[0])
+    ycond = np.logical_and(this_pos[:, 1] < imgextent[1],
+                           this_pos[:, 1] > imgextent[0])
+    zcond = np.logical_and(this_pos[:, 2] < imgextent[1],
+                           this_pos[:, 2] > imgextent[0])
+    okinds = np.logical_and(np.logical_and(xcond, ycond), zcond)
+
+    this_flux = reg_dict[key][f][okinds]
+    this_pos = this_pos[okinds]
+    this_smls = this_smls[okinds]
+    this_subgrpids = this_subgrpids[okinds]
+
+    img_num.append(key)
+
+    begin.append(len(fluxes))
+    Slen.append(len(this_smls))
+
+    star_pos.extend(this_pos)
+    smls.extend(this_smls)
+    fluxes.extend(this_flux)
+    subgrpids.extend(this_subgrpids)
+
+fdepth_group = hdf.create_group(str(depth))
+
+img_num = np.array(img_num)
+fluxes = np.array(fluxes)
+subgrpids = np.array(subgrpids)
+smls = np.array(smls)
+star_pos = np.array(star_pos)
+begin = np.array(begin)
+Slen = np.array(Slen)
+
+dset = fdepth_group.create_dataset("Image_ID", data=img_num,
+                                   dtype=img_num.dtype,
+                                   shape=img_num.shape,
+                                   compression="gzip")
+dset.attrs["units"] = "None"
+
+dset = fdepth_group.create_dataset("Subgroup_IDs",
+                                   data=gal_haloids,
+                                   dtype=gal_haloids.dtype,
+                                   shape=gal_haloids.shape,
+                                   compression="gzip")
+dset.attrs["units"] = "None"
+
+dset = fdepth_group.create_dataset("Galaxy Mass",
+                                   data=gal_mass,
+                                   dtype=gal_mass.dtype,
+                                   shape=gal_mass.shape,
+                                   compression="gzip")
+dset.attrs["units"] = "$M_\odot$"
+
+dset = fdepth_group.create_dataset("Start_Index", data=begin,
+                                   dtype=begin.dtype,
+                                   shape=begin.shape,
+                                   compression="gzip")
+dset.attrs["units"] = "None"
+
+dset = fdepth_group.create_dataset("Smoothing_Length", data=smls,
+                                   dtype=smls.dtype,
+                                   shape=smls.shape,
+                                   compression="gzip")
+dset.attrs["units"] = "Mpc"
+
+dset = fdepth_group.create_dataset("Star_Pos", data=star_pos,
+                                   dtype=star_pos.dtype,
+                                   shape=star_pos.shape,
+                                   compression="gzip")
+dset.attrs["units"] = "kpc"
+
+dset = fdepth_group.create_dataset("Fluxes", data=fluxes,
+                                   dtype=fluxes.dtype,
+                                   shape=fluxes.shape,
+                                   compression="gzip")
+dset.attrs["units"] = "nJy"
+
+dset = fdepth_group.create_dataset("Part_subgrpids", data=subgrpids,
+                                   dtype=subgrpids.dtype,
+                                   shape=subgrpids.shape,
+                                   compression="gzip")
+dset.attrs["units"] = "None"
+
+dset = fdepth_group.create_dataset("Image_Length", data=Slen,
+                                   dtype=Slen.dtype,
+                                   shape=Slen.shape,
+                                   compression="gzip")
+dset.attrs["units"] = "None"
+
 hdf.close()
-#
-# print(pre_cut, post_cut)
