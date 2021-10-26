@@ -1,7 +1,7 @@
 #!/cosma/home/dp004/dc-rope1/.conda/envs/flares-env/bin/python
 import os
-import warnings
 import re
+import warnings
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -15,7 +15,6 @@ import seaborn as sns
 import photutils as phut
 from matplotlib.colors import LogNorm, Normalize
 import matplotlib.gridspec as gridspec
-import matplotlib as mpl
 from photutils.segmentation import SourceCatalog
 from astropy.convolution import Gaussian2DKernel
 from astropy.stats import gaussian_fwhm_to_sigma
@@ -120,7 +119,6 @@ while ind < n_img:
 
     for depth, mdepth in zip(depths, depths_m):
         for f in filters:
-
             hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
 
@@ -163,7 +161,7 @@ while ind < n_img:
 
         detection_img /= weight_img
         noise_img /= weight_img
-        n = np.max(noise_img) # All values are the same
+        n = np.max(noise_img)  # All values are the same
 
         sig = detection_img / noise_img
 
@@ -184,7 +182,7 @@ while ind < n_img:
             tab = source_cat.to_table(columns=quantities)
 
             for i in tab["label"]:
-                if tab['kron_flux'][i] / n < 5:
+                if tab['kron_flux'][i - 1] / n < 5:
                     segm.remove_label(i)
 
             db_segms[d] = segm
