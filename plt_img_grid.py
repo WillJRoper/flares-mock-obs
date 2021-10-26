@@ -171,6 +171,7 @@ while ind < n_img:
             segm = phut.deblend_sources(detection_img, segm,
                                         npixels=5, nlevels=8,
                                         contrast=0.001, kernel=kernel)
+            print(np.unique(segm.data).size)
             source_cat = SourceCatalog(detection_img, segm,
                                        error=None, mask=None,
                                        kernel=kernel, background=None,
@@ -182,10 +183,12 @@ while ind < n_img:
             tab = source_cat.to_table(columns=quantities)
 
             for i in tab["label"]:
+                print(tab['kron_flux'][i - 1] / n)
                 if tab['kron_flux'][i - 1] / n < 5:
                     segm.remove_label(i)
 
             db_segms[d] = segm
+            print(np.unique(segm.data).size)
 
         except TypeError:
             segms[d] = np.zeros(img_dict[d][filters[0]].shape)
