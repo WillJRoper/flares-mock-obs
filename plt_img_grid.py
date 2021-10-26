@@ -185,8 +185,9 @@ while ind < n_img:
             tab = source_cat.to_table(columns=quantities)
 
             for i in tab["label"]:
-                print(tab['kron_flux'][i - 1], tab['kron_flux'][i - 1] / n, n)
-                if tab['kron_flux'][i - 1] / n < 5:
+                print(flux_to_m(tab['kron_flux'][i - 1]), d,
+                      tab['kron_flux'][i - 1] / n, n)
+                if flux_to_m(tab['kron_flux'][i - 1]) > d:
                     segm.remove_label(i)
 
             db_segms[d] = segm
