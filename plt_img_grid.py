@@ -16,6 +16,8 @@ import photutils as phut
 from matplotlib.colors import LogNorm, Normalize
 import matplotlib.gridspec as gridspec
 import matplotlib as mpl
+from astropy.convolution import Gaussian2DKernel
+from astropy.stats import gaussian_fwhm_to_sigma
 import h5py
 import sys
 from flare.photom import m_to_flux, flux_to_m
@@ -76,7 +78,11 @@ sinds = np.argsort(np.nansum(imgs, axis=(1, 2)))[::-1]
 # sinds = np.arange(0, imgs.shape[0])
 hdf.close()
 
+# Set up segmentation image variables and kernel
 thresh = 2.5
+sigma = 3.0 * gaussian_fwhm_to_sigma  # FWHM = 3.
+kernel = Gaussian2DKernel(sigma, x_size=3, y_size=3)
+kernel.normalize()
 
 # Remove filters beyond the lyman break
 detect_filters = []
@@ -159,11 +165,11 @@ while ind < n_img:
         sig = detection_img / noise_img
 
         try:
-            segm = phut.detect_sources(sig, thresh, npixels=5)
+            segm = phut.detect_sources(sig, thresh, npixels=5, kernel=kernel)
             segms[d] = segm
             segm = phut.deblend_sources(detection_img, segm,
                                         npixels=5, nlevels=8,
-                                        contrast=0.01)
+                                        contrast=0.01, kernel=kernel)
             db_segms[d] = segm
         except TypeError:
             segms[d] = np.zeros(img_dict[d][filters[0]].shape)
