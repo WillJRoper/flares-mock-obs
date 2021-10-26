@@ -271,10 +271,10 @@ while ind < n_img:
                        labeltop=False, labelbottom=False,
                        left=False, right=False,
                        labelleft=False, labelright=False)
-
+        print(db_segms[d].data)
         try:
             plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
-            plt_img[db_segms[d].data_ma] = img_dict[d]["Mass"][db_segms[d].data_ma]
+            plt_img[db_segms[d].data > 0] = img_dict[d]["Mass"][db_segms[d].data > 0]
             ax.imshow(plt_img, cmap="plasma", norm=mimg_norm)
 
             plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
