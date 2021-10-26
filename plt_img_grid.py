@@ -169,7 +169,7 @@ while ind < n_img:
             segms[d] = segm
             segm = phut.deblend_sources(detection_img, segm,
                                         npixels=5, nlevels=8,
-                                        contrast=0.01, kernel=kernel)
+                                        contrast=0.001, kernel=kernel)
             db_segms[d] = segm
         except TypeError:
             segms[d] = np.zeros(img_dict[d][filters[0]].shape)
@@ -284,7 +284,7 @@ while ind < n_img:
             ax.imshow(plt_img, cmap="plasma", norm=mimg_norm)
 
             plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
-            plt_img[~db_segms[d].data_ma] = img_dict[d]["Mass"][~db_segms[d].data_ma]
+            plt_img[db_segms[d].data == 0] = img_dict[d]["Mass"][db_segms[d].data == 0]
             ax.imshow(plt_img, cmap="plasma", norm=mimg_norm, alpha=0.2)
         except AttributeError:
             ax.imshow(img_dict[d]["Mass"], cmap="plasma",
