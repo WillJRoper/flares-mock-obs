@@ -16,6 +16,7 @@ import photutils as phut
 from matplotlib.colors import LogNorm, Normalize
 import matplotlib.gridspec as gridspec
 import matplotlib as mpl
+from photutils.segmentation import SourceCatalog
 from astropy.convolution import Gaussian2DKernel
 from astropy.stats import gaussian_fwhm_to_sigma
 import h5py
@@ -83,6 +84,7 @@ thresh = 2.5
 sigma = 3.0 * gaussian_fwhm_to_sigma  # FWHM = 3.
 kernel = Gaussian2DKernel(sigma, x_size=3, y_size=3)
 kernel.normalize()
+quantities = ('label', 'kron_flux')
 
 # Remove filters beyond the lyman break
 detect_filters = []
@@ -161,6 +163,7 @@ while ind < n_img:
 
         detection_img /= weight_img
         noise_img /= weight_img
+        n = np.max(noise_img) # All values are the same
 
         sig = detection_img / noise_img
 
@@ -170,7 +173,22 @@ while ind < n_img:
             segm = phut.deblend_sources(detection_img, segm,
                                         npixels=5, nlevels=8,
                                         contrast=0.001, kernel=kernel)
+            source_cat = SourceCatalog(detection_img, segm,
+                                       error=None, mask=None,
+                                       kernel=kernel, background=None,
+                                       wcs=None, localbkg_width=0,
+                                       apermask_method='correct',
+                                       kron_params=(2.5, 0.0),
+                                       detection_cat=None)
+
+            tab = source_cat.to_table(columns=quantities)
+
+            for i in tab["label"]:
+                if tab['kron_flux'][i] / n < 5:
+                    segm.remove_label(i)
+
             db_segms[d] = segm
+
         except TypeError:
             segms[d] = np.zeros(img_dict[d][filters[0]].shape)
             db_segms[d] = np.zeros(img_dict[d][filters[0]].shape)
