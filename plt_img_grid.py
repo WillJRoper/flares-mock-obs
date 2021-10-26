@@ -162,7 +162,7 @@ while ind < n_img:
             segm = phut.detect_sources(sig, thresh, npixels=5)
             segms[d] = segm
             segm = phut.deblend_sources(detection_img, segm,
-                                        npixels=5, nlevels=16,
+                                        npixels=5, nlevels=8,
                                         contrast=0.01)
             db_segms[d] = segm
         except TypeError:
