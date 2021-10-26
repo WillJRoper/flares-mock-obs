@@ -87,7 +87,7 @@ for n_z in range(len(snaps)):
             try:
                 hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                                 .format(reg, snap, Type, orientation), "r")
-                print(hdf.keys())
+                print(hdf[f].keys())
             except OSError as e:
                 print(e)
                 continue
