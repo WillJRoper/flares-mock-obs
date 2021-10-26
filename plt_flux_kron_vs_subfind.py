@@ -115,6 +115,7 @@ for n_z in range(len(snaps)):
                 try:
                     f_group = hdf[f]
                     fdepth_group = f_group[str(depth)]
+                    print(fdepth_group.keys())
 
                     flux_segm = fdepth_group['kron_flux'][...]
                     flux_segm_err = fdepth_group['kron_fluxerr'][...]
