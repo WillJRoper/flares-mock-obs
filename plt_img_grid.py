@@ -171,7 +171,7 @@ while ind < n_img:
             segm = phut.detect_sources(sig, thresh, npixels=5, kernel=kernel)
             segms[d] = segm
             segm = phut.deblend_sources(detection_img, segm,
-                                        npixels=5, nlevels=8,
+                                        npixels=5, nlevels=32,
                                         contrast=0.001, kernel=kernel)
             print("Before:", np.unique(segm.data).size)
             source_cat = SourceCatalog(detection_img, segm,
