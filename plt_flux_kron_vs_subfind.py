@@ -11,17 +11,12 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
 import seaborn as sns
-from matplotlib.colors import LogNorm
-import photutils as phut
-from photutils.segmentation import SourceCatalog
+from flare.photom import m_to_flux, flux_to_m
 import h5py
 import sys
-from astropy.cosmology import Planck13 as cosmo
-import astropy.units as u
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
-
 
 regions = []
 for reg in range(0, 40):
@@ -39,7 +34,6 @@ reg_snaps = []
 for reg in reversed(regions):
 
     for snap in snaps:
-
         reg_snaps.append((reg, snap))
 
 # Set orientation
@@ -54,7 +48,12 @@ filters = [f'Hubble.ACS.{f}'
            for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
           + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
-depths = [0.1, 1, 5, 10, 20]
+# Set up depths relative to the Xtreme deep field
+XDF_depth_m = 31.2
+XDF_depth_flux = m_to_flux(XDF_depth_m)
+depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
+          XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
+depths_m = [flux_to_m(d) for d in depths]
 
 thresh = 2.5
 
@@ -80,8 +79,9 @@ for n_z in range(len(snaps)):
 
             print("Getting SUBFIND occupancy with orientation {o}, type {t}, "
                   "and extinction {e} for region {x} and "
-                  "snapshot {u} and filter  {i}".format(o=orientation, t=Type, e=extinction,
-                                        x=reg, u=snap, i=f))
+                  "snapshot {u} and filter  {i}".format(o=orientation, t=Type,
+                                                        e=extinction,
+                                                        x=reg, u=snap, i=f))
             try:
                 hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                                 .format(reg, snap, Type, orientation), "r")
@@ -179,9 +179,9 @@ for n_z in range(len(snaps)):
         if not os.path.exists("plots/Flux_Kron"):
             os.makedirs("plots/Flux_Kron")
 
-        fig.savefig("plots/Flux_Kron/flux_kron_hist_Filter-" + f + "_Orientation-"
-                + orientation + "_Type-" + Type + "_Snap-" + snap + ".png",
-                    bbox_inches="tight")
+        fig.savefig(
+            "plots/Flux_Kron/flux_kron_hist_Filter-" + f + "_Orientation-"
+            + orientation + "_Type-" + Type + "_Snap-" + snap + ".png",
+            bbox_inches="tight")
 
         plt.close(fig)
-
