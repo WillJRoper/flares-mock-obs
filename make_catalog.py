@@ -313,8 +313,8 @@ for num, depth in enumerate(depths):
                     segm = phut.detect_sources(sig_img, thresh, npixels=5,
                                                kernel=kernel)
                     segm = phut.deblend_sources(det_img, segm,
-                                                npixels=5, nlevels=32,
-                                                contrast=0.001, kernel=kernel)
+                                                npixels=5, nlevels=16,
+                                                contrast=0.01, kernel=kernel)
                 except TypeError as e:
                     print(e)
                     continue
