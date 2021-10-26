@@ -277,21 +277,22 @@ while ind < n_img:
                        labeltop=False, labelbottom=False,
                        left=False, right=False,
                        labelleft=False, labelright=False)
-        print(db_segms[d].data)
+        print(d, db_segms[d].data)
         try:
+            okinds = db_segms[d].data > 0
             plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
-            plt_img[db_segms[d].data > 0] = img_dict[d]["Mass"][db_segms[d].data > 0]
+            plt_img[okinds] = img_dict[d]["Mass"][okinds]
             ax.imshow(plt_img, cmap="plasma", norm=mimg_norm)
 
             plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
-            plt_img[db_segms[d].data == 0] = img_dict[d]["Mass"][db_segms[d].data == 0]
+            plt_img[~okinds] = img_dict[d]["Mass"][~okinds]
             ax.imshow(plt_img, cmap="plasma", norm=mimg_norm, alpha=0.2)
-        except AttributeError:
+        except (AttributeError, TypeError):
             ax.imshow(img_dict[d]["Mass"], cmap="plasma",
                       norm=mimg_norm, alpha=0.2)
 
         if i == 0:
-            ax.set_title("Mass Deblend")
+            ax.set_title("Segm Mass")
 
     # cmap = mpl.cm.magma
     # cmap2 = mpl.cm.plasma
