@@ -19,7 +19,6 @@ import sys
 from flare.photom import m_to_flux, flux_to_m
 import eritlux.simulations.imagesim as imagesim
 import flare.surveys as survey
-import flare.plots.image
 import gc
 
 sns.set_context("paper")
@@ -94,7 +93,7 @@ for f in filters:
             detect_filters.append(f)
 
 print("Lyman break at", 912 * (1 + z), "A")
-print("Filters rdder then the Lyman break:", detect_filters)
+print("Filters redder then the Lyman break:", detect_filters)
 
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
@@ -269,58 +268,58 @@ for num, depth in enumerate(depths):
         del weight_img
         gc.collect()
 
-        for f in filters:
-
-            # --- initialise ImageCreator object
-            image_creator = imagesim.Idealised(f, field)
-
-            arc_res = image_creator.pixel_scale
-            kpc_res = arc_res / arcsec_per_kpc_proper
-
-            print("Getting sources with orientation {o}, type {t}, "
-                  "and extinction {e} for region {x}, "
-                  "snapshot {u}, filter {i}, and depth {d}"
-                  .format(o=orientation, t=Type, e=extinction, x=reg,
-                          u=snap, i=f, d=depth))
-
-            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                            .format(reg, snap, Type, orientation, f), "r")
+        for img_id in range(sig.shape[0]):
+            det_img = detection_img[img_id, :, :]
+            sig_img = sig[img_id, :, :]
 
             try:
-
-                fdepth_group = hdf[str(depth)]
-
-                ijk = fdepth_group["IJK"][:]
-
-                imgs = fdepth_group["Images"]
-                mimgs = fdepth_group["Mass_Images"]
-                img_ids = fdepth_group["Image_ID"][...]
-                noises = fdepth_group["Noise_value"]
-
-            except KeyError as e:
+                segm = phut.detect_sources(sig_img, thresh, npixels=5,
+                                           kernel=kernel)
+                segm = phut.deblend_sources(det_img, segm,
+                                            npixels=5, nlevels=16,
+                                            contrast=0.01, kernel=kernel)
+            except TypeError as e:
                 print(e)
-                hdf.close()
                 continue
 
-            res = imgs.shape[-1]
+            for f in filters:
 
-            for img_id in img_ids:
-                img = imgs[img_id, :, :]
-                mimg = mimgs[img_id, :, :]
-                det_img = detection_img[img_id, :, :]
-                sig_img = sig[img_id, :, :]
+                # --- initialise ImageCreator object
+                image_creator = imagesim.Idealised(f, field)
+
+                arc_res = image_creator.pixel_scale
+                kpc_res = arc_res / arcsec_per_kpc_proper
+
+                print("Getting sources with orientation {o}, type {t}, "
+                      "and extinction {e} for region {x}, "
+                      "snapshot {u}, filter {i}, and depth {d}"
+                      .format(o=orientation, t=Type, e=extinction, x=reg,
+                              u=snap, i=f, d=depth))
+
+                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                                .format(reg, snap, Type, orientation, f), "r")
 
                 try:
-                    segm = phut.detect_sources(sig_img, thresh, npixels=5,
-                                               kernel=kernel)
-                    segm = phut.deblend_sources(det_img, segm,
-                                                npixels=5, nlevels=16,
-                                                contrast=0.01, kernel=kernel)
-                except TypeError as e:
+
+                    fdepth_group = hdf[str(depth)]
+
+                    imgs = fdepth_group["Images"]
+                    mimgs = fdepth_group["Mass_Images"]
+                    noises = fdepth_group["Noise_value"]
+
+                    hdf.close()
+
+                except KeyError as e:
                     print(e)
+                    hdf.close()
                     continue
 
-                n = noises[0]
+                n = np.max(noises)  # noise images have 1 unique value
+                res = imgs.shape[-1]
+
+                # Get images
+                img = imgs[img_id, :, :]
+                mimg = mimgs[img_id, :, :]
 
                 # ================= Flux =================
 
