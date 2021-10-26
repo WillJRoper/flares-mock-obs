@@ -18,6 +18,7 @@ from astropy.convolution import Gaussian2DKernel
 import sys
 from flare.photom import m_to_flux, flux_to_m
 import eritlux.simulations.imagesim as imagesim
+import flare.surveys as survey
 import flare.plots.image
 import gc
 
@@ -104,9 +105,9 @@ z = float(z_str[0] + '.' + z_str[1])
 survey_id = 'XDF'  # the XDF (updated HUDF)
 field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
 
-# --- get field info object. This contains the filters, depths,
+# Get field info object. This contains the filters, depths,
 # image location etc. (if real image)
-field = flare.surveys.surveys[survey_id].fields[field_id]
+field = survey.surveys[survey_id].fields[field_id]
 
 # Define smoothing kernel for deblending
 kernel_sigma = 8 / (2.0 * np.sqrt(2.0 * np.log(2.0)))  # FWHM = 3
