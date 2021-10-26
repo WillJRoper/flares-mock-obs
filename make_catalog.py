@@ -119,7 +119,7 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 # Define widths
 full_ini_width_kpc = 30000
 full_ini_width = full_ini_width_kpc * arcsec_per_kpc_proper
-ini_width = 15
+ini_width = 30
 ini_width_pkpc = ini_width / arcsec_per_kpc_proper
 
 thresh = 2.5
@@ -307,14 +307,12 @@ for num, depth in enumerate(depths):
                     mimgs = fdepth_group["Mass_Images"]
                     noises = fdepth_group["Noise_value"]
 
-                    hdf.close()
-
                 except KeyError as e:
                     print(e)
                     hdf.close()
                     continue
 
-                n = np.max(noises)  # noise images have 1 unique value
+                n = np.max(noises[img_id])  # noise images have 1 unique value
                 res = imgs.shape[-1]
 
                 # Get images
@@ -337,6 +335,7 @@ for num, depth in enumerate(depths):
                         source_cat.fluxfrac_radius(0.5) * kpc_res)
                 except ValueError as e:
                     print(e)
+                    hdf.close()
                     continue
 
                 tab = source_cat.to_table(columns=quantities)
@@ -375,6 +374,7 @@ for num, depth in enumerate(depths):
                         source_cat.fluxfrac_radius(0.5) * kpc_res)
                 except ValueError as e:
                     print(e)
+                    hdf.close()
                     continue
 
                 tab = source_cat.to_table(columns=quantities)
@@ -383,7 +383,7 @@ for num, depth in enumerate(depths):
                                                               []).extend(
                         tab[key])
 
-            hdf.close()
+                hdf.close()
 
 for f in filters:
     f_cat_group = hdf_cat.create_group(f)
