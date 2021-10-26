@@ -306,10 +306,10 @@ while ind < n_img:
 
             plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
             plt_img[~okinds] = img_dict[d]["Mass"][~okinds]
-            ax.imshow(plt_img, cmap="plasma", norm=mimg_norm, alpha=0.2)
+            ax.imshow(plt_img, cmap="plasma", norm=mimg_norm, alpha=0.1)
         except (AttributeError, TypeError):
             ax.imshow(img_dict[d]["Mass"], cmap="plasma",
-                      norm=mimg_norm, alpha=0.2)
+                      norm=mimg_norm, alpha=0.1)
 
         if i == 0:
             ax.set_title("Segm Mass")
