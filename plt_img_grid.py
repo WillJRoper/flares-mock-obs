@@ -171,9 +171,9 @@ while ind < n_img:
             segm = phut.detect_sources(sig, thresh, npixels=5, kernel=kernel)
             segms[d] = segm
             segm = phut.deblend_sources(detection_img, segm,
-                                        npixels=5, nlevels=32,
-                                        contrast=0.1, kernel=kernel)
-            print("Before:", np.unique(segm.data).size)
+                                        npixels=5, nlevels=16,
+                                        contrast=0.01, kernel=kernel)
+
             source_cat = SourceCatalog(detection_img, segm,
                                        error=None, mask=None,
                                        kernel=kernel, background=None,
@@ -185,13 +185,11 @@ while ind < n_img:
             tab = source_cat.to_table(columns=quantities)
 
             for i in tab["label"]:
-                print(flux_to_m(tab['kron_flux'][i - 1]), d,
-                      tab['kron_flux'][i - 1] / n, n)
                 if flux_to_m(tab['kron_flux'][i - 1]) > d:
                     segm.remove_label(i)
 
             db_segms[d] = segm
-            print("After:", np.unique(segm.data).size)
+            print("Sources:", np.unique(segm.data).size - 1)
 
         except TypeError:
             segms[d] = np.zeros(img_dict[d][filters[0]].shape)
@@ -299,7 +297,7 @@ while ind < n_img:
                        labeltop=False, labelbottom=False,
                        left=False, right=False,
                        labelleft=False, labelright=False)
-        print(d, db_segms[d].data)
+
         try:
             okinds = db_segms[d].data > 0
             plt_img = np.full_like(img_dict[d]["Mass"], np.nan)
