@@ -173,7 +173,9 @@ while ind < n_img:
                        labeltop=False, labelbottom=False,
                        left=False, right=False,
                        labelleft=False, labelright=False)
-        im = ax.imshow(detection_img, cmap="plasma")
+        im = ax.imshow(detection_img, cmap="plasma",
+                       vmin=np.percentile(detection_img, 16),
+                       vmax=np.percentile(detection_img, 99))
         fig.colorbar(im)
         fig.savefig("plots/detect_Depth-%.2f" % d
                     + "Orientation-"
@@ -188,7 +190,7 @@ while ind < n_img:
                        labeltop=False, labelbottom=False,
                        left=False, right=False,
                        labelleft=False, labelright=False)
-        im = ax.imshow(sig, cmap="plasma")
+        im = ax.imshow(sig, cmap="plasma", norm=LogNorm())
         fig.colorbar(im)
         fig.savefig("plots/SNRmap_Depth-%.2f" % d
                     + "Orientation-"
