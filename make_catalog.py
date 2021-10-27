@@ -373,6 +373,8 @@ if len(my_img_ids) > 0:
                     arc_res = image_creator.pixel_scale
                     kpc_res = arc_res / arcsec_per_kpc_proper
 
+                    single_pix_area = kpc_res**2
+
                     hdf = h5py.File(
                         "mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
@@ -431,6 +433,16 @@ if len(my_img_ids) > 0:
                         "Image_Length",
                         []).append(
                         tab["label"].size)
+
+                    this_pix_hlr = []
+                    for lab in tab["label"]:
+                        this_pix_hlr.append(
+                            util.get_pixel_hlr(img[segm.data == lab],
+                                               single_pix_area,
+                                               radii_frac=0.5))
+
+                    obs_data[f + "." + str(depth)].setdefault(
+                        "Pix_HLR", []).extend(this_pix_hlr)
 
                     try:
                         obs_data[f + "." + str(depth)].setdefault(
