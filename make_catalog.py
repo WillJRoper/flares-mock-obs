@@ -431,7 +431,7 @@ if len(my_img_ids) > 0:
                     tab = source_cat.to_table(columns=quantities)
                     for key in tab.colnames:
                         obs_data[f + "." + str(depth)].setdefault(
-                            "Mass" + key,
+                            "Mass_" + key,
                             []).extend(
                             tab[key])
 
@@ -482,7 +482,6 @@ if rank == 0:
             if d == "SUBFIND":
                 continue
             out_obs_data.setdefault(f + "." + str(d), {})
-            print(collected_obs_data[0])
             for key in collected_obs_data[0][f + "." + str(d)]:
                 for res in collected_obs_data:
                     if len(res) == 0:
@@ -497,9 +496,6 @@ if rank == 0:
                         out_obs_data[f + "." + str(d)].setdefault(key,
                                                                       []).extend(
                             res[f + "." + str(d)][key])
-
-    print(out_obs_data)
-    print(out_subf_data)
 
     for f in filters:
         f_cat_group = hdf_cat.create_group(f)
