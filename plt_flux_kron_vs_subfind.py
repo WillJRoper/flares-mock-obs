@@ -160,7 +160,10 @@ for n_z in range(len(snaps)):
 
             H, bins = np.histogram(flux_segm_dict[fdepth], bins=bin_edges)
 
-            print(f"Kron ({depth}):", np.sum(H))
+            n = np.sum(H)
+            print(n)
+
+            print(f"Kron ({depth}):", n)
 
             ax.plot(bin_edges[:-1], H,
                     label="Kron: %.2f nJy (%d)"
