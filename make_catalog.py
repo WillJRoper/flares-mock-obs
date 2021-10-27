@@ -157,11 +157,6 @@ obs_data = {}
 
 subf_data = {}
 
-subf_flux = {}
-subf_img_num = {}
-subf_begin = {}
-subf_len = {}
-
 try:
 
     hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
@@ -169,7 +164,6 @@ try:
                             detect_filters[0]), "r")
 
     fdepth_group = hdf[str(depths[0])]
-    print(fdepth_group.keys())
 
     noises = fdepth_group["Noise_value"]
 
@@ -179,146 +173,27 @@ try:
 
     img_ids = np.linspace(0, nimg - 1, nimg)
 
-    rank_img_bins = np.linspace(0, nimg + 1, size)
-
-    my_img_ids = np.arange(rank_img_bins[rank], rank_img_bins[rank + 1], 1,
-                           dtype=int)
-
-    print("Rank:", rank, "of", size,
-          "My Images: (" + str(my_img_ids[0]), "->", str(my_img_ids[-1]) + ")",
-          "Total:", nimg)
-
-    for num, depth in enumerate(depths):
-
-        if depth == "SUBFIND":
-
-            for f in filters:
-
-                # --- initialise ImageCreator object
-                image_creator = imagesim.Idealised(f, field)
-
-                arc_res = image_creator.pixel_scale
-                kpc_res = arc_res / arcsec_per_kpc_proper
-
-                print("Getting sources with orientation {o}, type {t}, "
-                      "and extinction {e} for region {x}, "
-                      "snapshot {u}, filter {i}, and depth {d}"
-                      .format(o=orientation, t=Type, e=extinction, x=reg,
-                              u=snap, i=f, d=depth))
-
-                try:
-                    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                                    .format(reg, snap, Type, orientation, f), "r")
-                except OSError as e:
-                    print(e)
-                    continue
-
-                try:
-                    fdepth_group = hdf[str(depth)]
-
-                    fluxes = fdepth_group["Fluxes"][:]
-                    subgrpids = fdepth_group["Part_subgrpids"][:]
-                    begin = fdepth_group["Start_Index"][:]
-                    group_len = fdepth_group["Image_Length"][:]
-                    gal_ids = set(fdepth_group["Subgroup_IDs"][:])
-
-                    hdf.close()
-                except KeyError as e:
-                    print(e)
-                    hdf.close()
-                    continue
-
-                for (img_num, beg), img_len in zip(enumerate(begin), group_len):
-
-                    this_subgrpids = subgrpids[beg: beg + img_len]
-
-                    subgrps, inverse_inds = np.unique(this_subgrpids,
-                                                      return_inverse=True)
-
-                    this_flux = np.zeros(subgrps.size)
-
-                    for flux, i, subgrpid in zip(fluxes[beg: beg + img_len],
-                                                 inverse_inds, this_subgrpids):
-                        this_flux[i] += flux
-
-                    this_flux = this_flux[this_flux > 0]
-
-                    subf_data.setdefault(f + "." + str(depth), {}).setdefault(
-                        "Fluxes", []).extend(this_flux)
-                    subf_data[f + "." + str(depth)].setdefault("Start_Index",
-                                                               []).append(
-                        len(subf_data[f + "." + str(depth)]["Fluxes"]))
-                    subf_data[f + "." + str(depth)].setdefault("Image_Length",
-                                                               []).append(
-                        len(this_flux))
-                    subf_data[f + "." + str(depth)].setdefault("Image_ID",
-                                                               []).extend(
-                        np.full_like(this_flux, img_num))
-
+    if nimg < size:
+        if rank < nimg:
+            my_img_ids = np.array([rank, ], dtype=int)
         else:
+            print("Rank", rank, "has no images")
+            my_img_ids = np.array([], dtype=int)
+    else:
+        rank_img_bins = np.linspace(0, nimg + 1, size + 1)
+        my_img_ids = np.arange(rank_img_bins[rank], rank_img_bins[rank + 1], 1,
+                               dtype=int)
 
-            for f in detect_filters:
+    if len(my_img_ids) > 0:
 
-                # --- initialise ImageCreator object
-                image_creator = imagesim.Idealised(f, field)
+        print("Rank:", rank, "of", size,
+              "My Images: (" + str(my_img_ids[0]), "->",
+              str(my_img_ids[-1]) + ")",
+              "Total:", nimg)
 
-                arc_res = image_creator.pixel_scale
-                kpc_res = arc_res / arcsec_per_kpc_proper
+        for num, depth in enumerate(depths):
 
-                print("Creating detection image for filter {i}, and depth {d}"
-                      .format(i=f, d=depth))
-
-                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                                .format(reg, snap, Type, orientation, f), "r")
-
-                try:
-                    fdepth_group = hdf[str(depth)]
-
-                    imgs = fdepth_group["Images"][...]
-                    noises = fdepth_group["Noise_value"][...]
-
-                    if f == detect_filters[0]:
-                        detection_img = np.zeros_like(imgs)
-                        weight_img = np.zeros_like(noises)
-                        noise_img = np.zeros_like(noises)
-
-                    detection_img += (imgs / noises[:, None, None] ** 2)
-                    weight_img += (1 / noises ** 2)
-                    noise_img += (1 / noises)
-
-                    hdf.close()
-
-                except KeyError as e:
-                    print(e)
-                    hdf.close()
-                    detection_img = None
-                    weight_img = None
-                    noise_img = None
-
-                    continue
-
-            detection_img /= weight_img[:, None, None]
-            noise_img /= weight_img
-
-            sig = detection_img / noise_img[:, None, None]
-
-            del noise_img
-            del weight_img
-            gc.collect()
-
-            for img_id in range(sig.shape[0]):
-                det_img = detection_img[img_id, :, :]
-                sig_img = sig[img_id, :, :]
-
-                try:
-                    segm = phut.detect_sources(sig_img, thresh, npixels=5,
-                                               kernel=kernel)
-                    segm = phut.deblend_sources(det_img, segm,
-                                                npixels=5, nlevels=16,
-                                                contrast=0.01, kernel=kernel)
-                except TypeError as e:
-                    print(e)
-                    continue
+            if depth == "SUBFIND":
 
                 for f in filters:
 
@@ -334,102 +209,290 @@ try:
                           .format(o=orientation, t=Type, e=extinction, x=reg,
                                   u=snap, i=f, d=depth))
 
-                    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                                    .format(reg, snap, Type, orientation, f), "r")
+                    try:
+                        hdf = h5py.File(
+                            "mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                            .format(reg, snap, Type, orientation, f), "r")
+                    except OSError as e:
+                        print(e)
+                        continue
 
                     try:
-
                         fdepth_group = hdf[str(depth)]
 
-                        imgs = fdepth_group["Images"]
-                        mimgs = fdepth_group["Mass_Images"]
-                        noises = fdepth_group["Noise_value"]
+                        fluxes = fdepth_group["Fluxes"][:]
+                        subgrpids = fdepth_group["Part_subgrpids"][:]
+                        begin = fdepth_group["Start_Index"][my_img_ids]
+                        group_len = fdepth_group["Image_Length"][my_img_ids]
+                        gal_ids = set(fdepth_group["Subgroup_IDs"][:])
 
+                        hdf.close()
                     except KeyError as e:
                         print(e)
                         hdf.close()
                         continue
 
-                    n = np.max(noises[img_id])  # noise images have 1 unique value
-                    res = imgs.shape[-1]
+                    for (img_num, beg), img_len in zip(enumerate(begin),
+                                                       group_len):
 
-                    # Get images
-                    img = imgs[img_id, :, :]
-                    mimg = mimgs[img_id, :, :]
+                        this_subgrpids = subgrpids[beg: beg + img_len]
 
-                    # ================= Flux =================
+                        subgrps, inverse_inds = np.unique(this_subgrpids,
+                                                          return_inverse=True)
 
-                    source_cat = SourceCatalog(img, segm,
-                                               error=None, mask=None,
-                                               kernel=kernel, background=None,
-                                               wcs=None, localbkg_width=0,
-                                               apermask_method='correct',
-                                               kron_params=(2.5, 0.0),
-                                               detection_cat=None)
+                        this_flux = np.zeros(subgrps.size)
 
-                    try:
-                        obs_data.setdefault(f + "." + str(depth), {}).setdefault(
-                            "Kron_HLR", []).extend(
-                            source_cat.fluxfrac_radius(0.5) * kpc_res)
-                    except ValueError as e:
-                        print(e)
-                        hdf.close()
-                        continue
+                        for flux, i, subgrpid in zip(
+                                fluxes[beg: beg + img_len],
+                                inverse_inds, this_subgrpids):
+                            this_flux[i] += flux
 
-                    tab = source_cat.to_table(columns=quantities)
-                    for key in tab.colnames:
-                        obs_data[f + "." + str(depth)].setdefault(key, []).extend(
-                            tab[key])
-                    obs_data[f + "." + str(depth)].setdefault("SNR_segm",
-                                                              []).extend(
-                        tab['segment_flux'] / n)
-                    obs_data[f + "." + str(depth)].setdefault("SNR_Kron",
-                                                              []).extend(
-                        tab['kron_flux'] / n)
-                    obs_data[f + "." + str(depth)].setdefault("Image_ID",
-                                                              []).extend(
-                        np.full(tab["label"].size, img_id))
-                    obs_data[f + "." + str(depth)].setdefault("Start_Index",
-                                                              []).append(
-                        len(obs_data[f + "." + str(depth)]["Image_ID"]))
-                    obs_data[f + "." + str(depth)].setdefault("Image_Length",
-                                                              []).append(
-                        tab["label"].size)
+                        this_flux = this_flux[this_flux > 0]
 
-                    # ================= Mass =================
+                        subf_data.setdefault(f + "." + str(depth),
+                                             {}).setdefault(
+                            "Fluxes", []).extend(this_flux)
+                        subf_data[f + "." + str(depth)].setdefault(
+                            "Start_Index",
+                            []).append(
+                            len(subf_data[f + "." + str(depth)]["Fluxes"]))
+                        subf_data[f + "." + str(depth)].setdefault(
+                            "Image_Length",
+                            []).append(
+                            len(this_flux))
+                        subf_data[f + "." + str(depth)].setdefault("Image_ID",
+                                                                   []).extend(
+                            np.full_like(this_flux, img_num))
 
-                    source_cat = SourceCatalog(mimg, segm,
-                                               error=None, mask=None,
-                                               kernel=kernel, background=None,
-                                               wcs=None, localbkg_width=0,
-                                               apermask_method='correct',
-                                               kron_params=(2.5, 0.0),
-                                               detection_cat=None)
+            else:
+
+                for f in detect_filters:
+
+                    # --- initialise ImageCreator object
+                    image_creator = imagesim.Idealised(f, field)
+
+                    arc_res = image_creator.pixel_scale
+                    kpc_res = arc_res / arcsec_per_kpc_proper
+
+                    print(
+                        "Creating detection image for filter {i}, and depth {d}"
+                        .format(i=f, d=depth))
+
+                    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                                    .format(reg, snap, Type, orientation, f),
+                                    "r")
 
                     try:
-                        obs_data.setdefault(f + "." + str(depth), {}).setdefault(
-                            "Kron_HMR", []).extend(
-                            source_cat.fluxfrac_radius(0.5) * kpc_res)
-                    except ValueError as e:
+                        fdepth_group = hdf[str(depth)]
+
+                        imgs = fdepth_group["Images"][...]
+                        noises = fdepth_group["Noise_value"][...]
+
+                        if f == detect_filters[0]:
+                            detection_img = np.zeros_like(imgs)
+                            weight_img = np.zeros_like(noises)
+                            noise_img = np.zeros_like(noises)
+
+                        detection_img += (imgs / noises[:, None, None] ** 2)
+                        weight_img += (1 / noises ** 2)
+                        noise_img += (1 / noises)
+
+                        hdf.close()
+
+                    except KeyError as e:
                         print(e)
                         hdf.close()
+                        detection_img = None
+                        weight_img = None
+                        noise_img = None
+
                         continue
 
-                    tab = source_cat.to_table(columns=quantities)
-                    for key in tab.colnames:
-                        obs_data[f + "." + str(depth)].setdefault("Mass" + key,
+                detection_img /= weight_img[:, None, None]
+                noise_img /= weight_img
+
+                sig = detection_img / noise_img[:, None, None]
+
+                del noise_img
+                del weight_img
+                gc.collect()
+
+                for img_id in my_img_ids:
+                    det_img = detection_img[img_id, :, :]
+                    sig_img = sig[img_id, :, :]
+
+                    try:
+                        segm = phut.detect_sources(sig_img, thresh, npixels=5,
+                                                   kernel=kernel)
+                        segm = phut.deblend_sources(det_img, segm,
+                                                    npixels=5, nlevels=16,
+                                                    contrast=0.01,
+                                                    kernel=kernel)
+                    except TypeError as e:
+                        print(e)
+                        continue
+
+                    for f in filters:
+
+                        # --- initialise ImageCreator object
+                        image_creator = imagesim.Idealised(f, field)
+
+                        arc_res = image_creator.pixel_scale
+                        kpc_res = arc_res / arcsec_per_kpc_proper
+
+                        print(
+                            "Getting sources with orientation {o}, type {t}, "
+                            "and extinction {e} for region {x}, "
+                            "snapshot {u}, filter {i}, and depth {d}"
+                            .format(o=orientation, t=Type, e=extinction, x=reg,
+                                    u=snap, i=f, d=depth))
+
+                        hdf = h5py.File(
+                            "mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                            .format(reg, snap, Type, orientation, f), "r")
+
+                        try:
+
+                            fdepth_group = hdf[str(depth)]
+
+                            imgs = fdepth_group["Images"]
+                            mimgs = fdepth_group["Mass_Images"]
+                            noises = fdepth_group["Noise_value"]
+
+                        except KeyError as e:
+                            print(e)
+                            hdf.close()
+                            continue
+
+                        n = np.max(
+                            noises[img_id])  # noise images have 1 unique value
+                        res = imgs.shape[-1]
+
+                        # Get images
+                        img = imgs[img_id, :, :]
+                        mimg = mimgs[img_id, :, :]
+
+                        # ================= Flux =================
+
+                        source_cat = SourceCatalog(img, segm,
+                                                   error=None, mask=None,
+                                                   kernel=kernel,
+                                                   background=None,
+                                                   wcs=None, localbkg_width=0,
+                                                   apermask_method='correct',
+                                                   kron_params=(2.5, 0.0),
+                                                   detection_cat=None)
+
+                        try:
+                            obs_data.setdefault(f + "." + str(depth),
+                                                {}).setdefault(
+                                "Kron_HLR", []).extend(
+                                source_cat.fluxfrac_radius(0.5) * kpc_res)
+                        except ValueError as e:
+                            print(e)
+                            hdf.close()
+                            continue
+
+                        tab = source_cat.to_table(columns=quantities)
+                        for key in tab.colnames:
+                            obs_data[f + "." + str(depth)].setdefault(key,
+                                                                      []).extend(
+                                tab[key])
+                        obs_data[f + "." + str(depth)].setdefault("SNR_segm",
                                                                   []).extend(
-                            tab[key])
+                            tab['segment_flux'] / n)
+                        obs_data[f + "." + str(depth)].setdefault("SNR_Kron",
+                                                                  []).extend(
+                            tab['kron_flux'] / n)
+                        obs_data[f + "." + str(depth)].setdefault("Image_ID",
+                                                                  []).extend(
+                            np.full(tab["label"].size, img_id))
+                        obs_data[f + "." + str(depth)].setdefault(
+                            "Start_Index",
+                            []).append(
+                            len(obs_data[f + "." + str(depth)]["Image_ID"]))
+                        obs_data[f + "." + str(depth)].setdefault(
+                            "Image_Length",
+                            []).append(
+                            tab["label"].size)
 
-                    hdf.close()
+                        # ================= Mass =================
+
+                        source_cat = SourceCatalog(mimg, segm,
+                                                   error=None, mask=None,
+                                                   kernel=kernel,
+                                                   background=None,
+                                                   wcs=None, localbkg_width=0,
+                                                   apermask_method='correct',
+                                                   kron_params=(2.5, 0.0),
+                                                   detection_cat=None)
+
+                        try:
+                            obs_data.setdefault(f + "." + str(depth),
+                                                {}).setdefault(
+                                "Kron_HMR", []).extend(
+                                source_cat.fluxfrac_radius(0.5) * kpc_res)
+                        except ValueError as e:
+                            print(e)
+                            hdf.close()
+                            continue
+
+                        tab = source_cat.to_table(columns=quantities)
+                        for key in tab.colnames:
+                            obs_data[f + "." + str(depth)].setdefault(
+                                "Mass" + key,
+                                []).extend(
+                                tab[key])
+
+                        hdf.close()
+
+    collected_subf_data = comm.gather(subf_data, root=0)
+    collected_obs_data = comm.gather(obs_data, root=0)
     if rank == 0:
+
+        out_subf_data = {}
+        for f in filters:
+            for d in depths:
+                out_subf_data.setdefault(f + "." + str(depth), {})
+                for key in subf_data[f + "." + str(depth)]:
+                    for res in collected_subf_data:
+                        if key == "Start_Index":
+                            out_subf_data[f + "." + str(depth)].setdefault(key,
+                                                                           []).extend(
+                                np.array(res[f + "." + str(depth)][key]) + len(
+                                    out_subf_data[f + "." + str(depth)][
+                                        "Start_Index"]))
+                        else:
+                            out_subf_data[f + "." + str(depth)].setdefault(key,
+                                                                           []).extend(
+                                res[f + "." + str(depth)][key])
+
+        out_obs_data = {}
+        for f in filters:
+            for d in depths:
+                out_obs_data.setdefault(f + "." + str(depth), {})
+                for key in obs_data[f + "." + str(depth)]:
+                    for res in collected_obs_data:
+                        if key == "Start_Index":
+                            out_obs_data[f + "." + str(depth)].setdefault(key,
+                                                                          []).extend(
+                                np.array(res[f + "." + str(depth)][key]) + len(
+                                    out_obs_data[f + "." + str(depth)][
+                                        "Start_Index"]))
+                        else:
+                            out_obs_data[f + "." + str(depth)].setdefault(key,
+                                                                          []).extend(
+                                res[f + "." + str(depth)][key])
+
+        for key in subf_data:
+
         for f in filters:
             f_cat_group = hdf_cat.create_group(f)
             for num, depth in enumerate(depths):
 
                 fdepth_cat_group = f_cat_group.create_group(str(depth))
-                if f + "." + str(depth) in obs_data.keys():
-                    for key, val in obs_data[f + "." + str(depth)].items():
+                if f + "." + str(depth) in out_obs_data.keys():
+                    for key, val in out_obs_data[f + "." + str(depth)].items():
 
                         print("Writing out", key, "for", f, depth)
 
@@ -447,8 +510,9 @@ try:
 
                 if depth == "SUBFIND":
 
-                    if f + "." + str(depth) in subf_data.keys():
-                        for key, val in subf_data[f + "." + str(depth)].items():
+                    if f + "." + str(depth) in out_subf_data.keys():
+                        for key, val in out_subf_data[
+                            f + "." + str(depth)].items():
                             print("Writing out", key, "for", f, depth)
 
                             val = np.array(val)
