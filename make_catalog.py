@@ -326,11 +326,11 @@ if len(my_img_ids) > 0:
                                                 kernel=kernel)
                 except TypeError as e:
                     # print(e)
-                    segm = np.zeros_like(sig_img)
+                    for f in filters:
+                        obs_data.setdefault(f + "." + str(depth), {})
+                    continue
 
                 for f in filters:
-
-                    obs_data.setdefault(f + "." + str(depth), {})
 
                     # --- initialise ImageCreator object
                     image_creator = imagesim.Idealised(f, field)
@@ -423,7 +423,7 @@ if len(my_img_ids) > 0:
                                             {}).setdefault(
                             "Kron_HMR", []).extend(
                             source_cat.fluxfrac_radius(0.5) * kpc_res)
-                    except ValueError as e:
+                    except (ValueError, TypeError) as e:
                         # print(e)
                         hdf.close()
                         continue
