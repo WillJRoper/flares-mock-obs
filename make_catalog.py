@@ -263,6 +263,7 @@ if len(my_img_ids) > 0:
                         com = np.average(this_poss[i], weights=this_fluxs[i],
                                          axis=0)
                         this_poss[i] = np.array(this_poss[i]) - com
+                        this_fluxs[i] = np.array(this_fluxs[i])
 
                     this_rads = {i: np.sqrt(this_poss[i][:, 0]**2
                                             + this_poss[i][:, 1]**2
