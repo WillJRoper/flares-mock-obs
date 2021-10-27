@@ -169,12 +169,13 @@ try:
                             detect_filters[0]), "r")
 
     fdepth_group = hdf[str(depths[0])]
+    print(fdepth_group.keys())
 
     noises = fdepth_group["Noise_value"]
 
-    hdf.close()
-
     nimg = noises.shape[0]
+
+    hdf.close()
 
     img_ids = np.linspace(0, nimg - 1, nimg)
 
