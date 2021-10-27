@@ -222,7 +222,7 @@ if len(my_img_ids) > 0:
 
                     hdf.close()
                 except KeyError as e:
-                    # print(e)
+                    print(e)
                     hdf.close()
                     continue
 
@@ -436,6 +436,7 @@ if len(my_img_ids) > 0:
                     hdf.close()
 
 collected_subf_data = comm.gather(subf_data, root=0)
+print(collected_subf_data)
 collected_obs_data = comm.gather(obs_data, root=0)
 if rank == 0:
 
@@ -459,36 +460,36 @@ if rank == 0:
     out_subf_data = {}
     for f in filters:
         for d in depths:
-            out_subf_data.setdefault(f + "." + str(depth), {})
-            for key in subf_data[f + "." + str(depth)]:
+            out_subf_data.setdefault(f + "." + str(d), {})
+            for key in subf_data[f + "." + str(d)]:
                 for res in collected_subf_data:
                     if key == "Start_Index":
-                        out_subf_data[f + "." + str(depth)].setdefault(key,
+                        out_subf_data[f + "." + str(d)].setdefault(key,
                                                                        []).extend(
-                            np.array(res[f + "." + str(depth)][key]) + len(
-                                out_subf_data[f + "." + str(depth)][
+                            np.array(res[f + "." + str(d)][key]) + len(
+                                out_subf_data[f + "." + str(d)][
                                     "Start_Index"]))
                     else:
-                        out_subf_data[f + "." + str(depth)].setdefault(key,
+                        out_subf_data[f + "." + str(d)].setdefault(key,
                                                                        []).extend(
-                            res[f + "." + str(depth)][key])
+                            res[f + "." + str(d)][key])
 
     out_obs_data = {}
     for f in filters:
         for d in depths:
-            out_obs_data.setdefault(f + "." + str(depth), {})
-            for key in obs_data[f + "." + str(depth)]:
+            out_obs_data.setdefault(f + "." + str(d), {})
+            for key in obs_data[f + "." + str(d)]:
                 for res in collected_obs_data:
                     if key == "Start_Index":
-                        out_obs_data[f + "." + str(depth)].setdefault(key,
+                        out_obs_data[f + "." + str(d)].setdefault(key,
                                                                       []).extend(
-                            np.array(res[f + "." + str(depth)][key]) + len(
-                                out_obs_data[f + "." + str(depth)][
+                            np.array(res[f + "." + str(d)][key]) + len(
+                                out_obs_data[f + "." + str(d)][
                                     "Start_Index"]))
                     else:
-                        out_obs_data[f + "." + str(depth)].setdefault(key,
+                        out_obs_data[f + "." + str(d)].setdefault(key,
                                                                       []).extend(
-                            res[f + "." + str(depth)][key])
+                            res[f + "." + str(d)][key])
 
     for f in filters:
         f_cat_group = hdf_cat.create_group(f)
