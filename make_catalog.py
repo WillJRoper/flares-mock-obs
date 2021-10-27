@@ -480,6 +480,7 @@ if rank == 0:
             if d == "SUBFIND":
                 continue
             out_obs_data.setdefault(f + "." + str(d), {})
+            print(collected_obs_data[0])
             for key in collected_obs_data[0][f + "." + str(d)]:
                 for res in collected_obs_data:
                     if len(res) == 0:
