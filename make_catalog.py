@@ -539,4 +539,3 @@ try:
 except (KeyError, OSError, FileNotFoundError) as e:
     print(e)
     hdf_cat.close()
-    hdf.close()
