@@ -141,6 +141,8 @@ for n_z in range(len(snaps)):
         ax = fig.add_subplot(gs[0, 0])
         ax1 = fig.add_subplot(gs[1, 0])
 
+        ax1.axhline(1, linestyle="--", color="k")
+
         bin_edges = np.logspace(np.log10(min(depths)),
                                 3.5, 75)
 
@@ -173,16 +175,21 @@ for n_z in range(len(snaps)):
             ax.plot(bin_edges[:-1], H,
                     label="Kron: %.2f nJy (%d)"
                           % (depth, n))
-            ax1.plot(bin_edges[:-1], H - sub_H,
+            ax1.plot(bin_edges[:-1], H / sub_H,
                      label="Kron: %.2f nJy (%d)"
                           % (depth, n))
 
+        ax.tick_params(axis='x', top=False, bottom=False,
+                       labeltop=False, labelbottom=False)
+
         ax1.set_xlabel("$F/[\mathrm{nJy}]$")
         ax.set_ylabel("$N$")
-        ax1.set_ylabel("$N_\mathrm{Obs} - N_\mathrm{SUBFIND}$")
+        ax1.set_ylabel("$N_\mathrm{Obs} / N_\mathrm{SUBFIND}$")
 
         ax.set_yscale("log")
         ax.set_xscale("log")
+        ax1.set_yscale("log")
+        ax1.set_xscale("log")
 
         ax.legend()
 
