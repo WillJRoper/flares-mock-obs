@@ -326,6 +326,7 @@ if len(my_img_ids) > 0:
                                                 kernel=kernel)
                 except TypeError as e:
                     # print(e)
+                    obs_data.setdefault(f + "." + str(depth), {})
                     continue
 
                 for f in filters:
