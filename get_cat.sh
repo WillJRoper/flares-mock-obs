@@ -14,7 +14,7 @@ cd /cosma7/data/dp004/dc-rope1/FLARES/flares-mock-obs
 
 module purge
 #load the modules used to build your program.
-module load pythonconda3/4.5.4
+module load pythonconda3/4.5.4 gnu_comp/7.3.0 openmpi/3.0.1 hdf5/1.10.3
 
 source activate flares-env
 

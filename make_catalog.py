@@ -159,30 +159,33 @@ obs_data = {}
 
 subf_data = {}
 
-hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                .format(reg, snap, Type, orientation,
-                        detect_filters[0]), "r")
+if os.path.isfile("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"):
+    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                    .format(reg, snap, Type, orientation,
+                            detect_filters[0]), "r")
 
-fdepth_group = hdf[str(depths[0])]
+    fdepth_group = hdf[str(depths[0])]
 
-noises = fdepth_group["Noise_value"]
+    noises = fdepth_group["Noise_value"]
 
-nimg = noises.shape[0]
+    nimg = noises.shape[0]
 
-hdf.close()
+    hdf.close()
 
-img_ids = np.linspace(0, nimg - 1, nimg)
+    img_ids = np.linspace(0, nimg - 1, nimg)
 
-if nimg < size:
-    if rank < nimg:
-        my_img_ids = np.array([rank, ], dtype=int)
+    if nimg < size:
+        if rank < nimg:
+            my_img_ids = np.array([rank, ], dtype=int)
+        else:
+            print("Rank", rank, "has no images")
+            my_img_ids = np.array([], dtype=int)
     else:
-        print("Rank", rank, "has no images")
-        my_img_ids = np.array([], dtype=int)
+        rank_img_bins = np.linspace(0, nimg, size + 1)
+        my_img_ids = np.arange(rank_img_bins[rank], rank_img_bins[rank + 1], 1,
+                               dtype=int)
 else:
-    rank_img_bins = np.linspace(0, nimg, size + 1)
-    my_img_ids = np.arange(rank_img_bins[rank], rank_img_bins[rank + 1], 1,
-                           dtype=int)
+    my_img_ids = np.array([], dtype=int)
 
 if len(my_img_ids) > 0:
 
