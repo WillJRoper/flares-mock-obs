@@ -7,7 +7,7 @@
 #SBATCH -J MOCK-CAT #Give it something meaningful.
 #SBATCH -o logs/output_cat_job.%A_%a.out
 #SBATCH -e logs/error_cat_job.%A_%a.err
-#SBATCH -t 12:00:00
+#SBATCH -t 24:00:00
 
 # Run the job from the following directory - change this to point to your own personal space on /lustre
 cd /cosma7/data/dp004/dc-rope1/FLARES/flares-mock-obs
