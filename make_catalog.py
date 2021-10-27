@@ -444,7 +444,7 @@ if rank == 0:
     for i in collected_subf_data:
         try:
             nres += len(
-                i[filters[0] + "." + str(depths[0])]["Start_Index"])
+                i[filters[0] + "." + "SUBFIND"]["Start_Index"])
         except KeyError:
             continue
     print("Collected", nres, "Subfind results")
@@ -459,26 +459,26 @@ if rank == 0:
 
     out_subf_data = {}
     for f in filters:
-        for d in depths:
-            out_subf_data.setdefault(f + "." + str(d), {})
-            for key in subf_data[f + "." + str(d)]:
-                for res in collected_subf_data:
-                    if key == "Start_Index":
-                        out_subf_data[f + "." + str(d)].setdefault(key,
-                                                                       []).extend(
-                            np.array(res[f + "." + str(d)][key]) + len(
-                                out_subf_data[f + "." + str(d)][
-                                    "Start_Index"]))
-                    else:
-                        out_subf_data[f + "." + str(d)].setdefault(key,
-                                                                       []).extend(
-                            res[f + "." + str(d)][key])
+        d = "SUBFIND"
+        out_subf_data.setdefault(f + "." + str(d), {})
+        for key in out_subf_data[f + "." + str(d)]:
+            for res in collected_subf_data:
+                if key == "Start_Index":
+                    out_subf_data[f + "." + str(d)].setdefault(key,
+                                                                   []).extend(
+                        np.array(res[f + "." + str(d)][key]) + len(
+                            out_subf_data[f + "." + str(d)][
+                                "Start_Index"]))
+                else:
+                    out_subf_data[f + "." + str(d)].setdefault(key,
+                                                                   []).extend(
+                        res[f + "." + str(d)][key])
 
     out_obs_data = {}
     for f in filters:
-        for d in depths:
+        for d in depths[:-1]:
             out_obs_data.setdefault(f + "." + str(d), {})
-            for key in obs_data[f + "." + str(d)]:
+            for key in out_obs_data[f + "." + str(d)]:
                 for res in collected_obs_data:
                     if key == "Start_Index":
                         out_obs_data[f + "." + str(d)].setdefault(key,
