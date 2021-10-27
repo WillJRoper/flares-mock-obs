@@ -48,7 +48,7 @@ filters = [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 XDF_depth_m = 31.2
 XDF_depth_flux = m_to_flux(XDF_depth_m)
 depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
-          XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
+          XDF_depth_flux, 10 * XDF_depth_flux]
 depths_m = [flux_to_m(d) for d in depths]
 
 thresh = 2.5
@@ -120,7 +120,8 @@ for n_z in range(len(snaps)):
                                  gridsize=50, mincnt=1,
                                  xscale='log', yscale='log',
                                  norm=LogNorm(), linewidths=0.2,
-                                 cmap='viridis')
+                                 cmap='viridis', extent=(10 ** -2, 10 ** 3.5,
+                                                         0.09, 10 ** 1.5))
             except ValueError as e:
                 print(e)
                 continue
@@ -135,7 +136,7 @@ for n_z in range(len(snaps)):
         axes[-1].set_xlabel(r'$F/$ [nJy]')
         for ax in axes:
             ax.set_ylabel('$R_{1/2}/ [pkpc]$')
-            ax.set_ylim(10 ** -1.5, 10 ** 2)
+            ax.set_ylim(0.09, 10 ** 1.5)
             ax.set_xlim(10 ** -2, 10 ** 3.5)
 
         for ax in axes[:-1]:
