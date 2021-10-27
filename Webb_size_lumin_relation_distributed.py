@@ -289,6 +289,7 @@ if not exists:
 
                 if Type != "Intrinsic":
                     img = signal.fftconvolve(img, psf, mode="same")
+                    # mimg = signal.fftconvolve(mimg, psf, mode="same")
 
                 img, img_obj = util.noisy_img(img, image_creator)
 
@@ -313,7 +314,7 @@ if not exists:
 
                 if Type != "Intrinsic":
                     img = signal.fftconvolve(img, psf, mode="same")
-                    mimg = signal.fftconvolve(img, psf, mode="same")
+                    mimg = signal.fftconvolve(mimg, psf, mode="same")
 
                 img, img_obj = util.noisy_img(img, image_creator)
 

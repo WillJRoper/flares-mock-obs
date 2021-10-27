@@ -167,13 +167,55 @@ while ind < n_img:
 
         sig = detection_img / noise_img
 
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.tick_params(axis='both', top=False, bottom=False,
+                       labeltop=False, labelbottom=False,
+                       left=False, right=False,
+                       labelleft=False, labelright=False)
+        im = ax.imshow(sig, cmap="plasma")
+        fig.colorbar(im)
+        fig.savefig("plots/SNRmap_Depth-%.2f" % d
+                    + "Orientation-"
+                    + orientation + "_Type-" + Type
+                    + "_Region-" + reg + "_Snap-" + snap + "_Group-"
+                    + str(img_ind) + ".png", bbox_inches="tight")
+        plt.close(fig)
+
         try:
             segm = phut.detect_sources(sig, thresh, npixels=5, kernel=kernel)
             segms[d] = segm
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            ax.tick_params(axis='both', top=False, bottom=False,
+                           labeltop=False, labelbottom=False,
+                           left=False, right=False,
+                           labelleft=False, labelright=False)
+            im = ax.imshow(segm, cmap="turbo")
+            fig.colorbar(im)
+            fig.savefig("plots/segmap_Depth-%.2f" % d
+                        + "Orientation-"
+                        + orientation + "_Type-" + Type
+                        + "_Region-" + reg + "_Snap-" + snap + "_Group-"
+                        + str(img_ind) + ".png", bbox_inches="tight")
+            plt.close(fig)
             segm = phut.deblend_sources(detection_img, segm,
                                         npixels=5, nlevels=16,
                                         contrast=0.01, kernel=kernel)
-
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            ax.tick_params(axis='both', top=False, bottom=False,
+                           labeltop=False, labelbottom=False,
+                           left=False, right=False,
+                           labelleft=False, labelright=False)
+            im = ax.imshow(segm, cmap="turbo")
+            fig.colorbar(im)
+            fig.savefig("plots/deblend_Depth-%.2f" % d
+                        + "Orientation-"
+                        + orientation + "_Type-" + Type
+                        + "_Region-" + reg + "_Snap-" + snap + "_Group-"
+                        + str(img_ind) + ".png", bbox_inches="tight")
+            plt.close(fig)
             source_cat = SourceCatalog(detection_img, segm,
                                        error=None, mask=None,
                                        kernel=kernel, background=None,

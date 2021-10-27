@@ -173,12 +173,11 @@ for n_z in range(len(snaps)):
             print(f"Kron ({depth}):", n)
 
             ax.plot(bin_edges[:-1], H,
-                    label="Kron: %.2f nJy (%d)"
-                          % (depth, n))
+                    label=r"$%.2f \times m_{\mathrm{XDF}}$ (%d)"
+                          % ((depth / XDF_depth_flux), n))
             ax1.plot(bin_edges[:-1], H / sub_H,
-                     label="Kron: %.2f nJy (%d)"
-                          % (depth, n))
-
+                     label=r"$%.2f \times m_{\mathrm{XDF}}$ (%d)"
+                          % ((depth / XDF_depth_flux), n))
         ax.tick_params(axis='x', top=False, bottom=False,
                        labeltop=False, labelbottom=False)
 
