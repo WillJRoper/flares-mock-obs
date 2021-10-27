@@ -381,16 +381,6 @@ if len(my_img_ids) > 0:
                                                kron_params=(2.5, 0.0),
                                                detection_cat=None)
 
-                    try:
-                        obs_data.setdefault(f + "." + str(depth),
-                                            {}).setdefault(
-                            "Kron_HLR", []).extend(
-                            source_cat.fluxfrac_radius(0.5) * kpc_res)
-                    except ValueError as e:
-                        # print(e)
-                        hdf.close()
-                        continue
-
                     tab = source_cat.to_table(columns=quantities)
                     for key in tab.colnames:
                         obs_data[f + "." + str(depth)].setdefault(key,
@@ -414,6 +404,19 @@ if len(my_img_ids) > 0:
                         []).append(
                         tab["label"].size)
 
+                    try:
+                        obs_data.setdefault(f + "." + str(depth),
+                                            {}).setdefault(
+                            "Kron_HLR", []).extend(
+                            source_cat.fluxfrac_radius(0.5) * kpc_res)
+                    except (ValueError, TypeError) as e:
+                        obs_data.setdefault(f + "." + str(depth),
+                                            {}).setdefault(
+                            "Kron_HLR", []).extend(
+                            np.zeros_like(tab['kron_flux']))
+                        # print(e)
+                        hdf.close()
+
                     # ================= Mass =================
 
                     source_cat = SourceCatalog(mimg, segm,
@@ -425,16 +428,6 @@ if len(my_img_ids) > 0:
                                                kron_params=(2.5, 0.0),
                                                detection_cat=None)
 
-                    try:
-                        obs_data.setdefault(f + "." + str(depth),
-                                            {}).setdefault(
-                            "Kron_HMR", []).extend(
-                            source_cat.fluxfrac_radius(0.5) * kpc_res)
-                    except (ValueError, TypeError) as e:
-                        # print(e)
-                        hdf.close()
-                        continue
-
                     tab = source_cat.to_table(columns=quantities)
                     for key in tab.colnames:
                         obs_data[f + "." + str(depth)].setdefault(
@@ -443,6 +436,17 @@ if len(my_img_ids) > 0:
                             tab[key])
 
                     hdf.close()
+
+                    try:
+                        obs_data.setdefault(f + "." + str(depth),
+                                            {}).setdefault(
+                            "Kron_HMR", []).extend(
+                            source_cat.fluxfrac_radius(0.5) * kpc_res)
+                    except (ValueError, TypeError) as e:
+                        obs_data.setdefault(f + "." + str(depth),
+                                            {}).setdefault(
+                            "Kron_HMR", []).extend(np.zeros_like(tab['kron_flux']))
+                        continue
 
 collected_subf_data = comm.gather(subf_data, root=0)
 collected_obs_data = comm.gather(obs_data, root=0)

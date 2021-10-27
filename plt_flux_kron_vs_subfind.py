@@ -10,6 +10,7 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
+import matplotlib.gridspec as gridspec
 import seaborn as sns
 from flare.photom import m_to_flux, flux_to_m
 import h5py
@@ -135,7 +136,10 @@ for n_z in range(len(snaps)):
             continue
 
         fig = plt.figure()
-        ax = fig.add_subplot(111)
+        gs = gridspec.GridSpec(ncols=1, nrows=2, height_ratios=(5, 1))
+        gs.update(wspace=0.0, hspace=0.0)
+        ax = fig.add_subplot(gs[0, 0])
+        ax1 = fig.add_subplot(gs[1, 0])
 
         bin_edges = np.logspace(np.log10(min(depths)),
                                 3.5, 75)
@@ -146,6 +150,7 @@ for n_z in range(len(snaps)):
         H, bins = np.histogram(flux_subfind, bins=bin_edges)
         n = np.sum(H)
         print("SUBFIND:", n)
+        sub_H = H
 
         ax.bar(bin_edges[:-1], H, width=np.diff(bin_edges), color="grey",
                edgecolor="grey",
@@ -168,9 +173,13 @@ for n_z in range(len(snaps)):
             ax.plot(bin_edges[:-1], H,
                     label="Kron: %.2f nJy (%d)"
                           % (depth, n))
+            ax1.plot(bin_edges[:-1], H - sub_H,
+                     label="Kron: %.2f nJy (%d)"
+                          % (depth, n))
 
-        ax.set_xlabel("$F/[\mathrm{nJy}]$")
+        ax1.set_xlabel("$F/[\mathrm{nJy}]$")
         ax.set_ylabel("$N$")
+        ax1.set_ylabel("$N_\mathrm{Obs} - N_\mathrm{SUBFIND}$")
 
         ax.set_yscale("log")
         ax.set_xscale("log")

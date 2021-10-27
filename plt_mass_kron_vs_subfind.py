@@ -81,7 +81,7 @@ for n_z in range(len(snaps)):
         for reg in regions:
 
             try:
-                hdf = h5py.File("mock_data/flares_kron_{}_{}_{}_{}_{}.hdf5"
+                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                                 .format(reg, snap, Type, orientation, f), "r")
             except (OSError, KeyError) as e:
                 print(e)
