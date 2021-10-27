@@ -13,12 +13,34 @@ warnings.filterwarnings('ignore')
 import seaborn as sns
 from matplotlib.colors import LogNorm
 import matplotlib.gridspec as gridspec
-from flare.photom import m_to_flux, flux_to_m
+from flare.photom import m_to_flux, flux_to_m, flux_to_lum
+from flare.photom import M_to_lum
+import flare.photom as photconv
+from astropy.cosmology import Planck13 as cosmo
 import h5py
 import sys
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
+
+
+def m_to_M(m, cosmo, z):
+    flux = photconv.m_to_flux(m)
+    lum = photconv.flux_to_L(flux, cosmo, z)
+    M = photconv.lum_to_M(lum)
+    return M
+
+
+def M_to_m(M, cosmo, z):
+    lum = photconv.M_to_lum(M)
+    flux = photconv.lum_to_flux(lum, cosmo, z)
+    m = photconv.flux_to_m(flux)
+    return m
+
+kawa_fit = lambda l, r0, b: r0 * (l / M_to_lum(-21)) ** b
+
+kawa_params = {'beta': {6: 0.46, 7: 0.46, 8: 0.38, 9: 0.56},
+               'r_0': {6: 0.94, 7: 0.94, 8: 0.81, 9: 1.2}}
 
 regions = []
 for reg in range(0, 40):
@@ -43,7 +65,9 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-filters = [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+filters = [f'Hubble.ACS.{f}'
+           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
+          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 # Set up depths relative to the Xtreme deep field
 XDF_depth_m = 31.2
@@ -116,12 +140,12 @@ for n_z in range(len(snaps)):
                 continue
 
             try:
-                cbar = ax.hexbin(kron_flux_dict[fdepth],
+                cbar = ax.hexbin(flux_to_lum(kron_flux_dict[fdepth], cosmo, z),
                                  kron_radii_dict[fdepth],
                                  gridsize=50, mincnt=1,
                                  xscale='log', yscale='log',
                                  norm=LogNorm(), linewidths=0.2,
-                                 cmap='viridis', extent=(-2, 3.5,
+                                 cmap='viridis', extent=(27, 31.5,
                                                          np.log10(0.09), 1.5))
             except ValueError as e:
                 print(e)
@@ -135,11 +159,12 @@ for n_z in range(len(snaps)):
                     fontsize=8)
 
         # Label axes
-        axes[-1].set_xlabel(r'$F/$ [nJy]')
+        axes[-1].set_xlabel(r"$L_{" + f.split(".")[-1]
+                               + "}/$ [erg $/$ s $/$ Hz]")
         for ax in axes:
             ax.set_ylabel('$R_{1/2}/ [pkpc]$')
             ax.set_ylim(0.09, 10 ** 1.5)
-            ax.set_xlim(10 ** -2, 10 ** 3.5)
+            ax.set_xlim(10**27, 10**31.5)
 
         for ax in axes[:-1]:
             ax.tick_params(axis='x', top=False, bottom=False,
