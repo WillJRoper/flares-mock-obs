@@ -208,16 +208,16 @@ while ind < n_img:
 
     mimg_norm = LogNorm(vmin=mass_vmin, vmax=mass_vmax, clip=True)
 
-    fig = plt.figure(figsize=(len(filters) + 4, len(depths) + 2),
+    fig = plt.figure(figsize=(len(filters) + 4, len(depths)),
                      dpi=all_imgs.shape[-1])
-    gs = gridspec.GridSpec(ncols=len(filters) + 4, nrows=len(depths) + 1,
+    gs = gridspec.GridSpec(ncols=len(filters) + 4, nrows=len(depths),
                            width_ratios=(len(filters) + 4) * [1, ],
-                           height_ratios=len(depths) * [1., ] + [2., ])
+                           height_ratios=len(depths) * [1., ])
     gs.update(wspace=0.0, hspace=0.0)
 
-    flux_ax = fig.add_subplot(gs[-1, :])
-    flux_ax.grid(True)
-    flux_ax.semilogy()
+    # flux_ax = fig.add_subplot(gs[-1, :])
+    # flux_ax.grid(True)
+    # flux_ax.semilogy()
 
     axes = np.zeros((len(depths), len(filters) + 4), dtype=object)
     for i in range(len(depths)):
@@ -228,14 +228,14 @@ while ind < n_img:
 
         img_norm = Normalize(vmin=vmins[d], vmax=vmaxs[d], clip=True)
 
-        if d == flux_to_m(XDF_depth_flux):
-            line = "-"
-            fs = np.array(fluxes[d])
-
-            flux_ax.plot(lams[lams_sinds], fs[lams_sinds],
-                         linestyle=line, marker="+",
-                         label=r"$m=%.1f \times m_{\mathrm{XDF}}$"
-                               % (depths[i] / XDF_depth_flux))
+        # if d == flux_to_m(XDF_depth_flux):
+        #     line = "-"
+        #     fs = np.array(fluxes[d])
+        #
+        #     flux_ax.plot(lams[lams_sinds], fs[lams_sinds],
+        #                  linestyle=line, marker="+",
+        #                  label=r"$m=%.1f \times m_{\mathrm{XDF}}$"
+        #                        % (depths[i] / XDF_depth_flux))
 
         for j, f in enumerate(filters):
             ax = axes[i, j + 1]
@@ -333,9 +333,9 @@ while ind < n_img:
     # cbar.set_label("$F/[\mathrm{nJy}]$")
     # cbar2.set_label("$M/M_\odot$")
 
-    flux_ax.set_ylabel("$F / [\mathrm{nJy}]$")
-    flux_ax.set_xlabel(r"$\lambda / [\AA]$")
-    flux_ax.legend()
+    # flux_ax.set_ylabel("$F / [\mathrm{nJy}]$")
+    # flux_ax.set_xlabel(r"$\lambda / [\AA]$")
+    # flux_ax.legend()
 
     fig.savefig("plots/gal_img_grid_Orientation-"
                 + orientation + "_Type-" + Type
