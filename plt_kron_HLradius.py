@@ -16,7 +16,6 @@ import h5py
 import sys
 from astropy.cosmology import Planck13 as cosmo
 import eritlux.simulations.imagesim as imagesim
-import flare.plots.image
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
@@ -55,13 +54,6 @@ depths = [0.1, 1, 5, 10, 20]
 
 thresh = 2.5
 
-survey_id = 'XDF'  # the XDF (updated HUDF)
-field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
-
-# --- get field info object. This contains the filters, depths,
-# image location etc. (if real image)
-field = flare.surveys.surveys[survey_id].fields[field_id]
-
 for n_z in range(len(snaps)):
 
     if len(sys.argv) > 3:
@@ -88,17 +80,12 @@ for n_z in range(len(snaps)):
 
         for reg in regions:
 
-            print("Getting SUBFIND occupancy with orientation {o}, type {t}, "
-                  "and extinction {e} for region {x} and "
-                  "snapshot {u}".format(o=orientation, t=Type, e=extinction,
-                                        x=reg, u=snap))
-
             for depth in depths:
 
                 try:
                     hdf = h5py.File(
                         "mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
-                        .format(reg, snap, Type, orientation), "r")
+                            .format(reg, snap, Type, orientation), "r")
                 except OSError as e:
                     print(e)
                     continue
@@ -147,18 +134,18 @@ for n_z in range(len(snaps)):
                 print(e)
                 continue
 
-        axes[0].text(0.95, 0.05, f'$z={z}$',
-                     bbox=dict(boxstyle="round,pad=0.3", fc='w',
-                               ec="k", lw=1, alpha=0.8),
-                     transform=ax.transAxes, horizontalalignment='right',
-                     fontsize=8)
+            ax.text(0.95, 0.05, '$5\sigma=$%.2f nJy' % depth,
+                    bbox=dict(boxstyle="round,pad=0.3", fc='w',
+                              ec="k", lw=1, alpha=0.8),
+                    transform=ax.transAxes, horizontalalignment='right',
+                    fontsize=8)
 
         # Label axes
         axes[-1].set_xlabel(r'$F/$ [nJy]')
         for ax in axes:
             ax.set_ylabel('$R_{1/2}/ [pkpc]$')
             ax.set_ylim(10 ** -1.5, 10 ** 2)
-            ax.set_xlim(10 ** -3, 10 ** 4)
+            ax.set_xlim(10 ** -2, 10 ** 4)
 
         for ax in axes[:-1]:
             ax.tick_params(axis='x', top=False, bottom=False,
