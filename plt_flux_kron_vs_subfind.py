@@ -148,7 +148,7 @@ for n_z in range(len(snaps)):
 
         ax.bar(bin_edges[:-1], H, width=np.diff(bin_edges), color="grey",
                edgecolor="grey",
-               label="SUBFIND ({})".format(len(flux_subfind)),
+               label="SUBFIND ({})".format(np.sum(H)),
                alpha=0.8, align="edge")
 
         for depth in depths:
@@ -164,7 +164,7 @@ for n_z in range(len(snaps)):
 
             ax.plot(bin_edges[:-1], H,
                     label="Kron: %.2f nJy (%d)"
-                          % (depth, np.sum(H))
+                          % (depth, np.sum(H)))
 
         ax.set_xlabel("$F/[\mathrm{nJy}]$")
         ax.set_ylabel("$N$")
