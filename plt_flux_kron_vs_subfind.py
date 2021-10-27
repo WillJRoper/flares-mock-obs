@@ -45,10 +45,12 @@ orientation = sys.argv[1]
 Type = sys.argv[2]
 extinction = 'default'
 
+# # Define filter
+# filters = [f'Hubble.ACS.{f}'
+#            for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
+#           + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 # Define filter
-filters = [f'Hubble.ACS.{f}'
-           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
-          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+filters = [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 # Set up depths relative to the Xtreme deep field
 XDF_depth_m = 31.2
