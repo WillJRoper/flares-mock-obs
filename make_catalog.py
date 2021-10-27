@@ -460,10 +460,10 @@ if rank == 0:
     for f in filters:
         d = "SUBFIND"
         out_subf_data.setdefault(f + "." + str(d), {})
-        for key in out_subf_data[f + "." + str(d)]:
+        for key in collected_subf_data[0][f + "." + str(d)]:
             for res in collected_subf_data:
                 if key == "Start_Index":
-                    out_subf_data[f + "." + str(d)].setdefault(key,
+                    subf_data[f + "." + str(d)].setdefault(key,
                                                                    []).extend(
                         np.array(res[f + "." + str(d)][key]) + len(
                             out_subf_data[f + "." + str(d)][
@@ -479,7 +479,7 @@ if rank == 0:
             if d == "SUBFIND":
                 continue
             out_obs_data.setdefault(f + "." + str(d), {})
-            for key in out_obs_data[f + "." + str(d)]:
+            for key in collected_obs_data[0][f + "." + str(d)]:
                 for res in collected_obs_data:
                     if key == "Start_Index":
                         out_obs_data[f + "." + str(d)].setdefault(key,
@@ -491,7 +491,7 @@ if rank == 0:
                         out_obs_data[f + "." + str(d)].setdefault(key,
                                                                       []).extend(
                             res[f + "." + str(d)][key])
-    print(collected_subf_data)
+
     print(out_obs_data)
     print(out_subf_data)
 
