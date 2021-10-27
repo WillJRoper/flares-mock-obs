@@ -1,5 +1,6 @@
 #!/cosma/home/dp004/dc-rope1/.conda/envs/flares-env/bin/python
 import os
+import numpy as np
 import warnings
 
 import matplotlib
@@ -120,13 +121,14 @@ for n_z in range(len(snaps)):
                                  gridsize=50, mincnt=1,
                                  xscale='log', yscale='log',
                                  norm=LogNorm(), linewidths=0.2,
-                                 cmap='viridis', extent=(10 ** -2, 10 ** 3.5,
-                                                         0.09, 10 ** 1.5))
+                                 cmap='viridis', extent=(-2, 3.5,
+                                                         np.log10(0.09), 1.5))
             except ValueError as e:
                 print(e)
                 continue
 
-            ax.text(0.95, 0.05, '$5\sigma=$%.2f nJy' % depth,
+            ax.text(0.95, 0.05, r"$%.2f \times m_{\mathrm{XDF}}$"
+                    % (depth / XDF_depth_flux),
                     bbox=dict(boxstyle="round,pad=0.3", fc='w',
                               ec="k", lw=1, alpha=0.8),
                     transform=ax.transAxes, horizontalalignment='right',
