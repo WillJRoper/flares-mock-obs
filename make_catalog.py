@@ -159,7 +159,9 @@ obs_data = {}
 
 subf_data = {}
 
-if os.path.isfile("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"):
+exists = os.path.isfile("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5")
+
+if exists:
     hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                     .format(reg, snap, Type, orientation,
                             detect_filters[0]), "r")
@@ -442,7 +444,7 @@ if len(my_img_ids) > 0:
 
 collected_subf_data = comm.gather(subf_data, root=0)
 collected_obs_data = comm.gather(obs_data, root=0)
-if rank == 0:
+if rank == 0 and exists:
 
     nres = 0
     for i in collected_subf_data:
