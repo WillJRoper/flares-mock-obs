@@ -62,9 +62,11 @@ extinction = 'default'
 
 reg, tag = reg_snaps[ind]
 snap = tag
-print("Computing HLRs with orientation {o}, type {t}, and extinction {e}"
-      " for region {x} and snapshot {u}".format(o=orientation, t=Type,
-                                                e=extinction, x=reg, u=tag))
+if rank == 0:
+    print("Making catalog with orientation {o}, type {t}, and extinction {e}"
+          " for region {x} and snapshot {u}".format(o=orientation, t=Type,
+                                                    e=extinction, x=reg,
+                                                    u=tag))
 
 z_str = snap.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
@@ -100,9 +102,9 @@ for f in filters:
     else:
         if wl * 100 > (912 * (1 + z)):
             detect_filters.append(f)
-
-print("Lyman break at", 912 * (1 + z), "A")
-print("Filters redder then the Lyman break:", detect_filters)
+if rank == 0:
+    print("Lyman break at", 912 * (1 + z), "A")
+    print("Filters redder then the Lyman break:", detect_filters)
 
 # Define radii
 radii_fracs = (0.2, 0.5, 0.8)
@@ -212,7 +214,7 @@ try:
                     try:
                         hdf = h5py.File(
                             "mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                            .format(reg, snap, Type, orientation, f), "r")
+                                .format(reg, snap, Type, orientation, f), "r")
                     except OSError as e:
                         print(e)
                         continue
@@ -276,7 +278,7 @@ try:
 
                     print(
                         "Creating detection image for filter {i}, and depth {d}"
-                        .format(i=f, d=depth))
+                            .format(i=f, d=depth))
 
                     hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                                     .format(reg, snap, Type, orientation, f),
@@ -340,10 +342,9 @@ try:
                         arc_res = image_creator.pixel_scale
                         kpc_res = arc_res / arcsec_per_kpc_proper
 
-
                         hdf = h5py.File(
                             "mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                            .format(reg, snap, Type, orientation, f), "r")
+                                .format(reg, snap, Type, orientation, f), "r")
 
                         try:
 
@@ -442,21 +443,24 @@ try:
 
     collected_subf_data = comm.gather(subf_data, root=0)
     collected_obs_data = comm.gather(obs_data, root=0)
-    nres = 0
-    for i in collected_subf_data:
-        try:
-            nres += len(i[filters[0] + "." + str(depths[0])]["Start_Index"])
-        except KeyError:
-            continue
-    print("Collected", nres, "Subfind results")
-    nres = 0
-    for i in collected_obs_data:
-        try:
-            nres += len(i[filters[0] + "." + str(depths[0])]["Start_Index"])
-        except KeyError:
-            continue
-    print("Collected", nres, "Observational results")
     if rank == 0:
+
+        nres = 0
+        for i in collected_subf_data:
+            try:
+                nres += len(
+                    i[filters[0] + "." + str(depths[0])]["Start_Index"])
+            except KeyError:
+                continue
+        print("Collected", nres, "Subfind results")
+        nres = 0
+        for i in collected_obs_data:
+            try:
+                nres += len(
+                    i[filters[0] + "." + str(depths[0])]["Start_Index"])
+            except KeyError:
+                continue
+        print("Collected", nres, "Observational results")
 
         out_subf_data = {}
         for f in filters:
