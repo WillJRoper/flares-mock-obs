@@ -146,9 +146,12 @@ units = {'label': "None", 'xcentroid': "pixels", 'ycentroid': "pixels",
          "Image_ID": "None", "Image_Length": "None", "SNR_segm": "None",
          "SNR_Kron": "None", "Kron_HMR": "M_\odot"}
 
-hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
-                    .format(reg, tag, Type, orientation), "w")
-print("Creating File...")
+if rank == 0:
+    hdf_cat = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
+                        .format(reg, tag, Type, orientation), "w")
+    print("Creating File...")
+else:
+    hdf_cat = None
 
 obs_data = {}
 
@@ -418,36 +421,21 @@ try:
                             tab[key])
 
                     hdf.close()
+    if rank == 0:
+        for f in filters:
+            f_cat_group = hdf_cat.create_group(f)
+            for num, depth in enumerate(depths):
 
-    for f in filters:
-        f_cat_group = hdf_cat.create_group(f)
-        for num, depth in enumerate(depths):
+                fdepth_cat_group = f_cat_group.create_group(str(depth))
+                if f + "." + str(depth) in obs_data.keys():
+                    for key, val in obs_data[f + "." + str(depth)].items():
 
-            fdepth_cat_group = f_cat_group.create_group(str(depth))
-            if f + "." + str(depth) in obs_data.keys():
-                for key, val in obs_data[f + "." + str(depth)].items():
-
-                    print("Writing out", key, "for", f, depth)
-
-                    try:
-                        val = np.array(val)
-                    except TypeError:
-                        val = np.array([i.value for i in val])
-
-                    dset = fdepth_cat_group.create_dataset(key,
-                                                           data=val,
-                                                           dtype=val.dtype,
-                                                           shape=val.shape,
-                                                           compression="gzip")
-                    # dset.attrs["units"] = units[key]
-
-            if depth == "SUBFIND":
-
-                if f + "." + str(depth) in subf_data.keys():
-                    for key, val in subf_data[f + "." + str(depth)].items():
                         print("Writing out", key, "for", f, depth)
 
-                        val = np.array(val)
+                        try:
+                            val = np.array(val)
+                        except TypeError:
+                            val = np.array([i.value for i in val])
 
                         dset = fdepth_cat_group.create_dataset(key,
                                                                data=val,
@@ -455,6 +443,21 @@ try:
                                                                shape=val.shape,
                                                                compression="gzip")
                         # dset.attrs["units"] = units[key]
+
+                if depth == "SUBFIND":
+
+                    if f + "." + str(depth) in subf_data.keys():
+                        for key, val in subf_data[f + "." + str(depth)].items():
+                            print("Writing out", key, "for", f, depth)
+
+                            val = np.array(val)
+
+                            dset = fdepth_cat_group.create_dataset(key,
+                                                                   data=val,
+                                                                   dtype=val.dtype,
+                                                                   shape=val.shape,
+                                                                   compression="gzip")
+                            # dset.attrs["units"] = units[key]
 
     hdf_cat.close()
 
