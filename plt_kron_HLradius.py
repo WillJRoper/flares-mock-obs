@@ -4,7 +4,6 @@ import warnings
 
 import matplotlib
 import matplotlib.pyplot as plt
-import numpy as np
 
 os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
@@ -13,18 +12,14 @@ warnings.filterwarnings('ignore')
 import seaborn as sns
 from matplotlib.colors import LogNorm
 import matplotlib.gridspec as gridspec
-import photutils as phut
-from photutils.segmentation import SourceCatalog
 import h5py
 import sys
 from astropy.cosmology import Planck13 as cosmo
 import eritlux.simulations.imagesim as imagesim
-import flare.surveys
 import flare.plots.image
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
-
 
 regions = []
 for reg in range(0, 40):
@@ -42,7 +37,6 @@ reg_snaps = []
 for reg in reversed(regions):
 
     for snap in snaps:
-
         reg_snaps.append((reg, snap))
 
 # Set orientation
@@ -102,8 +96,9 @@ for n_z in range(len(snaps)):
             for depth in depths:
 
                 try:
-                    hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
-                                    .format(reg, snap, Type, orientation), "r")
+                    hdf = h5py.File(
+                        "mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
+                        .format(reg, snap, Type, orientation), "r")
                 except OSError as e:
                     print(e)
                     continue
@@ -122,7 +117,8 @@ for n_z in range(len(snaps)):
 
                 hdf.close()
 
-                kron_radii_dict.setdefault(f + "." + str(depth), []).extend(kron_radii)
+                kron_radii_dict.setdefault(f + "." + str(depth), []).extend(
+                    kron_radii)
                 kron_flux_dict.setdefault(f + "." + str(depth), []).extend(
                     fluxes)
 
@@ -161,7 +157,7 @@ for n_z in range(len(snaps)):
         axes[-1].set_xlabel(r'$F/$ [nJy]')
         for ax in axes:
             ax.set_ylabel('$R_{1/2}/ [pkpc]$')
-            ax.set_ylim(10**-1.5, 10**2)
+            ax.set_ylim(10 ** -1.5, 10 ** 2)
             ax.set_xlim(10 ** -3, 10 ** 4)
 
         for ax in axes[:-1]:
@@ -173,7 +169,9 @@ for n_z in range(len(snaps)):
         if not os.path.exists("plots/HLRs"):
             os.makedirs("plots/HLRs")
 
-        fig.savefig("plots/HLRs/HalfLightRadius_Filter-" + f + "_Orientation-" + orientation + "_Type-" + Type + "_Snap-" + snap + ".png", bbox_inches="tight")
+        fig.savefig(
+            "plots/HLRs/HalfLightRadius_Filter-" + f + "_Orientation-"
+            + orientation + "_Type-" + Type + "_Snap-" + snap + ".png",
+            bbox_inches="tight")
 
         plt.close(fig)
-
