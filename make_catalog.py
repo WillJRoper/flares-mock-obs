@@ -465,8 +465,7 @@ if rank == 0:
                 if len(res) == 0:
                     continue
                 if key == "Start_Index":
-                    subf_data[f + "." + str(d)].setdefault(key,
-                                                                   []).extend(
+                    out_subf_data[f + "." + str(d)].setdefault(key, []).extend(
                         np.array(res[f + "." + str(d)][key]) + len(
                             out_subf_data[f + "." + str(d)][
                                 "Start_Index"]))
