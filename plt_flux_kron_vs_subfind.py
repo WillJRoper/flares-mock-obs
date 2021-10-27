@@ -79,15 +79,9 @@ for n_z in range(len(snaps)):
 
         for reg in regions:
 
-            print("Getting SUBFIND occupancy with orientation {o}, type {t}, "
-                  "and extinction {e} for region {x} and "
-                  "snapshot {u} and filter  {i}".format(o=orientation, t=Type,
-                                                        e=extinction,
-                                                        x=reg, u=snap, i=f))
             try:
                 hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                                 .format(reg, snap, Type, orientation), "r")
-                print(hdf[f].keys())
             except (OSError, KeyError) as e:
                 print(e)
                 continue
@@ -115,9 +109,8 @@ for n_z in range(len(snaps)):
                 try:
                     f_group = hdf[f]
                     fdepth_group = f_group[str(depth)]
-                    print(fdepth_group.keys())
 
-                    flux_segm = fdepth_group['kron_flux'][...]
+                    flux_segm = fdepth_group['kron_flux'][...] - depth
                     flux_segm_err = fdepth_group['kron_fluxerr'][...]
 
                 except KeyError as e:
@@ -169,8 +162,8 @@ for n_z in range(len(snaps)):
             H, bins = np.histogram(flux_segm_dict[fdepth], bins=bin_edges)
 
             ax.plot(bin_edges[:-1], H,
-                    label="Kron: {} nJy ({})"
-                    .format(depth, len(flux_segm_dict[fdepth])))
+                    label="Kron: %.2f nJy (%d)"
+                          % (depth, len(flux_segm_dict[fdepth])))
 
         ax.set_xlabel("$F/[\mathrm{nJy}]$")
         ax.set_ylabel("$N$")
