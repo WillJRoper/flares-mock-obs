@@ -159,7 +159,9 @@ obs_data = {}
 
 subf_data = {}
 
-exists = os.path.isfile("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5")
+exists = os.path.isfile("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+                        .format(reg, snap, Type, orientation,
+                            detect_filters[0]))
 
 if exists:
     hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
