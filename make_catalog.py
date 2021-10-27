@@ -484,8 +484,6 @@ try:
                                                                           []).extend(
                                 res[f + "." + str(depth)][key])
 
-        for key in subf_data:
-
         for f in filters:
             f_cat_group = hdf_cat.create_group(f)
             for num, depth in enumerate(depths):
