@@ -190,6 +190,7 @@ if exists:
         my_img_ids = np.arange(rank_img_bins[rank], rank_img_bins[rank + 1], 1,
                                dtype=int)
 else:
+    print("Input file does not exist")
     my_img_ids = np.array([], dtype=int)
 
 if len(my_img_ids) > 0:
