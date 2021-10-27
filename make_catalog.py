@@ -436,7 +436,6 @@ if len(my_img_ids) > 0:
                     hdf.close()
 
 collected_subf_data = comm.gather(subf_data, root=0)
-print(collected_subf_data)
 collected_obs_data = comm.gather(obs_data, root=0)
 if rank == 0:
 
@@ -476,7 +475,9 @@ if rank == 0:
 
     out_obs_data = {}
     for f in filters:
-        for d in depths[:-1]:
+        for d in depths:
+            if d == "SUBFIND":
+                continue
             out_obs_data.setdefault(f + "." + str(d), {})
             for key in out_obs_data[f + "." + str(d)]:
                 for res in collected_obs_data:
@@ -490,6 +491,9 @@ if rank == 0:
                         out_obs_data[f + "." + str(d)].setdefault(key,
                                                                       []).extend(
                             res[f + "." + str(d)][key])
+
+    print(out_obs_data)
+    print(out_subf_data)
 
     for f in filters:
         f_cat_group = hdf_cat.create_group(f)
