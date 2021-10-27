@@ -70,14 +70,6 @@ for n_z in range(len(snaps)):
         z_str = snap.split('z')[1].split('p')
         z = float(z_str[0] + '.' + z_str[1])
 
-        arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
-
-        # --- initialise ImageCreator object
-        image_creator = imagesim.Idealised(f, field)
-
-        arc_res = image_creator.pixel_scale
-        kpc_res = arc_res / arcsec_per_kpc_proper
-
         for reg in regions:
 
             for depth in depths:
