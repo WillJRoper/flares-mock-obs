@@ -536,7 +536,7 @@ try:
 
     hdf_cat.close()
 
-except (KeyError, OSError) as e:
+except (KeyError, OSError, FileNotFoundError) as e:
     print(e)
     hdf_cat.close()
     hdf.close()
