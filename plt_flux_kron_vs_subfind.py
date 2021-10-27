@@ -110,7 +110,7 @@ for n_z in range(len(snaps)):
                     f_group = hdf[f]
                     fdepth_group = f_group[str(depth)]
 
-                    flux_segm = fdepth_group['kron_flux'][...] - depth
+                    flux_segm = fdepth_group['kron_flux'][...]
                     flux_segm_err = fdepth_group['kron_fluxerr'][...]
 
                 except KeyError as e:
