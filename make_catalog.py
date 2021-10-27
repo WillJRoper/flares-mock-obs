@@ -364,6 +364,8 @@ if len(my_img_ids) > 0:
 
                 for f in filters:
 
+                    obs_data.setdefault(f + "." + str(depth), {})
+
                     # --- initialise ImageCreator object
                     image_creator = imagesim.Idealised(f, field)
 
@@ -430,13 +432,11 @@ if len(my_img_ids) > 0:
                         tab["label"].size)
 
                     try:
-                        obs_data.setdefault(f + "." + str(depth),
-                                            {}).setdefault(
+                        obs_data[f + "." + str(depth)].setdefault(
                             "Kron_HLR", []).extend(
                             source_cat.fluxfrac_radius(0.5) * kpc_res)
                     except (ValueError, TypeError) as e:
-                        obs_data.setdefault(f + "." + str(depth),
-                                            {}).setdefault(
+                        obs_data[f + "." + str(depth)].setdefault(
                             "Kron_HLR", []).extend(
                             np.zeros_like(tab['kron_flux']))
                         # print(e)
@@ -463,13 +463,11 @@ if len(my_img_ids) > 0:
                     hdf.close()
 
                     try:
-                        obs_data.setdefault(f + "." + str(depth),
-                                            {}).setdefault(
+                        obs_data[f + "." + str(depth)].setdefault(
                             "Kron_HMR", []).extend(
                             source_cat.fluxfrac_radius(0.5) * kpc_res)
                     except (ValueError, TypeError) as e:
-                        obs_data.setdefault(f + "." + str(depth),
-                                            {}).setdefault(
+                        obs_data[f + "." + str(depth)].setdefault(
                             "Kron_HMR", []).extend(np.zeros_like(tab['kron_flux']))
                         continue
 
