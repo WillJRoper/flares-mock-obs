@@ -129,7 +129,6 @@ for n_z in range(len(snaps)):
             flux_subfind = np.array(flux_subf_dict[f + "." + "SUBFIND"])
         else:
             flux_subfind = np.array([])
-        print("SUBFIND:", flux_subfind.size)
 
         if len(flux_subfind) == 0:
             continue
@@ -137,13 +136,15 @@ for n_z in range(len(snaps)):
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        bin_edges = np.logspace(np.log10(flux_subfind.min()) - 0.5,
-                                np.log10(flux_subfind.max()) + 0.5, 75)
+        bin_edges = np.logspace(min(depths),
+                                5000, 75)
 
         bin_wid = bin_edges[1] - bin_edges[0]
         bin_cents = bin_edges[:-1] + (bin_wid / 2)
 
         H, bins = np.histogram(flux_subfind, bins=bin_edges)
+
+        print("SUBFIND:", np.sum(H))
 
         ax.bar(bin_edges[:-1], H, width=np.diff(bin_edges), color="grey",
                edgecolor="grey",
@@ -157,13 +158,13 @@ for n_z in range(len(snaps)):
             if not fdepth in flux_segm_dict.keys():
                 continue
 
-            print(f"Kron ({depth}):", len(flux_segm_dict[fdepth]))
-
             H, bins = np.histogram(flux_segm_dict[fdepth], bins=bin_edges)
+
+            print(f"Kron ({depth}):", np.sum(H))
 
             ax.plot(bin_edges[:-1], H,
                     label="Kron: %.2f nJy (%d)"
-                          % (depth, len(flux_segm_dict[fdepth])))
+                          % (depth, np.sum(H))
 
         ax.set_xlabel("$F/[\mathrm{nJy}]$")
         ax.set_ylabel("$N$")

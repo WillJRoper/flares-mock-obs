@@ -420,6 +420,7 @@ Slen = []
 grp_mass = []
 smls = []
 fluxes = []
+masses = []
 subgrpids = []
 star_pos = []
 
@@ -430,6 +431,7 @@ for key in image_keys:
     this_pos = reg_dict[key]["coords"] * 10 ** 3 * arcsec_per_kpc_proper
     this_smls = reg_dict[key]["smls"] * 10 ** 3 * arcsec_per_kpc_proper
     this_subgrpids = reg_dict[key]["part_subgrpids"]
+    this_masses = reg_dict[key]["masses"]
 
     xcond = np.logical_and(this_pos[:, 0] < imgextent[1],
                            this_pos[:, 0] > imgextent[0])
@@ -440,6 +442,7 @@ for key in image_keys:
     okinds = np.logical_and(np.logical_and(xcond, ycond), zcond)
 
     this_flux = reg_dict[key][f][okinds]
+    this_masses = this_masses[okinds]
     this_pos = this_pos[okinds]
     this_smls = this_smls[okinds]
     this_subgrpids = this_subgrpids[okinds]
@@ -452,12 +455,14 @@ for key in image_keys:
     star_pos.extend(this_pos)
     smls.extend(this_smls)
     fluxes.extend(this_flux)
+    masses.extend(this_masses)
     subgrpids.extend(this_subgrpids)
 
 fdepth_group = hdf.create_group(str(depth))
 
 img_num = np.array(img_num)
 fluxes = np.array(fluxes)
+masses = np.array(masses)
 subgrpids = np.array(subgrpids)
 smls = np.array(smls)
 star_pos = np.array(star_pos)
@@ -505,6 +510,12 @@ dset.attrs["units"] = "kpc"
 dset = fdepth_group.create_dataset("Fluxes", data=fluxes,
                                    dtype=fluxes.dtype,
                                    shape=fluxes.shape,
+                                   compression="gzip")
+dset.attrs["units"] = "nJy"
+
+dset = fdepth_group.create_dataset("Masses", data=masses,
+                                   dtype=masses.dtype,
+                                   shape=masses.shape,
                                    compression="gzip")
 dset.attrs["units"] = "nJy"
 
