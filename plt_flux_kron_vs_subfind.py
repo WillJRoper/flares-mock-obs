@@ -143,12 +143,12 @@ for n_z in range(len(snaps)):
         bin_cents = bin_edges[:-1] + (bin_wid / 2)
 
         H, bins = np.histogram(flux_subfind, bins=bin_edges)
-
-        print("SUBFIND:", np.sum(H))
+        n = np.sum(H)
+        print("SUBFIND:", n)
 
         ax.bar(bin_edges[:-1], H, width=np.diff(bin_edges), color="grey",
                edgecolor="grey",
-               label="SUBFIND ({})".format(np.sum(H)),
+               label="SUBFIND ({})".format(n),
                alpha=0.8, align="edge")
 
         for depth in depths:
@@ -161,13 +161,12 @@ for n_z in range(len(snaps)):
             H, bins = np.histogram(flux_segm_dict[fdepth], bins=bin_edges)
 
             n = np.sum(H)
-            print(n)
 
             print(f"Kron ({depth}):", n)
 
             ax.plot(bin_edges[:-1], H,
                     label="Kron: %.2f nJy (%d)"
-                          % (depth, np.sum(H)))
+                          % (depth, n))
 
         ax.set_xlabel("$F/[\mathrm{nJy}]$")
         ax.set_ylabel("$N$")
