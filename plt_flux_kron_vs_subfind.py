@@ -137,8 +137,8 @@ for n_z in range(len(snaps)):
         fig = plt.figure()
         ax = fig.add_subplot(111)
 
-        bin_edges = np.logspace(min(depths),
-                                5000, 75)
+        bin_edges = np.logspace(np.log10(min(depths)),
+                                3.5, 75)
 
         bin_wid = bin_edges[1] - bin_edges[0]
         bin_cents = bin_edges[:-1] + (bin_wid / 2)
