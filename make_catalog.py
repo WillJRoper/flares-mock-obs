@@ -462,7 +462,8 @@ if rank == 0:
         out_subf_data.setdefault(f + "." + str(d), {})
         for key in collected_subf_data[0][f + "." + str(d)]:
             for res in collected_subf_data:
-                print(res)
+                if len(res) == 0:
+                    continue
                 if key == "Start_Index":
                     subf_data[f + "." + str(d)].setdefault(key,
                                                                    []).extend(
@@ -482,7 +483,8 @@ if rank == 0:
             out_obs_data.setdefault(f + "." + str(d), {})
             for key in collected_obs_data[0][f + "." + str(d)]:
                 for res in collected_obs_data:
-                    print(res)
+                    if len(res) == 0:
+                        continue
                     if key == "Start_Index":
                         out_obs_data[f + "." + str(d)].setdefault(key,
                                                                       []).extend(
