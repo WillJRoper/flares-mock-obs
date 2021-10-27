@@ -491,7 +491,7 @@ if rank == 0:
                         out_obs_data[f + "." + str(d)].setdefault(key,
                                                                       []).extend(
                             res[f + "." + str(d)][key])
-
+    print(collected_subf_data)
     print(out_obs_data)
     print(out_subf_data)
 
