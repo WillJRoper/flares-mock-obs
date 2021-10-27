@@ -140,7 +140,8 @@ for n_z in range(len(snaps)):
                 continue
 
             try:
-                cbar = ax.hexbin(flux_to_lum(kron_flux_dict[fdepth], cosmo, z),
+                cbar = ax.hexbin(flux_to_lum(np.array(kron_flux_dict[fdepth]),
+                                             cosmo, z),
                                  kron_radii_dict[fdepth],
                                  gridsize=50, mincnt=1,
                                  xscale='log', yscale='log',
