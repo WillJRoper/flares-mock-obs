@@ -12,10 +12,9 @@ warnings.filterwarnings('ignore')
 import seaborn as sns
 from matplotlib.colors import LogNorm
 import matplotlib.gridspec as gridspec
+from flare.photom import m_to_flux, flux_to_m
 import h5py
 import sys
-from astropy.cosmology import Planck13 as cosmo
-import eritlux.simulations.imagesim as imagesim
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
@@ -27,10 +26,7 @@ for reg in range(0, 40):
     else:
         regions.append(str(reg))
 
-snaps = ['000_z015p000', '001_z014p000', '002_z013p000',
-         '003_z012p000', '004_z011p000', '005_z010p000',
-         '006_z009p000', '007_z008p000', '008_z007p000',
-         '009_z006p000', '010_z005p000', '011_z004p770']
+snaps = ['005_z010p000', '007_z008p000', '008_z007p000', '010_z005p000']
 
 reg_snaps = []
 for reg in reversed(regions):
@@ -46,11 +42,14 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-filters = [f'Hubble.ACS.{f}'
-           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
-          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+filters = [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
-depths = [0.1, 1, 5, 10, 20]
+# Set up depths relative to the Xtreme deep field
+XDF_depth_m = 31.2
+XDF_depth_flux = m_to_flux(XDF_depth_m)
+depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
+          XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
+depths_m = [flux_to_m(d) for d in depths]
 
 thresh = 2.5
 
@@ -137,7 +136,7 @@ for n_z in range(len(snaps)):
         for ax in axes:
             ax.set_ylabel('$R_{1/2}/ [pkpc]$')
             ax.set_ylim(10 ** -1.5, 10 ** 2)
-            ax.set_xlim(10 ** -2, 10 ** 4)
+            ax.set_xlim(10 ** -2, 10 ** 3.5)
 
         for ax in axes[:-1]:
             ax.tick_params(axis='x', top=False, bottom=False,
