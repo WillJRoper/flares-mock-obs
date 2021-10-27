@@ -165,7 +165,7 @@ for n_z in range(len(snaps)):
         for ax in axes:
             ax.set_ylabel('$R_{1/2}/ [pkpc]$')
             ax.set_ylim(0.09, 10 ** 1.5)
-            ax.set_xlim(10**27, 10**31.5)
+            ax.set_xlim(10**26.8, 10**31.5)
 
         for ax in axes[:-1]:
             ax.tick_params(axis='x', top=False, bottom=False,
