@@ -1,7 +1,7 @@
 #!/bin/bash -l
 #SBATCH --ntasks 9 # The number of cores you need...
 #SBATCH --array=1-480
-#SBATCH -p cosma7 #or some other partition, e.g. cosma, cosma6, etc.
+#SBATCH -p cosma6 #or some other partition, e.g. cosma, cosma6, etc.
 #SBATCH -A dp004
 #SBATCH --cpus-per-task=1
 #SBATCH -J MOCK-OBS #Give it something meaningful.
