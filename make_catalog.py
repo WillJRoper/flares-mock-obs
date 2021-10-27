@@ -275,10 +275,10 @@ try:
 
                     arc_res = image_creator.pixel_scale
                     kpc_res = arc_res / arcsec_per_kpc_proper
-
-                    print(
-                        "Creating detection image for filter {i}, and depth {d}"
-                            .format(i=f, d=depth))
+                    if rank == 0:
+                        print("Creating detection image for "
+                              "filter {i}, and depth {d}"
+                                .format(i=f, d=depth))
 
                     hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                                     .format(reg, snap, Type, orientation, f),
@@ -302,7 +302,7 @@ try:
                         hdf.close()
 
                     except KeyError as e:
-                        print(e)
+                        # print(e)
                         hdf.close()
                         detection_img = None
                         weight_img = None
@@ -331,7 +331,7 @@ try:
                                                     contrast=0.01,
                                                     kernel=kernel)
                     except TypeError as e:
-                        print(e)
+                        # print(e)
                         continue
 
                     for f in filters:
@@ -428,7 +428,7 @@ try:
                                 "Kron_HMR", []).extend(
                                 source_cat.fluxfrac_radius(0.5) * kpc_res)
                         except ValueError as e:
-                            print(e)
+                            # print(e)
                             hdf.close()
                             continue
 
