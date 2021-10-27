@@ -157,7 +157,7 @@ for n_z in range(len(snaps)):
         ax.bar(bin_edges[:-1], H, width=np.diff(bin_edges), color="grey",
                edgecolor="grey",
                label="SUBFIND ({})".format(n),
-               alpha=0.8, align="edge")
+               alpha=0.6, align="edge")
 
         for depth in depths:
 

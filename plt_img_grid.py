@@ -173,6 +173,21 @@ while ind < n_img:
                        labeltop=False, labelbottom=False,
                        left=False, right=False,
                        labelleft=False, labelright=False)
+        im = ax.imshow(detection_img, cmap="plasma")
+        fig.colorbar(im)
+        fig.savefig("plots/detect_Depth-%.2f" % d
+                    + "Orientation-"
+                    + orientation + "_Type-" + Type
+                    + "_Region-" + reg + "_Snap-" + snap + "_Group-"
+                    + str(img_ind) + ".png", bbox_inches="tight")
+        plt.close(fig)
+
+        fig = plt.figure()
+        ax = fig.add_subplot(111)
+        ax.tick_params(axis='both', top=False, bottom=False,
+                       labeltop=False, labelbottom=False,
+                       left=False, right=False,
+                       labelleft=False, labelright=False)
         im = ax.imshow(sig, cmap="plasma")
         fig.colorbar(im)
         fig.savefig("plots/SNRmap_Depth-%.2f" % d
