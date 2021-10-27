@@ -180,13 +180,13 @@ try:
             print("Rank", rank, "has no images")
             my_img_ids = np.array([], dtype=int)
     else:
-        rank_img_bins = np.linspace(0, nimg + 1, size + 1)
+        rank_img_bins = np.linspace(0, nimg, size + 1)
         my_img_ids = np.arange(rank_img_bins[rank], rank_img_bins[rank + 1], 1,
                                dtype=int)
 
     if len(my_img_ids) > 0:
 
-        print("Rank:", rank, "of", size,
+        print("Rank:", rank, "of", size - 1,
               "My Images: (" + str(my_img_ids[0]), "->",
               str(my_img_ids[-1]) + ")",
               "Total:", nimg)
@@ -448,6 +448,20 @@ try:
 
     collected_subf_data = comm.gather(subf_data, root=0)
     collected_obs_data = comm.gather(obs_data, root=0)
+    nres = 0
+    for i in collected_subf_data:
+        try:
+            nres += len(i[filters[0] + "." + str(depths[0])]["Start_Index"])
+        except KeyError:
+            continue
+    print("Collected", nres, "Subfind results")
+    nres = 0
+    for i in collected_obs_data:
+        try:
+            nres += len(i[filters[0] + "." + str(depths[0])]["Start_Index"])
+        except KeyError:
+            continue
+    print("Collected", nres, "Observational results")
     if rank == 0:
 
         out_subf_data = {}
