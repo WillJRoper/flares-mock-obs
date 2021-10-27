@@ -16,6 +16,7 @@ import h5py
 import photutils as phut
 from astropy.convolution import Gaussian2DKernel
 import sys
+import utilities as util
 from flare.photom import m_to_flux, flux_to_m
 import eritlux.simulations.imagesim as imagesim
 import flare.surveys as survey
@@ -223,6 +224,7 @@ if len(my_img_ids) > 0:
 
                     fluxes = fdepth_group["Fluxes"][:]
                     subgrpids = fdepth_group["Part_subgrpids"][:]
+                    star_pos = fdepth_group["Star_Pos"][:]
                     begin = fdepth_group["Start_Index"][:]
                     group_len = fdepth_group["Image_Length"][:]
                     gal_ids = set(fdepth_group["Subgroup_IDs"][:])
@@ -239,22 +241,44 @@ if len(my_img_ids) > 0:
                 for img_num, beg, img_len in zip(my_img_ids, begins, lens):
 
                     this_subgrpids = subgrpids[beg: beg + img_len]
+                    this_pos = star_pos[beg: beg + img_len, :]
 
                     subgrps, inverse_inds = np.unique(this_subgrpids,
                                                       return_inverse=True)
 
                     this_flux = np.zeros(subgrps.size)
+                    this_poss = {}
+                    this_fluxs = {}
 
-                    for flux, i, subgrpid in zip(
+                    for flux, i, subgrpid, pos in zip(
                             fluxes[beg: beg + img_len],
-                            inverse_inds, this_subgrpids):
-                        this_flux[i] += flux
+                            inverse_inds, this_subgrpids, this_pos):
 
-                    this_flux = this_flux[this_flux > 0]
+                        this_flux[i] += flux
+                        this_poss.setdefault(i, []).append(pos)
+                        this_fluxs.setdefault(i, []).append(flux)
+
+                    for i in this_poss:
+                        com = np.average(this_poss[i], weights=this_fluxs[i],
+                                         axis=0)
+                        this_poss[i] = np.array(this_poss[i]) - com
+
+                    this_rads = {i: np.sqrt(this_poss[i][:, 0]**2
+                                            + this_poss[i][:, 1]**2
+                                            + this_poss[i][:, 2]**2)
+                                 for i in this_poss.keys()}
+
+                    this_hlrs = [util.calc_light_mass_rad(this_rads[i],
+                                                          this_fluxs[i],
+                                                          radii_frac=0.5)
+                                 for i in this_fluxs.keys()]
 
                     subf_data.setdefault(f + "." + str(depth),
                                          {}).setdefault(
                         "Fluxes", []).extend(this_flux)
+                    subf_data.setdefault(f + "." + str(depth),
+                                         {}).setdefault(
+                        "HLRs", []).extend(this_hlrs)
                     subf_data[f + "." + str(depth)].setdefault(
                         "Start_Index",
                         []).append(

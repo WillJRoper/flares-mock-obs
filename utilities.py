@@ -661,7 +661,7 @@ def calc_rad(poss, i, j):
     return rs
 
 
-@nb.njit(nogil=True, parallel=True)
+# @nb.njit(nogil=True, parallel=True)
 def calc_3drad(poss):
     # Get galaxy particle indices
     rs = np.sqrt(poss[:, 0] ** 2 + poss[:, 1] ** 2 + poss[:, 2] ** 2)
