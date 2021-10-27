@@ -534,8 +534,9 @@ try:
                                                                    compression="gzip")
                             # dset.attrs["units"] = units[key]
 
-    hdf_cat.close()
+        hdf_cat.close()
 
 except (KeyError, OSError, FileNotFoundError) as e:
     print(e)
-    hdf_cat.close()
+    if rank == 0:
+        hdf_cat.close()
