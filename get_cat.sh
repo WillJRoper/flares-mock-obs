@@ -1,7 +1,7 @@
 #!/bin/bash -l
-#SBATCH --ntasks 128 # The number of cores you need...
+#SBATCH --ntasks 16 # The number of cores you need...
 #SBATCH --array=1-480%80
-#SBATCH -p cosma8 #or some other partition, e.g. cosma, cosma6, etc.
+#SBATCH -p cosma6 #or some other partition, e.g. cosma, cosma6, etc.
 #SBATCH -A dp004
 #SBATCH --cpus-per-task=1
 #SBATCH -J MOCK-CAT #Give it something meaningful.
@@ -21,7 +21,7 @@ source activate flares-env
 i=$(($SLURM_ARRAY_TASK_ID - 1))
 
 # Run the program
-mpirun -np 128 ./make_catalog.py $i sim Total
+mpirun -np 16 ./make_catalog.py $i sim Total
 
 source deactivate
 

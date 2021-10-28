@@ -109,9 +109,9 @@ for n_z in range(len(snaps)):
                 kron_flux_dict.setdefault(f + "." + str(depth), []).extend(
                     fluxes)
                 subf_radii_dict.setdefault(f + "." + str(depth), []).extend(
-                    kron_radii)
+                    subf_radii)
                 subf_flux_dict.setdefault(f + "." + str(depth), []).extend(
-                    fluxes)
+                    subf_fluxes)
 
         fig = plt.figure(figsize=(4, 10))
         gs = gridspec.GridSpec(len(depths), 2)
