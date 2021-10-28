@@ -136,7 +136,7 @@ for n_z in range(len(snaps)):
             continue
 
         fig = plt.figure()
-        gs = gridspec.GridSpec(ncols=1, nrows=2, height_ratios=(5, 2))
+        gs = gridspec.GridSpec(ncols=1, nrows=2, height_ratios=(6, 2))
         gs.update(wspace=0.0, hspace=0.0)
         ax = fig.add_subplot(gs[0, 0])
         ax1 = fig.add_subplot(gs[1, 0])

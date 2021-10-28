@@ -89,7 +89,7 @@ for n_z in range(len(snaps)):
                 continue
 
             try:
-                masses = hdf["Galaxy_Mass"]
+                masses = hdf["Galaxy_Mass"][:]
 
                 hdf.close()
             except KeyError as e:
