@@ -83,7 +83,7 @@ for n_z in range(len(snaps)):
                         "mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation), "r")
                 except OSError as e:
-                    print(e)
+                    print(reg, snap, e)
                     continue
 
                 try:
@@ -98,7 +98,7 @@ for n_z in range(len(snaps)):
                     subf_fluxes = fdepth_group["Fluxes"][...]
 
                 except KeyError as e:
-                    print(e)
+                    print(reg, snap, e)
                     hdf.close()
                     continue
 
@@ -173,7 +173,7 @@ for n_z in range(len(snaps)):
                                   cmap="magma",
                                   linewidth=5)
             except ValueError as e:
-                print(e)
+                print(snap, e)
                 continue
 
             ax.text(0.95, 0.05, r"$%.2f \times m_{\mathrm{XDF}}$"

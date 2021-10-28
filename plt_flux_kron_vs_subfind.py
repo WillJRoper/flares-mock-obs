@@ -85,7 +85,7 @@ for n_z in range(len(snaps)):
                 hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                                 .format(reg, snap, Type, orientation), "r")
             except (OSError, KeyError) as e:
-                print(e)
+                print(reg, snap, e)
                 continue
 
             try:
@@ -96,7 +96,7 @@ for n_z in range(len(snaps)):
 
                 hdf.close()
             except KeyError as e:
-                print(e)
+                print(reg, snap, e)
                 hdf.close()
                 continue
 
@@ -116,7 +116,7 @@ for n_z in range(len(snaps)):
                     flux_segm_err = fdepth_group['kron_fluxerr'][...]
 
                 except KeyError as e:
-                    print(e)
+                    print(reg, snap, e)
                     hdf.close()
                     continue
 

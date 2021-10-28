@@ -136,10 +136,13 @@ ini_width_pkpc = ini_width / arcsec_per_kpc_proper
 
 thresh = 2.5
 
-quantities = ('label', 'xcentroid', 'ycentroid', 'area',
-              "eccentricity", "ellipticity", "gini",
+# quantities = ('label', 'xcentroid', 'ycentroid', 'area',
+#               "eccentricity", "ellipticity", "gini",
+#               'segment_flux', 'segment_fluxerr', 'kron_flux', 'kron_fluxerr',
+#               "inertia_tensor", "kron_radius")
+quantities = ('label', 'xcentroid', 'ycentroid',
               'segment_flux', 'segment_fluxerr', 'kron_flux', 'kron_fluxerr',
-              "inertia_tensor", "kron_radius")
+              "kron_radius")
 units = {'label': "None", 'xcentroid': "pixels", 'ycentroid': "pixels",
          'area': "pixels$^2$", "eccentricity": "None", "ellipticity": "None",
          "gini": "None", 'segment_flux': "nJy", 'segment_fluxerr': "nJy",
@@ -405,9 +408,9 @@ if len(my_img_ids) > 0:
                     source_cat = SourceCatalog(img, segm,
                                                error=None, mask=None,
                                                kernel=kernel,
-                                               background=None,
+                                               background=n,
                                                wcs=None, localbkg_width=0,
-                                               apermask_method='correct',
+                                               apermask_method='none',
                                                kron_params=(2.5, 0.0),
                                                detection_cat=None)
 
@@ -462,7 +465,7 @@ if len(my_img_ids) > 0:
                                                kernel=kernel,
                                                background=None,
                                                wcs=None, localbkg_width=0,
-                                               apermask_method='correct',
+                                               apermask_method='none',
                                                kron_params=(2.5, 0.0),
                                                detection_cat=None)
 
