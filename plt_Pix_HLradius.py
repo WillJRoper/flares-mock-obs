@@ -136,8 +136,8 @@ for n_z in range(len(snaps)):
         except IndexError:
             continue
 
-        ybins = np.logspace(np.log10(0.09), 1.5, 40)
-        xbins = np.logspace(-2, 3.5, 40)
+        ybins = np.logspace(np.log10(0.09), 1.5, H.shape[1])
+        xbins = np.logspace(-2, 3.5, H.shape[0])
 
         xbin_cents = (xbins[1:] + xbins[:-1]) / 2
         ybin_cents = (ybins[1:] + ybins[:-1]) / 2
