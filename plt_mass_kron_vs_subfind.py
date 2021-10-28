@@ -143,8 +143,7 @@ for n_z in range(len(snaps)):
 
         ax1.axhline(1, linestyle="--", color="k")
 
-        bin_edges = np.logspace(np.log10(min(depths)),
-                                3.5, 75)
+        bin_edges = np.logspace(7.5, 11.5, 75)
 
         bin_wid = bin_edges[1] - bin_edges[0]
         bin_cents = bin_edges[:-1] + (bin_wid / 2)
@@ -190,8 +189,8 @@ for n_z in range(len(snaps)):
         ax1.set_yscale("log")
         ax1.set_xscale("log")
 
-        ax.set_xlim(min(depths), 10 ** 3.5)
-        ax1.set_xlim(min(depths), 10**3.5)
+        ax.set_xlim(10**7.5, 10**11.5)
+        ax1.set_xlim(10**7.5, 10**11.5)
 
         ax.legend()
 
