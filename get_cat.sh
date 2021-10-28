@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #SBATCH --ntasks 16 # The number of cores you need...
-#SBATCH --array=1-480%80
+#SBATCH --array=292-480
 #SBATCH -p cosma6 #or some other partition, e.g. cosma, cosma6, etc.
 #SBATCH -A dp004
 #SBATCH --cpus-per-task=1
