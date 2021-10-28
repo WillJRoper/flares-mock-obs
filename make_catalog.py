@@ -413,7 +413,7 @@ if len(my_img_ids) > 0:
                                                kernel=kernel,
                                                background=None,
                                                wcs=None, localbkg_width=0,
-                                               apermask_method='none',
+                                               apermask_method='correct',
                                                kron_params=(2.5, 0.0),
                                                detection_cat=None)
 
@@ -468,7 +468,7 @@ if len(my_img_ids) > 0:
                                                kernel=kernel,
                                                background=None,
                                                wcs=None, localbkg_width=0,
-                                               apermask_method='none',
+                                               apermask_method='correct',
                                                kron_params=(2.5, 0.0),
                                                detection_cat=None)
 
