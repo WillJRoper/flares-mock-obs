@@ -208,6 +208,7 @@ if len(my_img_ids) > 0:
         if depth == "SUBFIND":
 
             for f in filters:
+                subf_data.setdefault(f + "." + str(depth), {})
 
                 # --- initialise ImageCreator object
                 image_creator = imagesim.Idealised(f, field)
@@ -337,6 +338,8 @@ if len(my_img_ids) > 0:
                     detection_img = None
                     weight_img = None
                     noise_img = None
+                    for f in filters:
+                        obs_data.setdefault(f + "." + str(depth), {})
 
                     continue
 
