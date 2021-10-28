@@ -170,6 +170,9 @@ for n_z in range(len(snaps)):
                 continue
 
             try:
+                print(np.min(subf_flux_dict[fdepth]), np.max(subf_flux_dict[fdepth]))
+                print(np.min(subf_radii_dict[fdepth]),
+                      np.max(subf_radii_dict[fdepth]))
                 cbar = ax.hexbin(subf_flux_dict[fdepth],
                                  subf_radii_dict[fdepth],
                                  gridsize=50, mincnt=1,
