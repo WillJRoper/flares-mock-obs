@@ -10,6 +10,7 @@ os.environ['FLARE'] = '/cosma7/data/dp004/dc-wilk2/flare'
 
 matplotlib.use('Agg')
 warnings.filterwarnings('ignore')
+import matplotlib.gridspec as gridspec
 import seaborn as sns
 from flare.photom import m_to_flux, flux_to_m
 import h5py
@@ -66,10 +67,10 @@ for n_z in range(len(snaps)):
         if n_z != int(sys.argv[3]):
             continue
 
-    mass_kron_dict = {}
-    flux_kronerr_dict = {}
+    mass_segm_dict = {}
+    mass_segmerr_dict = {}
     mass_subf_dict = {}
-    lumin_kron_dict = {}
+    lumin_segm_dict = {}
 
     for f in filters:
 
@@ -84,16 +85,15 @@ for n_z in range(len(snaps)):
                 hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
                                 .format(reg, snap, Type, orientation, f), "r")
             except (OSError, KeyError) as e:
-                print(e)
+                print(reg, snap, e)
                 continue
 
             try:
-
                 masses = hdf["Galaxy_Mass"]
 
                 hdf.close()
             except KeyError as e:
-                print(e)
+                print(reg, snap, e)
                 hdf.close()
                 continue
 
@@ -109,77 +109,94 @@ for n_z in range(len(snaps)):
                     f_group = hdf[f]
                     fdepth_group = f_group[str(depth)]
 
-                    flux_kron = fdepth_group['Mass_kron_flux'][...]
-                    flux_kron_err = fdepth_group['Mass_kron_fluxerr'][...]
+                    mass_segm = fdepth_group['Mass_kron_flux'][...]
+                    mass_segm_err = fdepth_group['Mass_kron_fluxerr'][...]
 
                 except KeyError as e:
-                    print(e)
+                    print(reg, snap, e)
                     hdf.close()
                     continue
 
                 hdf.close()
 
-                mass_kron_dict.setdefault(f + "." + str(depth), []).extend(
-                    flux_kron)
-                flux_kronerr_dict.setdefault(f + "." + str(depth), []).extend(
-                    flux_kron_err)
+                mass_segm_dict.setdefault(f + "." + str(depth), []).extend(
+                    mass_segm)
+                mass_segmerr_dict.setdefault(f + "." + str(depth), []).extend(
+                    mass_segm_err)
 
         if f + "." + "SUBFIND" in mass_subf_dict.keys():
-            flux_subfind = np.array(mass_subf_dict[f + "." + "SUBFIND"])
+            mass_subfind = np.array(mass_subf_dict[f + "." + "SUBFIND"])
         else:
-            flux_subfind = np.array([])
+            mass_subfind = np.array([])
 
-        if len(flux_subfind) == 0:
+        if len(mass_subfind) == 0:
             continue
 
         fig = plt.figure()
-        ax = fig.add_subplot(111)
+        gs = gridspec.GridSpec(ncols=1, nrows=2, height_ratios=(5, 2))
+        gs.update(wspace=0.0, hspace=0.0)
+        ax = fig.add_subplot(gs[0, 0])
+        ax1 = fig.add_subplot(gs[1, 0])
 
-        bin_edges = np.logspace(np.log10(7.5),
-                                11.5, 75)
+        ax1.axhline(1, linestyle="--", color="k")
+
+        bin_edges = np.logspace(np.log10(min(depths)),
+                                3.5, 75)
 
         bin_wid = bin_edges[1] - bin_edges[0]
         bin_cents = bin_edges[:-1] + (bin_wid / 2)
 
-        H, bins = np.histogram(flux_subfind, bins=bin_edges)
+        H, bins = np.histogram(mass_subfind, bins=bin_edges)
         n = np.sum(H)
         print("SUBFIND:", n)
+        sub_H = H
 
         ax.bar(bin_edges[:-1], H, width=np.diff(bin_edges), color="grey",
                edgecolor="grey",
                label="SUBFIND ({})".format(n),
-               alpha=0.8, align="edge")
+               alpha=0.6, align="edge")
 
         for depth in depths:
 
             fdepth = f + "." + str(depth)
 
-            if not fdepth in mass_kron_dict.keys():
+            if not fdepth in mass_segm_dict.keys():
                 continue
 
-            H, bins = np.histogram(mass_kron_dict[fdepth], bins=bin_edges)
+            H, bins = np.histogram(mass_segm_dict[fdepth], bins=bin_edges)
 
             n = np.sum(H)
 
             print(f"Kron ({depth}):", n)
 
             ax.plot(bin_edges[:-1], H,
-                    label="Kron: %.2f nJy (%d)"
-                          % (depth, n))
+                    label=r"$%.2f \times m_{\mathrm{XDF}}$ (%d)"
+                          % ((depth / XDF_depth_flux), n))
+            ax1.plot(bin_edges[:-1], H / sub_H,
+                     label=r"$%.2f \times m_{\mathrm{XDF}}$ (%d)"
+                          % ((depth / XDF_depth_flux), n))
+        ax.tick_params(axis='x', top=False, bottom=False,
+                       labeltop=False, labelbottom=False)
 
-        ax.set_xlabel("$F/[\mathrm{nJy}]$")
+        ax1.set_xlabel("$F/[\mathrm{nJy}]$")
         ax.set_ylabel("$N$")
+        ax1.set_ylabel("$N_\mathrm{Obs} / N_\mathrm{SUBFIND}$")
 
         ax.set_yscale("log")
         ax.set_xscale("log")
+        ax1.set_yscale("log")
+        ax1.set_xscale("log")
+
+        ax.set_xlim(min(depths), 10 ** 3.5)
+        ax1.set_xlim(min(depths), 10**3.5)
 
         ax.legend()
 
-        if not os.path.exists("plots/Mass_Kron"):
-            os.makedirs("plots/Mass_Kron")
+        if not os.path.exists("plots/Flux_Kron"):
+            os.makedirs("plots/Flux_Kron")
 
         fig.savefig(
-            "plots/Mass_Kron/Mass_kron_hist_Filter-" + f + "_Orientation-"
+            "plots/Flux_Kron/flux_kron_hist_Filter-" + f + "_Orientation-"
             + orientation + "_Type-" + Type + "_Snap-" + snap + ".png",
             bbox_inches="tight")
 

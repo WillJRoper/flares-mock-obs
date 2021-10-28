@@ -13,34 +13,14 @@ warnings.filterwarnings('ignore')
 import seaborn as sns
 from matplotlib.colors import LogNorm
 import matplotlib.gridspec as gridspec
-from flare.photom import m_to_flux, flux_to_m, flux_to_lum
-from flare.photom import M_to_lum
-import flare.photom as photconv
-from astropy.cosmology import Planck13 as cosmo
+from matplotlib import ticker
+from flare.photom import m_to_flux, flux_to_m
+import scipy
 import h5py
 import sys
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
-
-
-def m_to_M(m, cosmo, z):
-    flux = photconv.m_to_flux(m)
-    lum = photconv.flux_to_L(flux, cosmo, z)
-    M = photconv.lum_to_M(lum)
-    return M
-
-
-def M_to_m(M, cosmo, z):
-    lum = photconv.M_to_lum(M)
-    flux = photconv.lum_to_flux(lum, cosmo, z)
-    m = photconv.flux_to_m(flux)
-    return m
-
-kawa_fit = lambda l, r0, b: r0 * (l / M_to_lum(-21)) ** b
-
-kawa_params = {'beta': {6: 0.46, 7: 0.46, 8: 0.38, 9: 0.56},
-               'r_0': {6: 0.94, 7: 0.94, 8: 0.81, 9: 1.2}}
 
 regions = []
 for reg in range(0, 40):
@@ -65,9 +45,7 @@ Type = sys.argv[2]
 extinction = 'default'
 
 # Define filter
-filters = [f'Hubble.ACS.{f}'
-           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
-          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+filters = [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
 
 # Set up depths relative to the Xtreme deep field
 XDF_depth_m = 31.2
@@ -86,6 +64,8 @@ for n_z in range(len(snaps)):
 
     kron_radii_dict = {}
     kron_flux_dict = {}
+    subf_radii_dict = {}
+    subf_flux_dict = {}
 
     for f in filters:
 
@@ -103,7 +83,7 @@ for n_z in range(len(snaps)):
                         "mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation), "r")
                 except OSError as e:
-                    print(e)
+                    print(reg, snap, e)
                     continue
 
                 try:
@@ -113,8 +93,12 @@ for n_z in range(len(snaps)):
                     kron_radii = fdepth_group["Pix_HLR"][...]
                     fluxes = fdepth_group['kron_flux'][...]
 
+                    fdepth_group = f_group["SUBFIND"]
+                    subf_radii = fdepth_group["HLRs"][...]
+                    subf_fluxes = fdepth_group["Fluxes"][...]
+
                 except KeyError as e:
-                    print(e)
+                    print(reg, snap, e)
                     hdf.close()
                     continue
 
@@ -124,6 +108,43 @@ for n_z in range(len(snaps)):
                     kron_radii)
                 kron_flux_dict.setdefault(f + "." + str(depth), []).extend(
                     fluxes)
+                subf_radii_dict.setdefault(f + "." + str(depth), []).extend(
+                    kron_radii)
+                subf_flux_dict.setdefault(f + "." + str(depth), []).extend(
+                    fluxes)
+
+        ybins = np.logspace(np.log10(0.09), 1.5, 40)
+        xbins = np.logspace(-2, 3.5, 40)
+        H, xbins, ybins = np.histogram2d(subf_flux_dict[f + "." + str(depth)],
+                                         subf_radii_dict[f + "." + str(depth)],
+                                         bins=(xbins, ybins))
+
+        # Resample your data grid by a factor of 3 using cubic spline interpolation.
+        H = scipy.ndimage.zoom(H, 3)
+
+        # percentiles = [np.min(w),
+        #                10**-3,
+        #                10**-1,
+        #                1, 2, 5]
+
+        try:
+            percentiles = [np.percentile(H[H > 0], 50),
+                           np.percentile(H[H > 0], 80),
+                           np.percentile(H[H > 0], 90),
+                           np.percentile(H[H > 0], 95),
+                           np.percentile(H[H > 0], 99)]
+        except IndexError:
+            continue
+
+        ybins = np.logspace(np.log10(0.09), 1.5, 40)
+        xbins = np.logspace(-2, 3.5, 40)
+
+        xbin_cents = (xbins[1:] + xbins[:-1]) / 2
+        ybin_cents = (ybins[1:] + ybins[:-1]) / 2
+
+        XX, YY = np.meshgrid(xbin_cents, ybin_cents)
+
+        print(percentiles)
 
         fig = plt.figure(figsize=(4, 10))
         gs = gridspec.GridSpec(len(depths), 1)
@@ -140,16 +161,19 @@ for n_z in range(len(snaps)):
                 continue
 
             try:
-                cbar = ax.hexbin(flux_to_lum(np.array(kron_flux_dict[fdepth]),
-                                             cosmo, z),
+                cbar = ax.hexbin(kron_flux_dict[fdepth],
                                  kron_radii_dict[fdepth],
                                  gridsize=50, mincnt=1,
                                  xscale='log', yscale='log',
                                  norm=LogNorm(), linewidths=0.2,
-                                 cmap='viridis', extent=(27, 31.5,
+                                 cmap='viridis', extent=(-2, 3.5,
                                                          np.log10(0.09), 1.5))
+                ax.contour(XX, YY, H.T, levels=percentiles,
+                                  locator=ticker.LogLocator(),
+                                  cmap="magma",
+                                  linewidth=5)
             except ValueError as e:
-                print(e)
+                print(snap, e)
                 continue
 
             ax.text(0.95, 0.05, r"$%.2f \times m_{\mathrm{XDF}}$"
@@ -160,12 +184,11 @@ for n_z in range(len(snaps)):
                     fontsize=8)
 
         # Label axes
-        axes[-1].set_xlabel(r"$L_{" + f.split(".")[-1]
-                               + "}/$ [erg $/$ s $/$ Hz]")
+        axes[-1].set_xlabel(r'$F/$ [nJy]')
         for ax in axes:
             ax.set_ylabel('$R_{1/2}/ [pkpc]$')
             ax.set_ylim(0.09, 10 ** 1.5)
-            ax.set_xlim(10**26.8, 10**31.5)
+            ax.set_xlim(10 ** -2, 10 ** 3.5)
 
         for ax in axes[:-1]:
             ax.tick_params(axis='x', top=False, bottom=False,
