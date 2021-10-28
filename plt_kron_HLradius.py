@@ -113,47 +113,17 @@ for n_z in range(len(snaps)):
                 subf_flux_dict.setdefault(f + "." + str(depth), []).extend(
                     fluxes)
 
-        ybins = np.logspace(np.log10(0.09), 1.5, 40)
-        xbins = np.logspace(-2, 3.5, 40)
-        H, xbins, ybins = np.histogram2d(subf_flux_dict[f + "." + str(depth)],
-                                         subf_radii_dict[f + "." + str(depth)],
-                                         bins=(xbins, ybins))
-
-        # Resample your data grid by a factor of 3 using cubic spline interpolation.
-        H = scipy.ndimage.zoom(H, 3)
-
-        # percentiles = [np.min(w),
-        #                10**-3,
-        #                10**-1,
-        #                1, 2, 5]
-
-        try:
-            percentiles = [np.percentile(H[H > 0], 50),
-                           np.percentile(H[H > 0], 80),
-                           np.percentile(H[H > 0], 90),
-                           np.percentile(H[H > 0], 95),
-                           np.percentile(H[H > 0], 99)]
-        except IndexError:
-            continue
-
-        ybins = np.logspace(np.log10(0.09), 1.5, 40)
-        xbins = np.logspace(-2, 3.5, 40)
-
-        xbin_cents = (xbins[1:] + xbins[:-1]) / 2
-        ybin_cents = (ybins[1:] + ybins[:-1]) / 2
-
-        XX, YY = np.meshgrid(xbin_cents, ybin_cents)
-
-        print(percentiles)
-
         fig = plt.figure(figsize=(4, 10))
-        gs = gridspec.GridSpec(len(depths), 1)
+        gs = gridspec.GridSpec(len(depths), 2)
         gs.update(wspace=0.0, hspace=0.0)
-        axes = []
+        obs_axes = []
         for i in range(len(depths)):
-            axes.append(fig.add_subplot(gs[i, 0]))
+            obs_axes.append(fig.add_subplot(gs[i, 0]))
+        sim_axes = []
+        for i in range(len(depths)):
+            sim_axes.append(fig.add_subplot(gs[i, 1]))
 
-        for ax, depth in zip(axes, depths):
+        for ax, depth in zip(obs_axes, depths):
 
             fdepth = f + "." + str(depth)
 
@@ -168,10 +138,45 @@ for n_z in range(len(snaps)):
                                  norm=LogNorm(), linewidths=0.2,
                                  cmap='viridis', extent=(-2, 3.5,
                                                          np.log10(0.09), 1.5))
-                ax.contour(XX, YY, H.T, levels=percentiles,
-                                  locator=ticker.LogLocator(),
-                                  cmap="magma",
-                                  linewidth=5)
+            except ValueError as e:
+                print(snap, e)
+                continue
+
+            # ax.text(0.95, 0.05, r"$%.2f \times m_{\mathrm{XDF}}$"
+            #         % (depth / XDF_depth_flux),
+            #         bbox=dict(boxstyle="round,pad=0.3", fc='w',
+            #                   ec="k", lw=1, alpha=0.8),
+            #         transform=ax.transAxes, horizontalalignment='right',
+            #         fontsize=8)
+
+        # Label obs_axes
+        obs_axes[-1].set_xlabel(r'$F/$ [nJy]')
+        for ax in obs_axes:
+            ax.set_ylabel('$R_{1/2}/ [pkpc]$')
+            ax.set_ylim(0.09, 10 ** 1.5)
+            ax.set_xlim(10 ** -2, 10 ** 3.5)
+
+        for ax in obs_axes[:-1]:
+            ax.tick_params(axis='x', top=False, bottom=False,
+                           labeltop=False, labelbottom=False)
+
+        obs_axes[-1].tick_params(axis='x', which='minor', bottom=True)
+        
+        for ax, depth in zip(sim_axes, depths):
+
+            fdepth = f + "." + str(depth)
+
+            if not fdepth in kron_radii_dict.keys():
+                continue
+
+            try:
+                cbar = ax.hexbin(subf_flux_dict[fdepth],
+                                 subf_radii_dict[fdepth],
+                                 gridsize=50, mincnt=1,
+                                 xscale='log', yscale='log',
+                                 norm=LogNorm(), linewidths=0.2,
+                                 cmap='plasma', extent=(-2, 3.5,
+                                                         np.log10(0.09), 1.5))
             except ValueError as e:
                 print(snap, e)
                 continue
@@ -183,24 +188,27 @@ for n_z in range(len(snaps)):
                     transform=ax.transAxes, horizontalalignment='right',
                     fontsize=8)
 
-        # Label axes
-        axes[-1].set_xlabel(r'$F/$ [nJy]')
-        for ax in axes:
-            ax.set_ylabel('$R_{1/2}/ [pkpc]$')
+        # Label sim_axes
+        sim_axes[-1].set_xlabel(r'$F/$ [nJy]')
+        for ax in sim_axes:
             ax.set_ylim(0.09, 10 ** 1.5)
             ax.set_xlim(10 ** -2, 10 ** 3.5)
 
-        for ax in axes[:-1]:
+        for ax in sim_axes[:-1]:
             ax.tick_params(axis='x', top=False, bottom=False,
                            labeltop=False, labelbottom=False)
 
-        axes[-1].tick_params(axis='x', which='minor', bottom=True)
+        for ax in sim_axes:
+            ax.tick_params(axis='y', left=False, right=False,
+                           labelleft=False, labelright=False)
+
+        sim_axes[-1].tick_params(axis='x', which='minor', bottom=True)
 
         if not os.path.exists("plots/HLRs"):
             os.makedirs("plots/HLRs")
 
         fig.savefig(
-            "plots/HLRs/HalfLightRadius_Filter-" + f + "_Orientation-"
+            "plots/HLRs/KronHalfLightRadius_Filter-" + f + "_Orientation-"
             + orientation + "_Type-" + Type + "_Snap-" + snap + ".png",
             bbox_inches="tight")
 
