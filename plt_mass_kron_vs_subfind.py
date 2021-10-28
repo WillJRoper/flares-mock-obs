@@ -180,7 +180,7 @@ for n_z in range(len(snaps)):
         ax.tick_params(axis='x', top=False, bottom=False,
                        labeltop=False, labelbottom=False)
 
-        ax1.set_xlabel("$F/[\mathrm{nJy}]$")
+        ax1.set_xlabel("$M/M_\odot$")
         ax.set_ylabel("$N$")
         ax1.set_ylabel("$N_\mathrm{Obs} / N_\mathrm{SUBFIND}$")
 
