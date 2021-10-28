@@ -103,10 +103,13 @@ for n_z in range(len(snaps)):
             flux_subf_dict.setdefault(f + "." + "SUBFIND", []).extend(fluxes)
 
             for depth in depths:
-
-                hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
-                                .format(reg, snap, Type, orientation),
-                                "r")
+                try:
+                    hdf = h5py.File("mock_data/flares_mock_cat_{}_{}_{}_{}.hdf5"
+                                    .format(reg, snap, Type, orientation),
+                                    "r")
+                except (OSError, KeyError) as e:
+                    print(reg, snap, e)
+                    continue
 
                 try:
                     f_group = hdf[f]
