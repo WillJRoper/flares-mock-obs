@@ -407,15 +407,17 @@ if len(my_img_ids) > 0:
                     mimg = mimgs[img_id, :, :]
 
                     # ================= Flux =================
-
-                    source_cat = SourceCatalog(img, segm,
-                                               error=None, mask=None,
-                                               kernel=kernel,
-                                               background=None,
-                                               wcs=None, localbkg_width=0,
-                                               apermask_method='correct',
-                                               kron_params=(2.5, 0.0),
-                                               detection_cat=None)
+                    try:
+                        source_cat = SourceCatalog(img, segm,
+                                                   error=None, mask=None,
+                                                   kernel=kernel,
+                                                   background=None,
+                                                   wcs=None, localbkg_width=0,
+                                                   apermask_method='correct',
+                                                   kron_params=(2.5, 0.0),
+                                                   detection_cat=None)
+                    except np.core._exceptions.MemoryError:
+                        continue
 
                     tab = source_cat.to_table(columns=quantities)
                     for key in tab.colnames:
@@ -462,15 +464,17 @@ if len(my_img_ids) > 0:
                         hdf.close()
 
                     # ================= Mass =================
-
-                    source_cat = SourceCatalog(mimg, segm,
-                                               error=None, mask=None,
-                                               kernel=kernel,
-                                               background=None,
-                                               wcs=None, localbkg_width=0,
-                                               apermask_method='correct',
-                                               kron_params=(2.5, 0.0),
-                                               detection_cat=None)
+                    try:
+                        source_cat = SourceCatalog(mimg, segm,
+                                                   error=None, mask=None,
+                                                   kernel=kernel,
+                                                   background=None,
+                                                   wcs=None, localbkg_width=0,
+                                                   apermask_method='correct',
+                                                   kron_params=(2.5, 0.0),
+                                                   detection_cat=None)
+                    except np.core._exceptions.MemoryError:
+                        continue
 
                     tab = source_cat.to_table(columns=quantities)
                     for key in tab.colnames:
