@@ -198,7 +198,7 @@ for n_z in range(len(snaps)):
             os.makedirs("plots/Flux_Kron")
 
         fig.savefig(
-            "plots/Flux_Kron/flux_kron_hist_Filter-" + f + "_Orientation-"
+            "plots/Flux_Kron/mass_kron_hist_Filter-" + f + "_Orientation-"
             + orientation + "_Type-" + Type + "_Snap-" + snap + ".png",
             bbox_inches="tight")
 
