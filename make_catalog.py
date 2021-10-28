@@ -411,7 +411,7 @@ if len(my_img_ids) > 0:
                     source_cat = SourceCatalog(img, segm,
                                                error=None, mask=None,
                                                kernel=kernel,
-                                               background=n,
+                                               background=None,
                                                wcs=None, localbkg_width=0,
                                                apermask_method='none',
                                                kron_params=(2.5, 0.0),
