@@ -15,7 +15,7 @@ import utilities as util
 from astropy.cosmology import Planck13 as cosmo
 import h5py
 from scipy import signal
-from flare.photom import m_to_flux, flux_to_m
+from flare.photom import m_to_flux, flux_to_m, m_to_lum, lum_to_flux, flux_to_lum
 import sys
 from scipy.spatial import cKDTree
 import eritlux.simulations.imagesim as imagesim
@@ -32,6 +32,8 @@ rank = comm.rank  # rank of this process
 
 sns.set_context("paper")
 sns.set_style('whitegrid')
+
+lum_to_m = lambda lum, z, cosmo: flux_to_m(lum_to_flux(lum, cosmo, z))
 
 regions = []
 for reg in range(0, 40):
@@ -68,19 +70,21 @@ print("Creating images with orientation {o}, type {t}, and extinction {e}"
                                                 e=extinction, x=reg, u=tag))
 
 # Define filter
-filters = [f'Hubble.ACS.{f}'
-           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
-          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
-
-# Set up depths relative to the Xtreme deep field
-XDF_depth_m = 31.2
-XDF_depth_flux = m_to_flux(XDF_depth_m)
-depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
-          XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
-depths_m = [flux_to_m(d) for d in depths]
+filters = ['FAKE.TH.' + f
+           for f in ['FUV', 'MUV', 'NUV', 'U', 'B',
+                     'V', 'R', 'I', 'Z', 'Y', 'J', 'H']]
 
 z_str = tag.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
+
+# Set up depths relative to the Xtreme deep field
+XDF_depth_m = 31.2
+XDF_depth_lum = m_to_lum(XDF_depth_m, z, cosmo=cosmo)
+XDF_depth_flux = m_to_flux(XDF_depth_m)
+depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
+          XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
+depths_lum = [flux_to_lum(d, cosmo, z) for d in depths]
+depths_m = [flux_to_m(d) for d in depths]
 
 survey_id = 'XDF'  # the XDF (updated HUDF)
 field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
@@ -100,16 +104,22 @@ ini_width_pkpc = ini_width / arcsec_per_kpc_proper
 
 f = filters[filter_ind]
 
-exists = os.path.isfile("mock_data/flares_mock_flux_{}_{}_{}_{}_{}.hdf5"
+if z <= 2.8:
+    csoft = 0.000474390 / 0.6777 * 1e3
+else:
+    csoft = 0.001802390 / (0.6777 * (1 + z)) * 1e3
+
+exists = os.path.isfile("mock_data/flares_mock_RFlum_{}_{}_{}_{}_{}.hdf5"
                         .format(reg, tag, Type, orientation, f))
 if not exists:
-    hdf = h5py.File("mock_data/flares_mock_flux_{}_{}_{}_{}_{}.hdf5"
+    hdf = h5py.File("mock_data/flares_mock_RFlum_{}_{}_{}_{}_{}.hdf5"
                     .format(reg, tag, Type, orientation, f), "w")
     print("Creating File...")
 
     # --- initialise ImageCreator object
     image_creator = imagesim.Idealised(f, field)
-    print(f, image_creator.pixel_scale)
+    image_creator.pixel_scale = csoft * arcsec_per_kpc_proper
+
     arc_res = image_creator.pixel_scale
     arc_res_kpc = arc_res / arcsec_per_kpc_proper
 
@@ -137,17 +147,18 @@ if not exists:
     print("Region width (in pixels):", full_npix)
 
     # Kappa with DTM 0.0795, BC_fac=1., without 0.0063 BC_fac=1.25
-    reg_dict = phot.flux(reg, kappa=0.0795, tag=tag, BC_fac=1,
-                         IMF='Chabrier_300',
-                         filters=(f,), Type=Type, log10t_BC=7.,
-                         extinction=extinction, orientation=orientation,
-                         width=width_pkpc / 1000)
+    reg_dict = phot.lum(reg, kappa=0.0795, tag=tag, BC_fac=1,
+                        IMF='Chabrier_300',
+                        filters=(f,), Type=Type, log10t_BC=7.,
+                        extinction=extinction, orientation=orientation,
+                        width=width_pkpc / 1000)
 
     print("Got the dictionary for the region's groups:",
           len(reg_dict) - 5, "groups to  test")
 
     # Extract region centre and radius
-    region_cent, region_rad = reg_dict["region_cent"], reg_dict["region_radius"]
+    region_cent, region_rad = reg_dict["region_cent"], reg_dict[
+        "region_radius"]
 
     # Define pixel area in pkpc
     single_pixel_area = arc_res * arc_res \
@@ -205,7 +216,7 @@ if not exists:
         # --- initialise ImageCreator object
         image_creator = imagesim.Idealised(f, field)
 
-        print("Creating image for Filter, Pixel noise, Depth:",
+        print("Creating image for Filter, Pixel noise nJy, Pixel noise erg s^-1 Hz^-1, Depth:",
               f, image_creator.pixel.noise, field.depths[f])
 
         fdepth = f + "." + str(depth)
@@ -289,9 +300,9 @@ if not exists:
 
                 if Type != "Intrinsic":
                     img = signal.fftconvolve(img, psf, mode="same")
-                    # mimg = signal.fftconvolve(mimg, psf, mode="same")
+                    mimg = signal.fftconvolve(mimg, psf, mode="same")
 
-                img, img_obj = util.noisy_img(img, image_creator)
+                img, img_obj = util.noisy_img_lum(img, image_creator, cosmo, z)
 
             else:
 
@@ -316,11 +327,11 @@ if not exists:
                     img = signal.fftconvolve(img, psf, mode="same")
                     mimg = signal.fftconvolve(mimg, psf, mode="same")
 
-                img, img_obj = util.noisy_img(img, image_creator)
+                img, img_obj = util.noisy_img_lum(img, image_creator, cosmo, z)
 
             imgs[ind, :, :] = img
             mass_imgs[ind, :, :] = mimg
-            noise[ind] = image_creator.pixel.noise
+            noise[ind] = flux_to_lum(image_creator.pixel.noise, cosmo, z)
 
             begin[ind] = len(fluxes)
             Slen[ind] = len(this_smls)
@@ -429,7 +440,6 @@ if not exists:
     star_pos = []
 
     for key in image_keys:
-
         ind = key
 
         this_pos = reg_dict[key]["coords"] * 10 ** 3 * arcsec_per_kpc_proper

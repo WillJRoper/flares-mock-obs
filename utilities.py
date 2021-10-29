@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 import numba as nb
 import numpy as np
 from astropy.cosmology import Planck13 as cosmo
+from flare.photom import flux_to_lum
 from photutils import aperture_photometry
 from scipy.interpolate import interp1d
 from scipy.optimize import curve_fit
@@ -351,7 +352,6 @@ def img_loop(star_tup, imgrange, Ndim):
 
 
 def quartic_spline(q):
-
     k3 = 7 / (478 * np.pi)
 
     w = np.zeros_like(q)
@@ -382,7 +382,6 @@ def cubic_spline(q):
 
 def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
                     spline_func=quartic_spline, spline_cut_off=5 / 2):
-
     # Define 2D projected particle position array
     part_pos = pos[:, (i, j)]
 
@@ -462,7 +461,7 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids,
             smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][
                 pop_vals == 0] = subgrpid
             smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][pop_vals != 0] = \
-            pop_vals[pop_vals != 0] + (
+                pop_vals[pop_vals != 0] + (
                         np.abs(pop_vals[pop_vals != 0] - subgrpid) / 2)
         else:
             smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] = subgrpid
@@ -780,6 +779,24 @@ def noisy_img(true_img, image_creator):
     img.wht = 1. / img.noise ** 2
     img.bkg = image_creator.pixel.noise * np.random.randn(width_pixels,
                                                           width_pixels)
+
+    noisy_img = true_img + img.bkg
+
+    return noisy_img, img
+
+
+def noisy_img_lum(true_img, image_creator, cosmo, z):
+    # --- create an Image object with the required size
+    width_pixels = true_img.shape[0]
+
+    img = imagesim.Image()
+    img.nJy_to_es = image_creator.nJy_to_es
+    img.pixel_scale = image_creator.pixel_scale
+    img.noise = flux_to_lum(image_creator.pixel.noise, cosmo, z) \
+                * np.ones((width_pixels, width_pixels))
+    img.wht = 1. / img.noise ** 2
+    img.bkg = flux_to_lum(image_creator.pixel.noise, cosmo, z) \
+              * np.random.randn(width_pixels, width_pixels)
 
     noisy_img = true_img + img.bkg
 
