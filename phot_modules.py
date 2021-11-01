@@ -158,7 +158,7 @@ def get_data(reg, snap, r):
 
 def lum(sim, kappa, tag, BC_fac, inp='FLARES', IMF='Chabrier_300', LF=True,
         filters=('FAKE.TH.FUV',), Type='Total', log10t_BC=7.,
-        extinction='default', orientation="sim", , width=1):
+        extinction='default', orientation="sim", width=1):
 
     kinp = np.load('/cosma7/data/dp004/dc-payy1/my_files/'
                    'los/kernel_sph-anarchy.npz',
