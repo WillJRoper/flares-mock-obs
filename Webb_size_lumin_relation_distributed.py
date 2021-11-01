@@ -95,7 +95,7 @@ arcsec_per_kpc_proper = cosmo.arcsec_per_kpc_proper(z).value
 # Define widths
 full_ini_width_kpc = 30000
 full_ini_width = full_ini_width_kpc * arcsec_per_kpc_proper
-ini_width = 30
+ini_width = 40
 ini_width_pkpc = ini_width / arcsec_per_kpc_proper
 
 f = filters[filter_ind]
@@ -428,6 +428,9 @@ if not exists:
     subgrpids = []
     star_pos = []
 
+    gal_flux = []
+    gal_hlr = []
+
     for key in image_keys:
 
         ind = key
@@ -462,6 +465,22 @@ if not exists:
         masses.extend(this_masses)
         subgrpids.extend(this_subgrpids)
 
+        # Get unique subgroup ids
+        uni_subgrp = np.unique(this_subgrpids)
+
+        # Loop over ids and calculate galaxy properties
+        for gal in uni_subgrp:
+            okinds = this_subgrpids == gal
+            gal_pos = this_pos[okinds]
+            gal_flux = this_flux[okinds]
+
+            cent = util.lumin_weighted_centre3d(gal_pos, gal_flux)
+            rs = util.calc_3drad(gal_pos - cent)
+            hlr = util.calc_light_mass_rad(rs, gal_flux, radii_frac=0.5)
+
+            gal_flux.append(np.sum(gal_flux))
+            gal_hlr.append(hlr)
+
     fdepth_group = hdf.create_group(str(depth))
 
     img_num = np.array(img_num)
@@ -472,6 +491,8 @@ if not exists:
     star_pos = np.array(star_pos)
     begin = np.array(begin)
     Slen = np.array(Slen)
+    gal_flux = np.array(gal_flux)
+    gal_hlr = np.array(gal_hlr)
 
     dset = fdepth_group.create_dataset("Image_ID", data=img_num,
                                        dtype=img_num.dtype,
@@ -492,6 +513,20 @@ if not exists:
                                        shape=gal_mass.shape,
                                        compression="gzip")
     dset.attrs["units"] = "$M_\odot$"
+
+    dset = fdepth_group.create_dataset("Galaxy Flux",
+                                       data=gal_flux,
+                                       dtype=gal_flux.dtype,
+                                       shape=gal_flux.shape,
+                                       compression="gzip")
+    dset.attrs["units"] = "nJy"
+
+    dset = fdepth_group.create_dataset("Galaxy HLR",
+                                       data=gal_hlr,
+                                       dtype=gal_hlr.dtype,
+                                       shape=gal_hlr.shape,
+                                       compression="gzip")
+    dset.attrs["units"] = "pkpc"
 
     dset = fdepth_group.create_dataset("Start_Index", data=begin,
                                        dtype=begin.dtype,

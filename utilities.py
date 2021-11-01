@@ -674,6 +674,12 @@ def lumin_weighted_centre(poss, ls, i, j):
     return cent
 
 
+def lumin_weighted_centre3d(poss, ls):
+    cent = np.average(poss, axis=0, weights=ls)
+
+    return cent
+
+
 def calc_light_mass_rad(rs, ls, radii_frac=0.5):
     # Sort the radii and masses
     sinds = np.argsort(rs)
