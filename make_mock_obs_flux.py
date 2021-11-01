@@ -428,8 +428,8 @@ if not exists:
     subgrpids = []
     star_pos = []
 
-    gal_flux = []
-    gal_hlr = []
+    gal_fluxs = []
+    gal_hlrs = []
 
     for key in image_keys:
 
@@ -478,8 +478,8 @@ if not exists:
             rs = util.calc_3drad(gal_pos - cent)
             hlr = util.calc_light_mass_rad(rs, gal_flux, radii_frac=0.5)
 
-            gal_flux.append(np.sum(gal_flux))
-            gal_hlr.append(hlr)
+            gal_fluxs.append(np.sum(gal_flux))
+            gal_hlrs.append(hlr)
 
     fdepth_group = hdf.create_group(str(depth))
 
@@ -491,8 +491,8 @@ if not exists:
     star_pos = np.array(star_pos)
     begin = np.array(begin)
     Slen = np.array(Slen)
-    gal_flux = np.array(gal_flux)
-    gal_hlr = np.array(gal_hlr)
+    gal_fluxs = np.array(gal_fluxs)
+    gal_hlrs = np.array(gal_hlrs)
 
     dset = fdepth_group.create_dataset("Image_ID", data=img_num,
                                        dtype=img_num.dtype,
@@ -515,16 +515,16 @@ if not exists:
     dset.attrs["units"] = "$M_\odot$"
 
     dset = fdepth_group.create_dataset("Galaxy Flux",
-                                       data=gal_flux,
-                                       dtype=gal_flux.dtype,
-                                       shape=gal_flux.shape,
+                                       data=gal_fluxs,
+                                       dtype=gal_fluxs.dtype,
+                                       shape=gal_fluxs.shape,
                                        compression="gzip")
     dset.attrs["units"] = "nJy"
 
     dset = fdepth_group.create_dataset("Galaxy HLR",
-                                       data=gal_hlr,
-                                       dtype=gal_hlr.dtype,
-                                       shape=gal_hlr.shape,
+                                       data=gal_hlrs,
+                                       dtype=gal_hlrs.dtype,
+                                       shape=gal_hlrs.shape,
                                        compression="gzip")
     dset.attrs["units"] = "pkpc"
 
