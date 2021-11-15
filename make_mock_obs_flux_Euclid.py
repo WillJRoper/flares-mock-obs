@@ -108,8 +108,9 @@ if not exists:
     hdf.attrs["Magnitude Depths"] = depths_m
 
     # --- initialise ImageCreator object
+    field.pixel_scale = 0.3
+    field.depth_aperture_radius_arcsec = 1
     image_creator = imagesim.Idealised(f, field)
-    image_creator.pixel_scale = 0.3
     print(f, image_creator.pixel_scale)
     arc_res = image_creator.pixel_scale
     arc_res_kpc = arc_res / arcsec_per_kpc_proper
