@@ -109,7 +109,8 @@ if not exists:
 
     # --- initialise ImageCreator object
     field.pixel_scale = 0.3
-    field.depth_aperture_radius_arcsec = 1
+    field.depth_aperture_radius_arcsec = 0.35/2.
+    field.depth_aperture_significance = 5
     image_creator = imagesim.Idealised(f, field)
     print(f, image_creator.pixel_scale)
     arc_res = image_creator.pixel_scale
