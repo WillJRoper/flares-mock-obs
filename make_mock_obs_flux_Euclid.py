@@ -78,8 +78,8 @@ depths = [m_to_flux(d) for d in depths_m]
 z_str = tag.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
 
-survey_id = 'XDF'  # the XDF (updated HUDF)
-field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
+survey_id = 'Euclid'
+field_id = 'Deep'
 
 # Get field info object. This contains the filters, depths,
 # image location etc. (if real image)
