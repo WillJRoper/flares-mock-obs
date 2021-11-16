@@ -22,7 +22,7 @@ i=$(($SLURM_ARRAY_TASK_ID - 1))
 
 # Run the program
 #mpiexec -np 9 ./make_mock_obs_flux.py $i sim Total
-mpiexec -np 4 ./make_mock_obs_flux_Euclid.py $i sim Total
+mpiexec -np 3 ./make_mock_obs_flux_Euclid.py $i sim Total
 #mpiexec -np 12 ./make_mock_obs_lums.py $i sim Total
 
 source deactivate
