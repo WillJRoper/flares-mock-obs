@@ -68,8 +68,7 @@ print("Creating images with orientation {o}, type {t}, and extinction {e}"
                                                 e=extinction, x=reg, u=tag))
 
 # Define filter
-filters = [f'Euclid.NISP.{f}'
-           for f in ['Y','J','H']] + [f'Euclid.VIS.VIS', ]
+filters = [f'Euclid.NISP.{f}' for f in ['Y','J','H']]
 
 # Set up depths relative to the Xtreme deep field
 depths_m = [24, 26]
