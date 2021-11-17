@@ -71,7 +71,9 @@ print("Creating images with orientation {o}, type {t}, and extinction {e}"
 filters = [f'Euclid.NISP.{f}' for f in ['Y','J','H']]
 
 # Set up depths relative to the Xtreme deep field
-depths_m = [23.24, 23.24 + 2]
+depths_m = [23.24, 25.24, 24, 26]
+depths_aperture = [2, 2, 2, 2]
+depths_significance = [10, 10, 5, 5]
 depths = [m_to_flux(d) for d in depths_m]
 
 z_str = tag.split('z')[1].split('p')
@@ -108,7 +110,7 @@ if not exists:
 
     # --- initialise ImageCreator object
     field.pixel_scale = 0.3
-    field.depth_aperture_radius_arcsec = 3/2.
+    field.depth_aperture_radius_arcsec = 2/2.
     field.depth_aperture_significance = 10
     image_creator = imagesim.Idealised(f, field)
     print(f, image_creator.pixel_scale)
@@ -205,6 +207,8 @@ if not exists:
         field.depths[f] = depth
 
         # --- initialise ImageCreator object
+        field.depth_aperture_radius_arcsec = depths_aperture[num] / 2.
+        field.depth_aperture_significance = depths_significance[num]
         image_creator = imagesim.Idealised(f, field)
 
         print("Creating image for Filter, Pixel noise, Depth:",

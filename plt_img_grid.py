@@ -328,7 +328,7 @@ while ind < n_img:
         plt_img = img_dict[d]["Mass"]
         ax.imshow(plt_img, cmap="plasma", norm=mimg_norm)
 
-        ax.set_ylabel(r"m_{AB}=$%.1f$"
+        ax.set_ylabel(r"$m_{AB}=$$%.1f$"
                       % (depths_m[i]), fontsize=6)
 
         if i == 0:
