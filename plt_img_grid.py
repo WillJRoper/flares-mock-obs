@@ -143,14 +143,14 @@ while ind < n_img:
 
             hdf.close()
 
-    lams = []
-    for f in filters:
-        if f.split(".")[1] == "WFC3":
-            lams.append(int(re.findall(r'\d+', f.split(".")[-1])[0]) * 100)
-        else:
-            lams.append(int(re.findall(r'\d+', f.split(".")[-1])[0]) * 10)
-    lams = np.array(lams)
-    lams_sinds = np.argsort(lams)
+    # lams = []
+    # for f in filters:
+    #     if f.split(".")[1] == "WFC3":
+    #         lams.append(int(re.findall(r'\d+', f.split(".")[-1])[0]) * 100)
+    #     else:
+    #         lams.append(int(re.findall(r'\d+', f.split(".")[-1])[0]) * 10)
+    # lams = np.array(lams)
+    # lams_sinds = np.argsort(lams)
 
     segms = {}
     db_segms = {}
