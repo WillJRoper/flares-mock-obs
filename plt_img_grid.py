@@ -126,7 +126,7 @@ while ind < n_img:
 
     for depth, mdepth in zip(depths, depths_m):
         for f in filters:
-            hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
+            hdf = h5py.File("mock_data/flares_mock_Euclid_{}_{}_{}_{}_{}.hdf5"
                             .format(reg, snap, Type, orientation, f), "r")
 
             fdepth_group = hdf[str(depth)]
