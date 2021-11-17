@@ -78,7 +78,7 @@ n_img = int(sys.argv[5])
 ind = 0
 
 hdf = h5py.File("mock_data/flares_mock_Euclid_{}_{}_{}_{}_{}.hdf5"
-                        .format(reg, tag, Type, orientation, filters[-1]), "r")
+                        .format(reg, snap, Type, orientation, filters[-1]), "r")
 
 imgs = hdf[str(depths[0])]["Images"][:]
 sinds = np.argsort(np.nansum(imgs, axis=(1, 2)))[::-1]
@@ -403,7 +403,7 @@ while ind < n_img:
     # flux_ax.set_xlabel(r"$\lambda / [\AA]$")
     # flux_ax.legend()
 
-    fig.savefig("plots/gal_img_grid_Orientation-"
+    fig.savefig("plots/gal_img_grid_Orientation-Euclid-"
                 + orientation + "_Type-" + Type
                 + "_Region-" + reg + "_Snap-" + snap + "_Group-"
                 + str(img_ind) + ".png", bbox_inches="tight")
