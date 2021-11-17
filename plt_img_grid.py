@@ -93,21 +93,21 @@ kernel.normalize()
 quantities = ('label', 'kron_flux')
 
 # Remove filters beyond the lyman break
-detect_filters = []
-for f in filters:
-    f_split = f.split(".")
-    inst = f.split(".")[1]
-    filt = f.split(".")[-1]
-    if len(filt) == 5:
-        wl = int(filt[1:-1])
-    else:
-        wl = int(filt[1:-2])
-    if inst == "ACS":
-        if wl * 10 > (912 * (1 + z)):
-            detect_filters.append(f)
-    else:
-        if wl * 100 > (912 * (1 + z)):
-            detect_filters.append(f)
+detect_filters = filters
+# for f in filters:
+#     f_split = f.split(".")
+#     inst = f.split(".")[1]
+#     filt = f.split(".")[-1]
+#     if len(filt) == 5:
+#         wl = int(filt[1:-1])
+#     else:
+#         wl = int(filt[1:-2])
+#     if inst == "ACS":
+#         if wl * 10 > (912 * (1 + z)):
+#             detect_filters.append(f)
+#     else:
+#         if wl * 100 > (912 * (1 + z)):
+#             detect_filters.append(f)
 
 print("Lyman break at", 912 * (1 + z), "A")
 print("Filters rdder then the Lyman break:", detect_filters)
