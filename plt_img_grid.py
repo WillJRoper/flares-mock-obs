@@ -44,19 +44,26 @@ orientation = sys.argv[3]
 Type = sys.argv[4]
 extinction = 'default'
 
+# # Define filter
+# filters = [f'Hubble.ACS.{f}'
+#            for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
+#           + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+
 # Define filter
-filters = [f'Hubble.ACS.{f}'
-           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
-          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+filters = [f'Euclid.NISP.{f}' for f in ['Y','J','H']]
+
+# # Set up depths relative to the Xtreme deep field
+# XDF_depth_m = 31.2
+# XDF_depth_flux = m_to_flux(XDF_depth_m)
+# depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
+#           XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
+# depths_m = [flux_to_m(d) for d in depths]
+# print(depths)
+# print([d / 5 for d in depths])
 
 # Set up depths relative to the Xtreme deep field
-XDF_depth_m = 31.2
-XDF_depth_flux = m_to_flux(XDF_depth_m)
-depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
-          XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
-depths_m = [flux_to_m(d) for d in depths]
-print(depths)
-print([d / 5 for d in depths])
+depths_m = [23.24, 23.24 + 2]
+depths = [m_to_flux(d) for d in depths_m]
 
 reg_ind = int(sys.argv[1])
 snap_ind = int(sys.argv[2])
@@ -321,8 +328,8 @@ while ind < n_img:
         plt_img = img_dict[d]["Mass"]
         ax.imshow(plt_img, cmap="plasma", norm=mimg_norm)
 
-        ax.set_ylabel(r"$%.2f \times m_{\mathrm{XDF}}$"
-                      % (depths[i] / XDF_depth_flux), fontsize=6)
+        ax.set_ylabel(r"m_{AB}=$%.1f$"
+                      % (depths_m[i]), fontsize=6)
 
         if i == 0:
             ax.set_title("Mass")
