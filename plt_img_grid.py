@@ -77,8 +77,8 @@ n_img = int(sys.argv[5])
 
 ind = 0
 
-hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                .format(reg, snap, Type, orientation, filters[-1]), "r")
+hdf = h5py.File("mock_data/flares_mock_Euclid_{}_{}_{}_{}_{}.hdf5"
+                        .format(reg, tag, Type, orientation, filters[-1]), "r")
 
 imgs = hdf[str(depths[0])]["Images"][:]
 sinds = np.argsort(np.nansum(imgs, axis=(1, 2)))[::-1]
