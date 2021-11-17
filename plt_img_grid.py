@@ -114,7 +114,7 @@ print("Filters rdder then the Lyman break:", detect_filters)
 
 while ind < n_img:
 
-    img_ind = sinds[ind]
+    img_ind = ind
 
     print("Creating image", ind, img_ind)
 
