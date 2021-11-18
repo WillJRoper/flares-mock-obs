@@ -62,7 +62,7 @@ filters = [f'Euclid.NISP.{f}' for f in ['Y','J','H']]
 # print([d / 5 for d in depths])
 
 # Set up depths relative to the Xtreme deep field
-depths_m = [23.24, 23.24 + 2]
+depths_m = [23.24, 24, 25.24, 26]
 depths = [m_to_flux(d) for d in depths_m]
 
 reg_ind = int(sys.argv[1])
