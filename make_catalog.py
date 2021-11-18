@@ -17,7 +17,7 @@ import photutils as phut
 from astropy.convolution import Gaussian2DKernel
 import sys
 import utilities as util
-from flare.photom import m_to_flux, flux_to_m
+from flare.photom import m_to_flux
 import eritlux.simulations.imagesim as imagesim
 import flare.surveys as survey
 import gc
@@ -72,37 +72,45 @@ if rank == 0:
 z_str = snap.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
 
+# # Define filter
+# filters = [f'Hubble.ACS.{f}'
+#            for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
+#           + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+#
+# # Set up depths relative to the Hubble Xtreme deep field
+# XDF_depth_m = 31.2
+# XDF_depth_flux = m_to_flux(XDF_depth_m)
+# depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
+#           XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
+# depths_m = [flux_to_m(d) for d in depths]
 # Define filter
-filters = [f'Hubble.ACS.{f}'
-           for f in ['f435w', 'f606w', 'f775w', 'f814w', 'f850lp']] \
-          + [f'Hubble.WFC3.{f}' for f in ['f105w', 'f125w', 'f140w', 'f160w']]
+filters = [f'Euclid.NISP.{f}' for f in ['Y', 'J', 'H']]
 
-# Set up depths relative to the Hubble Xtreme deep field
-XDF_depth_m = 31.2
-XDF_depth_flux = m_to_flux(XDF_depth_m)
-depths = [XDF_depth_flux * 0.01, XDF_depth_flux * 0.1,
-          XDF_depth_flux, 10 * XDF_depth_flux, 100 * XDF_depth_flux]
-depths_m = [flux_to_m(d) for d in depths]
+# Set up depths relative to the Xtreme deep field
+depths_m = [23.24, 25.24, 24, 26]
+depths_aperture = [2, 2, 2, 2]
+depths_significance = [10, 10, 5, 5]
+depths = [m_to_flux(d) for d in depths_m]
 
 depths.append("SUBFIND")
 depths_m.append("SUBFIND")
 
 # Remove filters beyond the lyman break
-detect_filters = []
-for f in filters:
-    f_split = f.split(".")
-    inst = f.split(".")[1]
-    filt = f.split(".")[-1]
-    if len(filt) == 5:
-        wl = int(filt[1:-1])
-    else:
-        wl = int(filt[1:-2])
-    if inst == "ACS":
-        if wl * 10 > (912 * (1 + z)):
-            detect_filters.append(f)
-    else:
-        if wl * 100 > (912 * (1 + z)):
-            detect_filters.append(f)
+detect_filters = filters
+# for f in filters:
+#     f_split = f.split(".")
+#     inst = f.split(".")[1]
+#     filt = f.split(".")[-1]
+#     if len(filt) == 5:
+#         wl = int(filt[1:-1])
+#     else:
+#         wl = int(filt[1:-2])
+#     if inst == "ACS":
+#         if wl * 10 > (912 * (1 + z)):
+#             detect_filters.append(f)
+#     else:
+#         if wl * 100 > (912 * (1 + z)):
+#             detect_filters.append(f)
 if rank == 0:
     print("Lyman break at", 912 * (1 + z), "A")
     print("Filters redder then the Lyman break:", detect_filters)
@@ -113,8 +121,8 @@ radii_fracs = (0.2, 0.5, 0.8)
 z_str = tag.split('z')[1].split('p')
 z = float(z_str[0] + '.' + z_str[1])
 
-survey_id = 'XDF'  # the XDF (updated HUDF)
-field_id = 'dXDF'  # deepest sub-region of XDF (defined by a mask)
+survey_id = 'Euclid'
+field_id = 'Deep'
 
 # Get field info object. This contains the filters, depths,
 # image location etc. (if real image)
@@ -163,14 +171,14 @@ obs_data = {}
 
 subf_data = {}
 
-exists = os.path.isfile("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                        .format(reg, snap, Type, orientation,
-                            detect_filters[0]))
+exists = os.path.isfile("mock_data/flares_mock_Euclid_{}_{}_{}_{}_{}.hdf5"
+                        .format(reg, tag, Type, orientation,
+                                detect_filters[0]))
 
 if exists:
-    hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                    .format(reg, snap, Type, orientation,
-                            detect_filters[0]), "r")
+    hdf = h5py.File("mock_data/flares_mock_Euclid_{}_{}_{}_{}_{}.hdf5"
+                    .format(reg, tag, Type, orientation, detect_filters[0]),
+                    "r")
 
     fdepth_group = hdf[str(depths[0])]
 
@@ -218,8 +226,8 @@ if len(my_img_ids) > 0:
 
                 try:
                     hdf = h5py.File(
-                        "mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                            .format(reg, snap, Type, orientation, f), "r")
+                        "mock_data/flares_mock_Euclid_{}_{}_{}_{}_{}.hdf5"
+                            .format(reg, tag, Type, orientation, f), "r")
                 except OSError as e:
                     # print(e)
                     continue
@@ -258,7 +266,6 @@ if len(my_img_ids) > 0:
                     for flux, i, subgrpid, pos in zip(
                             fluxes[beg: beg + img_len],
                             inverse_inds, this_subgrpids, this_pos):
-
                         this_flux[i] += flux
                         this_poss.setdefault(i, []).append(pos)
                         this_fluxs.setdefault(i, []).append(flux)
@@ -269,9 +276,9 @@ if len(my_img_ids) > 0:
                         this_poss[i] = np.array(this_poss[i]) - com
                         this_fluxs[i] = np.array(this_fluxs[i])
 
-                    this_rads = {i: np.sqrt(this_poss[i][:, 0]**2
-                                            + this_poss[i][:, 1]**2
-                                            + this_poss[i][:, 2]**2)
+                    this_rads = {i: np.sqrt(this_poss[i][:, 0] ** 2
+                                            + this_poss[i][:, 1] ** 2
+                                            + this_poss[i][:, 2] ** 2)
                                  for i in this_poss.keys()}
 
                     this_hlrs = [util.calc_light_mass_rad(this_rads[i],
@@ -309,11 +316,12 @@ if len(my_img_ids) > 0:
                 if rank == 0:
                     print("Creating detection image for "
                           "filter {i}, and depth {d}"
-                            .format(i=f, d=depth))
+                          .format(i=f, d=depth))
 
-                hdf = h5py.File("mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                                .format(reg, snap, Type, orientation, f),
-                                "r")
+                hdf = h5py.File(
+                    "mock_data/flares_mock_Euclid_{}_{}_{}_{}_{}.hdf5"
+                        .format(reg, tag, Type, orientation, f),
+                    "r")
 
                 try:
                     fdepth_group = hdf[str(depth)]
@@ -379,11 +387,11 @@ if len(my_img_ids) > 0:
                     arc_res = image_creator.pixel_scale
                     kpc_res = arc_res / arcsec_per_kpc_proper
 
-                    single_pix_area = kpc_res**2
+                    single_pix_area = kpc_res ** 2
 
                     hdf = h5py.File(
-                        "mock_data/flares_segm_{}_{}_{}_{}_{}.hdf5"
-                            .format(reg, snap, Type, orientation, f), "r")
+                        "mock_data/flares_mock_Euclid_{}_{}_{}_{}_{}.hdf5"
+                        .format(reg, tag, Type, orientation, f), "r")
 
                     try:
 
@@ -491,7 +499,8 @@ if len(my_img_ids) > 0:
                             source_cat.fluxfrac_radius(0.5) * kpc_res)
                     except (ValueError, TypeError) as e:
                         obs_data[f + "." + str(depth)].setdefault(
-                            "Kron_HMR", []).extend(np.zeros_like(tab['kron_flux']))
+                            "Kron_HMR", []).extend(
+                            np.zeros_like(tab['kron_flux']))
                         continue
 
 collected_subf_data = comm.gather(subf_data, root=0)
@@ -530,7 +539,7 @@ if rank == 0 and exists:
                                 "Start_Index"]))
                 else:
                     out_subf_data[f + "." + str(d)].setdefault(key,
-                                                                   []).extend(
+                                                               []).extend(
                         res[f + "." + str(d)][key])
 
     out_obs_data = {}
@@ -541,17 +550,18 @@ if rank == 0 and exists:
             out_obs_data.setdefault(f + "." + str(d), {})
             for key in collected_obs_data[0][f + "." + str(d)]:
                 for res in collected_obs_data:
-                    if len(res) == 0 or not 'Kron_HLR' in res[f + "." + str(d)]:
+                    if len(res) == 0 or not 'Kron_HLR' in res[
+                        f + "." + str(d)]:
                         continue
                     if key == "Start_Index":
                         out_obs_data[f + "." + str(d)].setdefault(key,
-                                                                      []).extend(
+                                                                  []).extend(
                             np.array(res[f + "." + str(d)][key]) + len(
                                 out_obs_data[f + "." + str(d)][
                                     "Start_Index"]))
                     else:
                         out_obs_data[f + "." + str(d)].setdefault(key,
-                                                                      []).extend(
+                                                                  []).extend(
                             res[f + "." + str(d)][key])
 
     for f in filters:
