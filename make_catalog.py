@@ -308,6 +308,9 @@ if len(my_img_ids) > 0:
 
             for f in detect_filters:
 
+                field.depth_aperture_radius_arcsec = depths_aperture[num] / 2.
+                field.depth_aperture_significance = depths_significance[num]
+
                 # --- initialise ImageCreator object
                 image_creator = imagesim.Idealised(f, field)
 
