@@ -310,6 +310,7 @@ if len(my_img_ids) > 0:
 
                 field.depth_aperture_radius_arcsec = depths_aperture[num] / 2.
                 field.depth_aperture_significance = depths_significance[num]
+                field.pixel_scale = 0.3
 
                 # --- initialise ImageCreator object
                 image_creator = imagesim.Idealised(f, field)
