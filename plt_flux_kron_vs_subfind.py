@@ -153,7 +153,7 @@ for n_z in range(len(snaps)):
                edgecolor="grey",
                label="SUBFIND ({})".format(n),
                alpha=0.6, align="edge")
-
+        i = 0
         for depth in depths:
 
             fdepth = f + "." + str(depth)
@@ -168,11 +168,10 @@ for n_z in range(len(snaps)):
             print(f"Kron ({depth}):", n)
 
             ax.plot(bin_edges[:-1], H,
-                    label=r"$%.2f \times m_{\mathrm{XDF}}$ (%d)"
-                          % ((depth / XDF_depth_flux), n))
+                    label=r"$m_{AB}=$$%.1f$ (%d)" % (depths_m[i], n))
             ax1.plot(bin_edges[:-1], H / sub_H,
-                     label=r"$%.2f \times m_{\mathrm{XDF}}$ (%d)"
-                          % ((depth / XDF_depth_flux), n))
+                     label=r"$m_{AB}=$$%.1f$ (%d)" % (depths_m[i], n))
+            i += 1
         ax.tick_params(axis='x', top=False, bottom=False,
                        labeltop=False, labelbottom=False)
 
