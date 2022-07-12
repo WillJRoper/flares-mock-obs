@@ -160,7 +160,7 @@ def get_Z_LOS(s_cood, g_cood, g_mass, g_Z, g_sml, dimens, lkernel, kbins):
 
         Z_los_SD[ii] = np.sum((thisgmass * thisgZ /
                                (thisgsml * thisgsml)) * kernel_vals) \
-                       * conv  # in units of Msun/pc^2
+            * conv  # in units of Msun/pc^2
 
     return Z_los_SD
 
@@ -205,13 +205,13 @@ def get_rotation_matrix(i_v, unit=None):
 
     # Compute rotation matrix - re-expressed to show structure
     return (
-            rcos * np.eye(3) +
-            rsin * np.array([
-        [0, -w, v],
-        [w, 0, -u],
-        [-v, u, 0]
-    ]) +
-            (1.0 - rcos) * uvw[:, None] * uvw[None, :]
+        rcos * np.eye(3) +
+        rsin * np.array([
+            [0, -w, v],
+            [w, 0, -u],
+            [-v, u, 0]
+        ]) +
+        (1.0 - rcos) * uvw[:, None] * uvw[None, :]
     )
 
 
@@ -316,11 +316,11 @@ def calc_eigenvec(coods):
     e_vectors = e_vectors[sort_idx, :]
 
     a = ((5. / (2 * len(coods))) * (
-            e_values[1] + e_values[2] - e_values[0])) ** 0.5
+        e_values[1] + e_values[2] - e_values[0])) ** 0.5
     b = ((5. / (2 * len(coods))) * (
-            e_values[0] + e_values[2] - e_values[1])) ** 0.5
+        e_values[0] + e_values[2] - e_values[1])) ** 0.5
     c = ((5. / (2 * len(coods))) * (
-            e_values[0] + e_values[1] - e_values[2])) ** 0.5
+        e_values[0] + e_values[1] - e_values[2])) ** 0.5
 
     #     print a, b, c
 
@@ -352,6 +352,7 @@ def img_loop(star_tup, imgrange, Ndim):
 
 
 def quartic_spline(q):
+
     k3 = 7 / (478 * np.pi)
 
     w = np.zeros_like(q)
@@ -360,10 +361,10 @@ def quartic_spline(q):
     okinds3 = np.logical_and(3 / 2 <= q, q < 5 / 2)
 
     w[okinds1] = (5 / 2 - q[okinds1]) ** 4 \
-                 - 5 * (3 / 2 - q[okinds1]) ** 4 \
-                 + 10 * (1 / 2 - q[okinds1]) ** 4
+        - 5 * (3 / 2 - q[okinds1]) ** 4 \
+        + 10 * (1 / 2 - q[okinds1]) ** 4
     w[okinds2] = (5 / 2 - q[okinds2]) ** 4 \
-                 - 5 * (3 / 2 - q[okinds2]) ** 4
+        - 5 * (3 / 2 - q[okinds2]) ** 4
     w[okinds3] = (5 / 2 - q[okinds3]) ** 4
 
     return k3 * w
@@ -382,6 +383,7 @@ def cubic_spline(q):
 
 def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
                     spline_func=quartic_spline, spline_cut_off=5 / 2):
+
     # Define 2D projected particle position array
     part_pos = pos[:, (i, j)]
 
@@ -419,6 +421,53 @@ def make_spline_img(pos, Ndim, i, j, tree, ls, smooth,
         smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] += l * norm_kernel
 
     return smooth_img
+
+
+def make_spline_img_3d(part_pos, Ndim, i, j, k, tree, ls, smooth,
+                       spline_func=cubic_spline, spline_cut_off=1):
+    # Define 2D projected particle position array
+    pos = np.zeros_like(part_pos)
+    pos[:, 0] = part_pos[:, i]
+    pos[:, 1] = part_pos[:, j]
+    pos[:, 2] = part_pos[:, k]
+
+    # Initialise the image array
+    smooth_img = np.zeros((Ndim, Ndim, Ndim), dtype=np.float32)
+
+    # Define x and y positions of pixels
+    X, Y, Z = np.meshgrid(np.arange(0, Ndim, 1),
+                          np.arange(0, Ndim, 1),
+                          np.arange(0, Ndim, 1))
+
+    # Define pixel position array for the KDTree
+    pix_pos = np.zeros((X.size, 3), dtype=int)
+    pix_pos[:, 0] = X.ravel()
+    pix_pos[:, 1] = Y.ravel()
+    pix_pos[:, 2] = Z.ravel()
+
+    for ipos, l, sml in zip(pos, ls, smooth):
+
+        # Query the tree for this particle
+        dist, inds = tree.query(ipos, k=pos.shape[0],
+                                distance_upper_bound=spline_cut_off * sml)
+
+        if type(dist) is float:
+            continue
+
+        okinds = dist < spline_cut_off * sml
+        dist = dist[okinds]
+        inds = inds[okinds]
+
+        # Get the kernel
+        w = spline_func(dist / sml)
+
+        # Place the kernel for this particle within the img
+        kernel = w / sml ** 3
+        norm_kernel = kernel / np.sum(kernel)
+        smooth_img[pix_pos[inds, 0], pix_pos[inds, 1], pix_pos[
+            inds, 2]] += l * norm_kernel
+
+    return np.sum(smooth_img, axis=-1)
 
 
 def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids,
@@ -462,7 +511,7 @@ def make_subfind_spline_img(pos, Ndim, i, j, tree, ids, smooth, gal_ids,
                 pop_vals == 0] = subgrpid
             smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]][pop_vals != 0] = \
                 pop_vals[pop_vals != 0] + (
-                        np.abs(pop_vals[pop_vals != 0] - subgrpid) / 2)
+                np.abs(pop_vals[pop_vals != 0] - subgrpid) / 2)
         else:
             smooth_img[pix_pos[inds, 0], pix_pos[inds, 1]] = subgrpid
 
@@ -568,15 +617,15 @@ def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=5000,
         # Define sub image over which to compute the smooothing for this star (1/4 of the images size)
         # NOTE: this drastically speeds up image creation
         sub_xlow, sub_xhigh = x_img - int(sub_size / 2), \
-                              x_img + int(sub_size / 2) + 1
+            x_img + int(sub_size / 2) + 1
         sub_ylow, sub_yhigh = y_img - int(sub_size / 2), \
-                              y_img + int(sub_size / 2) + 1
+            y_img + int(sub_size / 2) + 1
 
         # Compute the image
         g = np.exp(-(((Gx[sub_xlow: sub_xhigh,
-                       sub_ylow: sub_yhigh] - x) ** 2
+                          sub_ylow: sub_yhigh] - x) ** 2
                       + (Gy[sub_xlow: sub_xhigh,
-                         sub_ylow: sub_yhigh] - y) ** 2)
+                            sub_ylow: sub_yhigh] - y) ** 2)
                      / (2.0 * sml ** 2)))
 
         # Get the sum of the gaussian
@@ -586,7 +635,7 @@ def make_soft_img(pos, Ndim, i, j, imgrange, ls, smooth, sub_size=5000,
         # add it to the image array
         if gsum > 0:
             gsmooth_img[sub_xlow: sub_xhigh,
-            sub_ylow: sub_yhigh] += g * l / gsum
+                        sub_ylow: sub_yhigh] += g * l / gsum
 
     # gsmooth_img, xedges, yedges = np.histogram2d(pos[:, i], pos[:, j],
     #                                      bins=Ndim,
@@ -630,7 +679,7 @@ def get_pixel_hlr(img, single_pix_area, radii_frac=0.5):
     sort_1d_img = np.sort(img.flatten())[::-1]
     sum_1d_img = np.cumsum(sort_1d_img)
     cumal_area = np.full_like(sum_1d_img, single_pix_area) \
-                 * np.arange(1, sum_1d_img.size + 1, 1)
+        * np.arange(1, sum_1d_img.size + 1, 1)
 
     npix = np.argmin(np.abs(sum_1d_img - half_l))
     cumal_area_cutout = cumal_area[np.max((npix - 10, 0)):
@@ -799,10 +848,10 @@ def noisy_img_lum(true_img, image_creator, cosmo, z):
     img.nJy_to_es = image_creator.nJy_to_es
     img.pixel_scale = image_creator.pixel_scale
     img.noise = flux_to_lum(image_creator.pixel.noise, cosmo, z) \
-                * np.ones((width_pixels, width_pixels))
+        * np.ones((width_pixels, width_pixels))
     img.wht = 1. / img.noise ** 2
     img.bkg = flux_to_lum(image_creator.pixel.noise, cosmo, z) \
-              * np.random.randn(width_pixels, width_pixels)
+        * np.random.randn(width_pixels, width_pixels)
 
     noisy_img = true_img + img.bkg
 
@@ -850,13 +899,13 @@ def plot_images(img, segm, sig, reg, f, depth, snap, ind, imgextent,
                  np.max((0, max_ind[1] - cutout_halfsize)),
                  np.min((plt_img.size, max_ind[1] + cutout_halfsize))]
     axes[3].imshow(plt_img[ind_slice[0]: ind_slice[1],
-                   ind_slice[2]: ind_slice[3]],
+                           ind_slice[2]: ind_slice[3]],
                    extent=imgextent, cmap="Greys_r")
     axes[4].imshow(segm[ind_slice[0]: ind_slice[1],
-                   ind_slice[2]: ind_slice[3]], extent=imgextent,
+                        ind_slice[2]: ind_slice[3]], extent=imgextent,
                    cmap="plasma")
     axes[5].imshow(sig[ind_slice[0]: ind_slice[1],
-                   ind_slice[2]: ind_slice[3]], extent=imgextent,
+                       ind_slice[2]: ind_slice[3]], extent=imgextent,
                    cmap="gist_rainbow")
 
     ax1.set_title(str(ini_width_pkpc) + " pkpc")
