@@ -81,10 +81,10 @@ def plot_meidan_stat(xs, ys, w, ax, lab, color, bins, ls='-'):
 def get_phot(num, tag, jwstFilter, sim):
     with h5py.File(sim, 'r') as hf:
         print(hf[
-            num+tag + "/Galaxy/BPASS_2.2.1/Chabrier300/Flux/DustModelI/JWST/NIRCAM"].keys(), jwstFilter)
-        flux = np.array(hf[
-            num+tag+'Galaxy/BPASS_2.2.1/Chabrier300/Flux/DustModelI/JWST/NIRCAM/'
-        ].get(jwstFilter), dtype = np.float64)
+            num+tag + "/Galaxy/BPASS_2.2.1/Chabrier300/Flux/DustModelI/JWST/NIRCAM/F090W"].keys(), jwstFilter)
+        flux = hf[
+            num+tag+'Galaxy/BPASS_2.2.1/Chabrier300/Flux/DustModelI/JWST/NIRCAM/' + jwstFilter
+        ][:]
     return flux
 
 def get_mass(num, tag, sim):
