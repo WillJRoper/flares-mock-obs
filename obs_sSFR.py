@@ -11,6 +11,7 @@ import os
 import astropy.units as u
 import astropy.constants as const
 import numpy as np
+from scipy.stats import binned_statistic
 from scipy.optimize import curve_fit
 from astropy.cosmology import FlatLambdaCDM
 import h5py
@@ -281,13 +282,14 @@ def sSFR_from_phot(bands, obs_flux, z, mass, rest_UV_wav_lims = [1250., 3000.] *
 
 if __name__ == "__main__":
 
+    zs = [5, 6, 7, 8, 9, 10]
+
     if os.path.exists("mass_ssfr_FLARES.csv"):
         
         df = pd.read_csv("mass_ssfr_FLARES.csv")
         
     else:
     
-        zs = [5, 6, 7, 8, 9, 10]
         bands = [band.replace("f", "F")
                  for band in ["f090W", "f115W", "f150W", "f200W",
                               "f277W", "f356W", "f444W"]]
