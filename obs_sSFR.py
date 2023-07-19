@@ -335,6 +335,8 @@ if __name__ == "__main__":
     # Set up plot
     fig = plt.figure()
     ax = fig.add_subplot(111)
+    ax.semilogy()
+    ax.grid(True)
 
     for i in range(len(mass_bins) - 1):
 
@@ -345,9 +347,11 @@ if __name__ == "__main__":
         plot_meidan_stat(df["Redshift"][okinds],
                          df["sSFR (M_sun / Gyr)"][okinds],
                          df["Weights"][okinds],
-                         ax, lab="", color=None, bins=z_bins, ls='-')
+                         ax, lab="%.2f" % mass_bins[i],
+                         color=None, bins=z_bins, ls='-')
 
-    ax.set_ylabel("sSFR (M_sun / Gyr)")
+    ax.set_ylabel("sSFR (M_sun / yr)")
     ax.set_xlabel("$z$")
 
+    ax.legend()
     fig.savefig("sSFR_evo_massbinned.png", dpi=100, bbox_inches="tight")
