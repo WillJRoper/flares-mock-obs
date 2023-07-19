@@ -345,12 +345,12 @@ if __name__ == "__main__":
             np.log10(df["Stellar_Mass (Msun)"]) < mass_bins[i + 1]
         )
         plot_meidan_stat(df["Redshift"][okinds],
-                         df["sSFR (M_sun / Gyr)"][okinds],
+                         df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
                          df["Weights"][okinds],
                          ax, lab="%.2f" % mass_bins[i],
                          color=None, bins=z_bins, ls='-')
 
-    ax.set_ylabel("sSFR (M_sun / yr)")
+    ax.set_ylabel("sSFR (M_sun / Gyr)")
     ax.set_xlabel("$z$")
 
     ax.legend()
