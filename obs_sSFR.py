@@ -81,7 +81,7 @@ def plot_meidan_stat(xs, ys, w, ax, lab, color, bins, ls='-'):
 def get_phot(num, tag, jwstFilter, sim):
     with h5py.File(sim, 'r') as hf:
         print(hf[
-            num+tag + "/Galaxy"].keys())
+            num+tag + "/Galaxy/BPASS_2.2.1/Chabrier300/Flux/DustModelI/"].keys())
         flux = np.array(hf[
             num+tag+'Galaxy/BPASS_2.2.1/Chabrier300/Flux/DustModelI/JWST/NIRCAM/'
         ].get(jwstFilter), dtype = np.float64)
@@ -89,13 +89,13 @@ def get_phot(num, tag, jwstFilter, sim):
 
 def get_mass(num, tag, sim):
     with h5py.File(sim, 'r') as hf:
-        Mstar = np.array(hf[num+tag+'/'].get('Mstar_30'),
+        Mstar = np.array(hf[num+tag+'/Galaxy'].get('Mstar_30'),
                          dtype = np.float32) * 1e10
     return Mstar
 
 def get_sfr(num, tag, sim, t_SFR = 100):
     with h5py.File(sim, 'r') as hf:
-        sfr_100 = np.array(hf[num+tag+'/SFR/'].get(f"SFR_{t_SFR}"),
+        sfr_100 = np.array(hf[num+tag+'/Galaxy/SFR/'].get(f"SFR_{t_SFR}"),
                            dtype = np.float64)
     return sfr_100
 
