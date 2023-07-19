@@ -83,7 +83,7 @@ def get_phot(num, tag, jwstFilter, sim):
         print(hf[
             num+tag + "/Galaxy/BPASS_2.2.1/Chabrier300/Flux/DustModelI/JWST/NIRCAM/"].keys(), jwstFilter)
         flux = hf[
-            num+tag+'Galaxy/BPASS_2.2.1/Chabrier300/Flux/DustModelI/JWST/NIRCAM/' + jwstFilter
+            num+tag+'/Galaxy/BPASS_2.2.1/Chabrier300/Flux/DustModelI/JWST/NIRCAM/' + jwstFilter
         ][:]
     return flux
 
