@@ -143,9 +143,11 @@ def load_flares_public(z_arr, filters,
                 Mstar = get_mass(num, tag, sim)
                 sfr100 = get_sfr(num, tag, sim, 100)
                 #print(Mstar)
-                MstarListTemp.append(Mstar)
-                SFR100ListTemp.append(sfr100)
-                fluxList.append(flux)
+                MstarListTemp.extend(Mstar)
+                SFR100ListTemp.extend(sfr100)
+                fluxList.extend(flux)
+
+                print(MstarListTemp)
                 
                 listDict = {'f090W': f090w_list, 'f115W': f115w_list,
                             'f150W': f150w_list, 'f200W': f200w_list,
@@ -153,12 +155,11 @@ def load_flares_public(z_arr, filters,
                             'f410M': f410m_list, 'f444W': f444w_list}
                 
                 if jwstFilter == 'F090W':
-                    for Mstars, SFR100s in zip(MstarListTemp, SFR100ListTemp):
-                        for Mstar, sfr100 in zip(Mstars, SFR100s):
-                            massList.append(Mstar)
-                            sfr100List.append(sfr100)
-                            zList.append(z)
-                            weights_out.append(weights[j])
+                    for Mstar, SFR100 in zip(MstarListTemp, SFR100ListTemp):
+                        massList.append(Mstar)
+                        sfr100List.append(sfr100)
+                        zList.append(z)
+                        weights_out.append(weights[j])
                             
                 for fluxes in fluxList:
                     for flux in fluxes:
