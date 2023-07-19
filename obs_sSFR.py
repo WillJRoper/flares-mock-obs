@@ -87,14 +87,12 @@ def get_phot(num, tag, jwstFilter, sim):
 
 def get_mass(num, tag, sim):
     with h5py.File(sim, 'r') as hf:
-        Mstar = np.array(hf[num+tag+'/Galaxy'].get('Mstar_30'),
-                         dtype = np.float32) * 1e10
+        Mstar = hf[num+tag+'/Galaxy/Mstar_30'][:] * 1e10
     return Mstar
 
 def get_sfr(num, tag, sim, t_SFR = 100):
     with h5py.File(sim, 'r') as hf:
-        sfr_100 = np.array(hf[num+tag+'/Galaxy'].get(f"SFR_{t_SFR}"),
-                           dtype = np.float64)
+        sfr_100 = hf[num+tag+'/Galaxy' + f"SFR_{t_SFR}"][:]
     return sfr_100
 
 def load_flares_public(z_arr, filters,
