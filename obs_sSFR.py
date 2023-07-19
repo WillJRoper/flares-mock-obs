@@ -79,7 +79,7 @@ def plot_meidan_stat(xs, ys, w, ax, lab, color, bins, ls='-'):
 
 # load FLARES public data
 def get_phot(num, tag, jwstFilter, sim):
-    with h5py.File(sim, 'r') as hf:\
+    with h5py.File(sim, 'r') as hf:
         print(hf[
             num+tag].keys())
         flux = np.array(hf[
