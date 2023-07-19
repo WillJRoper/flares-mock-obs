@@ -87,7 +87,7 @@ def get_phot(num, tag, jwstFilter, sim):
 
 def get_mass(num, tag, sim):
     with h5py.File(sim, 'r') as hf:
-        Mstar = hf[num+tag+'/Galaxy/Mstar_30'][:] * 1e10
+        Mstar = hf[num+tag+'/Galaxy/Mstar_aperture/30'][:] * 1e10
     return Mstar
 
 def get_sfr(num, tag, sim, t_SFR = 100):
