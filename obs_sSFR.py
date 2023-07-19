@@ -345,7 +345,7 @@ if __name__ == "__main__":
         plot_meidan_stat(df["Redshift"][okinds],
                          df["sSFR (M_sun / Gyr)"][okinds],
                          df["Weights"][okinds],
-                         ax, lab="", color=None, bins=zs, ls='-')
+                         ax, lab="", color=None, bins=z_bins, ls='-')
 
     ax.set_ylabel("sSFR (M_sun / Gyr)")
     ax.set_xlabel("$z$")
