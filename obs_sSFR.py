@@ -290,7 +290,7 @@ if __name__ == "__main__":
     for z in zs:
     
         flares_data = load_flares_public([z, ], filters=bands) 
-        flares_phot = np.array([flares_data["phot"][band]
+        flares_phot = np.array([flares_data["phot"][band.replace("F", "f")]
                                 for band in bands]).T * u.nJy
         beta, M_UV, SFR, sSFR = sSFR_from_phot(bands, flares_phot,
                                                flares_data["z"],
