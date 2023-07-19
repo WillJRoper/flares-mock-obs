@@ -142,7 +142,7 @@ def load_flares_public(z_arr, filters,
                 flux = get_phot(num, tag, jwstFilter, sim)
                 Mstar = get_mass(num, tag, sim)
                 sfr100 = get_sfr(num, tag, sim, 100)
-                #print(Mstar)
+                print(Mstar, flux, sfr100)
                 MstarListTemp.extend(Mstar)
                 SFR100ListTemp.extend(sfr100)
                 fluxList.extend(flux)
