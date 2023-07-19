@@ -320,7 +320,7 @@ if __name__ == "__main__":
     df.to_csv("mass_ssfr_FLARES.csv")
 
     # Define the binning
-    mass_bins = [8.5, 9.0, 9.5, 10.0, 10.5. np.inf]
+    mass_bins = [8.5, 9.0, 9.5, 10.0, 10.5, np.inf]
     z_bins = [4.5, 5.5, 6.5, 7.5, 8.5, 9.5]
 
     # Set up plot
