@@ -265,8 +265,8 @@ def sSFR_from_phot(bands, obs_flux, z, mass, rest_UV_wav_lims = [1250., 3000.] *
     flux_in_unit = obs_flux.unit
     
     # calculate wavelengths and FWHMs from input bands
-    wav = np.array([band_wavelengths[band].value for band in bands])
-    wav_err = np.array([band_FWHMs[band].value / 2 for band in bands])
+    wav = np.array([band_wavelengths[band.replace("F", "f")].value for band in bands])
+    wav_err = np.array([band_FWHMs[band.replace("F", "f")].value / 2 for band in bands])
 
     # calculate SFR and other UV properties from photometry
     rest_UV_fit_output = np.array([fit_rest_UV_power_law(wav, wav_err, flux, flux_in_unit, redshift, rest_UV_wav_lims, cosmo) \
