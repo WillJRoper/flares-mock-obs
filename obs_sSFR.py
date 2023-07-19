@@ -95,7 +95,7 @@ def get_mass(num, tag, sim):
 
 def get_sfr(num, tag, sim, t_SFR = 100):
     with h5py.File(sim, 'r') as hf:
-        sfr_100 = np.array(hf[num+tag+'/Galaxy/SFR/'].get(f"SFR_{t_SFR}"),
+        sfr_100 = np.array(hf[num+tag+'/Galaxy'].get(f"SFR_{t_SFR}"),
                            dtype = np.float64)
     return sfr_100
 
