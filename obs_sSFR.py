@@ -7,6 +7,7 @@ Created on Tue Jul 18 10:17:37 2023
 """
 
 # SFR calculation
+import os
 import astropy.units as u
 import astropy.constants as const
 import numpy as np
