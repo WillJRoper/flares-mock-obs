@@ -126,10 +126,6 @@ def load_flares_public(z_arr, filters,
         for i, jwstFilter in enumerate(jwstFilters):
             
             print(z, jwstFilter)
-            
-            MstarListTemp = []
-            SFR100ListTemp = []
-            fluxList = []
         
             for j in range(40):
                 num = str(j)
@@ -140,12 +136,6 @@ def load_flares_public(z_arr, filters,
                 flux = get_phot(num, tag, jwstFilter, sim)
                 Mstar = get_mass(num, tag, sim)
                 sfr100 = get_sfr(num, tag, sim, 100)
-                print(Mstar, flux, sfr100)
-                MstarListTemp.extend(Mstar)
-                SFR100ListTemp.extend(sfr100)
-                fluxList.extend(flux)
-
-                print(MstarListTemp)
                 
                 listDict = {'f090W': f090w_list, 'f115W': f115w_list,
                             'f150W': f150w_list, 'f200W': f200w_list,
@@ -153,15 +143,12 @@ def load_flares_public(z_arr, filters,
                             'f410M': f410m_list, 'f444W': f444w_list}
                 
                 if jwstFilter == 'F090W':
-                    for Mstar, SFR100 in zip(MstarListTemp, SFR100ListTemp):
-                        massList.append(Mstar)
-                        sfr100List.append(sfr100)
-                        zList.append(z)
-                        weights_out.append(weights[j])
+                    massList.extend(Mstar)
+                    sfr100List.extend(sfr100)
+                    zList.extend(np.full(len(Mstar), z))
+                    weights_out.extend(np.full(len(Mstar), weights[j]))
                             
-                for fluxes in fluxList:
-                    for flux in fluxes:
-                        listDict[jwstFilter.replace("F", "f")].append(flux)
+                listDict[jwstFilter.replace("F", "f")].extend(flux)
                         
     flares = {"z": zList, "phot": listDict,
               "mass": massList, "sfr100": sfr100List, "weights": weights_out}
