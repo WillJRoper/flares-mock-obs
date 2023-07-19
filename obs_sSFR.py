@@ -350,7 +350,7 @@ if __name__ == "__main__":
                          ax, lab="%.2f" % mass_bins[i],
                          color=None, bins=z_bins, ls='-')
 
-    ax.set_ylabel("sSFR (M_sun / Gyr)")
+    ax.set_ylabel("sSFR [Gyr$^{-1}$]")
     ax.set_xlabel("$z$")
 
     ax.legend()
