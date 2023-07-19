@@ -92,7 +92,7 @@ def get_mass(num, tag, sim):
 
 def get_sfr(num, tag, sim, t_SFR = 100):
     with h5py.File(sim, 'r') as hf:
-        sfr_100 = hf[num+tag+'/Galaxy' + f"/SFR_aperture/30/{t_SFR}"][:]
+        sfr_100 = hf[num+tag+'/Galaxy' + f"/SFR_aperture/30/{t_SFR}Myr"][:]
     return sfr_100
 
 def load_flares_public(z_arr, filters,
