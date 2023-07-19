@@ -279,45 +279,51 @@ def sSFR_from_phot(bands, obs_flux, z, mass, rest_UV_wav_lims = [1250., 3000.] *
     return beta, M_UV, SFR, np.array([SFR[i] / mass[i] if SFR[i] != -99. else -99. for i in range(len(mass))])
 
 if __name__ == "__main__":
+
+    if os.path.exists("mass_ssfr_FLARES.csv"):
+        
+        df = pd.read_csv("mass_ssfr_FLARES.csv")
+        
+    else:
     
-    zs = [5, 6, 7, 8, 9, 10]
-    bands = [band.replace("f", "F")
-             for band in ["f090W", "f115W", "f150W", "f200W",
-                          "f277W", "f356W", "f444W"]]
+        zs = [5, 6, 7, 8, 9, 10]
+        bands = [band.replace("f", "F")
+                 for band in ["f090W", "f115W", "f150W", "f200W",
+                              "f277W", "f356W", "f444W"]]
 
-    results = {}  # of the form: {key: (beta, M_UV, SFR, stellar_mass, sSFR)}
+        results = {}  # {z: (beta, M_UV, SFR, stellar_mass, sSFR, weights)}
 
-    for z in zs:
-    
-        flares_data = load_flares_public([z, ], filters=bands) 
-        flares_phot = np.array([flares_data["phot"][band.replace("F", "f")]
-                                for band in bands]).T * u.nJy
-        beta, M_UV, SFR, sSFR = sSFR_from_phot(bands, flares_phot,
-                                               flares_data["z"],
-                                               flares_data["mass"])
-        results[z] = (beta, M_UV, SFR, flares_data["mass"], sSFR,
-                      flares_data["weights"])
+        for z in zs:
 
-    # Convert dictionary to a set of arrays
-    zs = []
-    ms = []
-    ssfrs = []
-    ws = []
-    for key in results:
-        zs.extend(np.full(len(results[key][0]), key))
-        ms.extend(results[key][3])
-        ssfrs.extend(results[key][4])
-        ws.extend(results[key][5])
+            flares_data = load_flares_public([z, ], filters=bands) 
+            flares_phot = np.array([flares_data["phot"][band.replace("F", "f")]
+                                    for band in bands]).T * u.nJy
+            beta, M_UV, SFR, sSFR = sSFR_from_phot(bands, flares_phot,
+                                                   flares_data["z"],
+                                                   flares_data["mass"])
+            results[z] = (beta, M_UV, SFR, flares_data["mass"], sSFR,
+                          flares_data["weights"])
 
-    # And make ANOTHER dictionary to make a dataframe from
-    csv_dict = {"Redshift": zs,
-                "Stellar_Mass (Msun)": ms,
-                "sSFR (M_sun / Gyr)": ssfrs,
-                "Weights": ws}
+        # Convert dictionary to a set of arrays
+        zs = []
+        ms = []
+        ssfrs = []
+        ws = []
+        for key in results:
+            zs.extend(np.full(len(results[key][0]), key))
+            ms.extend(results[key][3])
+            ssfrs.extend(results[key][4])
+            ws.extend(results[key][5])
 
-    # Make the dataframe
-    df = pd.DataFrame.from_dict(csv_dict)
-    df.to_csv("mass_ssfr_FLARES.csv")
+        # And make ANOTHER dictionary to make a dataframe from
+        csv_dict = {"Redshift": zs,
+                    "Stellar_Mass (Msun)": ms,
+                    "sSFR (M_sun / Gyr)": ssfrs,
+                    "Weights": ws}
+
+        # Make the dataframe
+        df = pd.DataFrame.from_dict(csv_dict)
+        df.to_csv("mass_ssfr_FLARES.csv")
 
     # Define the binning
     mass_bins = [8.5, 9.0, 9.5, 10.0, 10.5, np.inf]
