@@ -80,8 +80,6 @@ def plot_meidan_stat(xs, ys, w, ax, lab, color, bins, ls='-'):
 # load FLARES public data
 def get_phot(num, tag, jwstFilter, sim):
     with h5py.File(sim, 'r') as hf:
-        print(hf[
-            num+tag + "/Galaxy/BPASS_2.2.1/Chabrier300/Flux/DustModelI/JWST/NIRCAM/"].keys(), jwstFilter)
         flux = hf[
             num+tag+'/Galaxy/BPASS_2.2.1/Chabrier300/Flux/DustModelI/JWST/NIRCAM/' + jwstFilter
         ][:]
