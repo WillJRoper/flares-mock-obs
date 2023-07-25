@@ -311,7 +311,7 @@ if __name__ == "__main__":
             beta, M_UV, SFR, sSFR = sSFR_from_phot(bands, flares_phot,
                                                    flares_data["z"],
                                                    flares_data["mass"])
-            results[z] = (flares_data["ids"], beta, M_UV, SFR, flares_data["mass"], sSFR,
+            results[z] = (flares_data["ID"], beta, M_UV, SFR, flares_data["mass"], sSFR,
                           flares_data["weights"])
 
         # Convert dictionary to a set of arrays
