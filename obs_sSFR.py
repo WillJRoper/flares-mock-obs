@@ -155,7 +155,7 @@ def load_flares_public(z_arr, filters,
                     zList.extend(np.full(len(Mstar), z))
                     weights_out.extend(np.full(len(Mstar), weights[j]))
                     for i in range(len(grp_ids)):
-                        ids.append(str(reg) + "-" + str(grp_ids[i]) + "-" + str(subgrp_ids[i]))
+                        ids.append(str(j) + "-" + str(grp_ids[i]) + "-" + str(subgrp_ids[i]))
                             
                 listDict[jwstFilter.replace("F", "f")].extend(flux)
                         
