@@ -118,6 +118,7 @@ def load_flares_public(z_arr, filters,
     sfr100List = []
     zList = []
     weights_out = []
+    ids = []
     z_labels = {5: '010_z005p000', 6: '009_z006p000', 7: '008_z007p000',
                 8: '007_z008p000', 9: '006_z009p000', 10: '005_z010p000'}
        
@@ -138,6 +139,10 @@ def load_flares_public(z_arr, filters,
                 flux = get_phot(num, tag, jwstFilter, sim)
                 Mstar = get_mass(num, tag, sim)
                 sfr100 = get_sfr(num, tag, sim, 100)
+
+                with h5py.File(sim, 'r') as hf:
+                    grp_ids = hf[num+tag+'/Galaxy/GroupNumber'][:]
+                    subgrp_ids = hf[num+tag+'/Galaxy/SubGroupNumber'][:]
                 
                 listDict = {'f090W': f090w_list, 'f115W': f115w_list,
                             'f150W': f150w_list, 'f200W': f200w_list,
@@ -149,10 +154,12 @@ def load_flares_public(z_arr, filters,
                     sfr100List.extend(sfr100)
                     zList.extend(np.full(len(Mstar), z))
                     weights_out.extend(np.full(len(Mstar), weights[j]))
+                    for i in range(len(grp_ids)):
+                        ids.append(str(reg) + "-" + str(grp_ids[i]) + "-" + str(subgrp_ids[i]))
                             
                 listDict[jwstFilter.replace("F", "f")].extend(flux)
                         
-    flares = {"z": zList, "phot": listDict,
+    flares = {"ID": ids, "z": zList, "phot": listDict,
               "mass": massList, "sfr100": sfr100List, "weights": weights_out}
     
     return flares
@@ -304,7 +311,7 @@ if __name__ == "__main__":
             beta, M_UV, SFR, sSFR = sSFR_from_phot(bands, flares_phot,
                                                    flares_data["z"],
                                                    flares_data["mass"])
-            results[z] = (beta, M_UV, SFR, flares_data["mass"], sSFR,
+            results[z] = (flares_data["ids"], beta, M_UV, SFR, flares_data["mass"], sSFR,
                           flares_data["weights"])
 
         # Convert dictionary to a set of arrays
@@ -312,14 +319,16 @@ if __name__ == "__main__":
         ms = []
         ssfrs = []
         ws = []
+        ids = []
         for key in results:
-            zs.extend(np.full(len(results[key][0]), key))
-            ms.extend(results[key][3])
-            ssfrs.extend(results[key][4])
-            ws.extend(results[key][5])
+            zs.extend(np.full(len(results[key][1]), key))
+            ms.extend(results[key][4])
+            ssfrs.extend(results[key][5])
+            ws.extend(results[key][6])
+            ids.extend(results[key][0])
 
         # And make ANOTHER dictionary to make a dataframe from
-        csv_dict = {"Redshift": zs,
+        csv_dict = {"IDs": ids, "Redshift": zs,
                     "Stellar_Mass (Msun)": ms,
                     "sSFR (M_sun / Gyr)": ssfrs,
                     "Weights": ws}
