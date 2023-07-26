@@ -365,7 +365,7 @@ if __name__ == "__main__":
 
         # And make ANOTHER dictionary to make a dataframe from
         csv_dict = {"Regions": regions, "GroupNumber": grps,
-                    "SubGroupNumber": subgrps,xs
+                    "SubGroupNumber": subgrps,
                     "Redshift": zs,
                     "Stellar_Mass (Msun)": ms,
                     "sSFR (M_sun / Gyr)": ssfrs,
