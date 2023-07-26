@@ -431,7 +431,7 @@ if __name__ == "__main__":
                                df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
                                p0=(1, 0.5),
                                sigma=df["Weights"][okinds])
-        print(mass_bins[i], popt, pcov)
+        print(mass_bins[i], popt, pcov, "count = ", len(df["Redshift"][okinds]))
         xs = np.linspace(5, 10, 1000)
         ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="--")
 
@@ -464,8 +464,8 @@ if __name__ == "__main__":
                                df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
                                p0=(1, 0.5),
                                sigma=df["Weights"][okinds])
-        print("D/T >=", dt_thresh[i], popt, pcov)
-        print("D/T <", dt_thresh[i], popt, pcov)
+        print("D/T >=", dt_thresh[i], popt, pcov,
+              "count = ", len(df["Redshift"][okinds]))
         ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="-",
                 label="$(D/T)_\mathrm{thresh}=%.1f$" % dt_thresh[i])
 
@@ -473,7 +473,8 @@ if __name__ == "__main__":
                                df["sSFR (M_sun / Gyr)"][~okinds] * 10 ** 9,
                                p0=(1, 0.5),
                                sigma=df["Weights"][~okinds])
-        print("D/T <", dt_thresh[i], popt, pcov)
+        print("D/T <", dt_thresh[i], popt, pcov,
+              "count = ", len(df["Redshift"][~okinds]))
         ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="--")
 
     ax.set_ylabel("sSFR [Gyr$^{-1}$]")
