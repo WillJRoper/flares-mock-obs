@@ -294,6 +294,59 @@ if __name__ == "__main__":
     if os.path.exists("mass_ssfr_FLARES.csv"):
         
         df = pd.read_csv("mass_ssfr_FLARES.csv")
+
+        # Load the morphology dictionary.
+        morp_data = np.load(
+            '/cosma7/data/dp004/dc-irod1/FLARES/morph_data_JWST.npy',
+            allow_pickle=True,
+        )
+        morp_data = morp_data.item()
+
+        # Convert dictionary to a set of arrays
+        zs = df["Redshift"]
+        ms = df["Stellar_Mass (Msun)"]
+        ssfrs = df["sSFR (M_sun / Gyr)"]
+        ws = df["Weights"]
+        regions = df["Regions"]
+        grps = df["GroupNumber"]
+        subgrps = df["SubGroupNumber"]
+        dts = []
+        disc_fracs = morp_data['disc_fractions']
+        morph_zs = morp_data['redshifts']
+        morph_regs = morp_data['regions']
+        morph_grps = morp_data['group_numbers']
+        morph_subgrps = morp_data['subgroup_numbers']
+        for i in range(len(zs)):
+            z = zs[i]
+            reg = regions[i]
+            grp = grps[i]
+            subgrp = subgrps[i]
+            print(reg, z, grp, subgrps)
+            dt_okinds = np.logical_and(morph_regs == reg,
+                                       morph_grps == grp)
+            dt_okinds = np.logical_and(dt_okinds,
+                                       morph_subgrps == subgrp)
+            dt_okinds = np.logical_and(dt_okinds,
+                                       morph_zs == z)
+            dt = disc_fracs[dt_okinds]
+            if len(dt) == 0:
+                dts.append(np.nan)
+            else:
+                print("Found DT:", dt)
+                dts.append(dt)
+
+        # And make ANOTHER dictionary to make a dataframe from
+        csv_dict = {"Regions": regions, "GroupNumber": grps,
+                    "SubGroupNumber": subgrps,
+                    "Redshift": zs,
+                    "Stellar_Mass (Msun)": ms,
+                    "sSFR (M_sun / Gyr)": ssfrs,
+                    "Weights": ws,
+                    "Disc_Fractions": dts}
+
+        # Make the dataframe
+        df = pd.DataFrame.from_dict(csv_dict)
+        df.to_csv("mass_ssfr_FLARES.csv")
         
     else:
     
