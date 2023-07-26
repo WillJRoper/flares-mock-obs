@@ -17,6 +17,7 @@ from astropy.cosmology import FlatLambdaCDM
 import h5py
 import pandas as pd
 import matplotlib.pyplot as plt
+from scipy.optimize import curve_fit
 
 
 def weighted_quantile(values, quantiles, sample_weight=None,
@@ -287,6 +288,9 @@ def sSFR_from_phot(bands, obs_flux, z, mass, rest_UV_wav_lims = [1250., 3000.] *
     # calculate sSFR
     return beta, M_UV, SFR, np.array([SFR[i] / mass[i] if SFR[i] != -99. else -99. for i in range(len(mass))])
 
+def fit(z, a, m):
+    return a * (1 + z) ** (-m) 
+
 if __name__ == "__main__":
 
     zs = [5, 6, 7, 8, 9, 10]
@@ -295,57 +299,59 @@ if __name__ == "__main__":
         
         df = pd.read_csv("mass_ssfr_FLARES.csv")
 
-        # Load the morphology dictionary.
-        morp_data = np.load(
-            '/cosma7/data/dp004/dc-irod1/FLARES/morph_data_JWST.npy',
-            allow_pickle=True,
-        )
-        morp_data = morp_data.item()
+        if "Disc_Fractions" not in df.columns:
 
-        # Convert dictionary to a set of arrays
-        zs = df["Redshift"]
-        ms = df["Stellar_Mass (Msun)"]
-        ssfrs = df["sSFR (M_sun / Gyr)"]
-        ws = df["Weights"]
-        regions = df["Regions"]
-        grps = df["GroupNumber"]
-        subgrps = df["SubGroupNumber"]
-        dts = np.full(len(df["SubGroupNumber"]), np.nan)
-        disc_fracs = morp_data['disc_fractions']
-        morph_zs = morp_data['redshifts']
-        morph_regs = morp_data['regions']
-        morph_grps = morp_data['group_numbers']
-        morph_subgrps = morp_data['subgroup_numbers']
-        for i in range(len(morph_zs)):
-            dt = disc_fracs[i]
-            z = morph_zs[i]
-            reg = int(morph_regs[i])
-            grp = morph_grps[i]
-            subgrp = morph_subgrps[i]
-            dt_okinds = np.logical_and(regions == reg,
-                                       grps == grp)
-            dt_okinds = np.logical_and(dt_okinds,
-                                       subgrps == subgrp)
-            dt_okinds = np.logical_and(dt_okinds,
-                                       zs == z)
-            if len(zs[dt_okinds]) == 0:
-                print(z, reg, grp, subgrp, "No match")
-            else:
-                print("Found DT:", dt)
-                dts[dt_okinds] = dt
+            # Load the morphology dictionary.
+            morp_data = np.load(
+                '/cosma7/data/dp004/dc-irod1/FLARES/morph_data_JWST.npy',
+                allow_pickle=True,
+            )
+            morp_data = morp_data.item()
 
-        # And make ANOTHER dictionary to make a dataframe from
-        csv_dict = {"Regions": regions, "GroupNumber": grps,
-                    "SubGroupNumber": subgrps,
-                    "Redshift": zs,
-                    "Stellar_Mass (Msun)": ms,
-                    "sSFR (M_sun / Gyr)": ssfrs,
-                    "Weights": ws,
-                    "Disc_Fractions": dts}
+            # Convert dictionary to a set of arrays
+            zs = df["Redshift"]
+            ms = df["Stellar_Mass (Msun)"]
+            ssfrs = df["sSFR (M_sun / Gyr)"]
+            ws = df["Weights"]
+            regions = df["Regions"]
+            grps = df["GroupNumber"]
+            subgrps = df["SubGroupNumber"]
+            dts = np.full(len(df["SubGroupNumber"]), np.nan)
+            disc_fracs = morp_data['disc_fractions']
+            morph_zs = morp_data['redshifts']
+            morph_regs = morp_data['regions']
+            morph_grps = morp_data['group_numbers']
+            morph_subgrps = morp_data['subgroup_numbers']
+            for i in range(len(morph_zs)):
+                dt = disc_fracs[i]
+                z = morph_zs[i]
+                reg = int(morph_regs[i])
+                grp = morph_grps[i]
+                subgrp = morph_subgrps[i]
+                dt_okinds = np.logical_and(regions == reg,
+                                           grps == grp)
+                dt_okinds = np.logical_and(dt_okinds,
+                                           subgrps == subgrp)
+                dt_okinds = np.logical_and(dt_okinds,
+                                           zs == z)
+                if len(zs[dt_okinds]) == 0:
+                    print(z, reg, grp, subgrp, "No match")
+                else:
+                    print("Found DT:", dt)
+                    dts[dt_okinds] = dt
 
-        # Make the dataframe
-        df = pd.DataFrame.from_dict(csv_dict)
-        df.to_csv("mass_ssfr_FLARES.csv")
+            # And make ANOTHER dictionary to make a dataframe from
+            csv_dict = {"Regions": regions, "GroupNumber": grps,
+                        "SubGroupNumber": subgrps,
+                        "Redshift": zs,
+                        "Stellar_Mass (Msun)": ms,
+                        "sSFR (M_sun / Gyr)": ssfrs,
+                        "Weights": ws,
+                        "Disc_Fractions": dts}
+
+            # Make the dataframe
+            df = pd.DataFrame.from_dict(csv_dict)
+            df.to_csv("mass_ssfr_FLARES.csv")
         
     else:
     
@@ -366,13 +372,6 @@ if __name__ == "__main__":
             results[z] = (flares_data["ID"], beta, M_UV, SFR, flares_data["mass"], sSFR,
                           flares_data["weights"])
 
-        # Load the morphology dictionary.
-        morp_data = np.load(
-            '/cosma7/data/dp004/dc-irod1/FLARES/morph_data_JWST.npy',
-            allow_pickle=True,
-        )
-        morp_data = morp_data.item()
-
         # Convert dictionary to a set of arrays
         zs = []
         ms = []
@@ -381,33 +380,16 @@ if __name__ == "__main__":
         regions = []
         grps = []
         subgrps = []
-        dts = []
         for key in results:
             zs.extend(np.full(len(results[key][1]), key))
             ms.extend(results[key][4])
             ssfrs.extend(results[key][5])
             ws.extend(results[key][6])
-            okinds = morp_data['redshifts'] == key
-            disc_fracs = morp_data['disc_fractions'][okinds]
-            morph_regs = morp_data['regions'][okinds]
-            morph_grps = morp_data['group_numbers'][okinds]
-            morph_subgrps = morp_data['subgroup_numbers'][okinds]
             for i in range(len(results[key][0])):
                 split_id = [int(j) for j in results[key][0][i].split("_")]
                 regions.append(split_id[0])
                 grps.append(split_id[1])
                 subgrps.append(split_id[2])
-                print(morph_regs[0], split_id[0])
-                dt_okinds = np.logical_and(morph_regs == split_id[0],
-                                           morph_grps == split_id[1])
-                dt_okinds = np.logical_and(dt_okinds,
-                                           morph_subgrps == split_id[2])
-                dt = disc_fracs[dt_okinds]
-                if len(dt) == 0:
-                    dts.append(np.nan)
-                else:
-                    print("Found DT:", dt)
-                    dts.append(dt)
 
         # And make ANOTHER dictionary to make a dataframe from
         csv_dict = {"Regions": regions, "GroupNumber": grps,
@@ -415,8 +397,7 @@ if __name__ == "__main__":
                     "Redshift": zs,
                     "Stellar_Mass (Msun)": ms,
                     "sSFR (M_sun / Gyr)": ssfrs,
-                    "Weights": ws,
-                    "Disc_Fractions": dts}
+                    "Weights": ws}
 
         # Make the dataframe
         df = pd.DataFrame.from_dict(csv_dict)
@@ -443,6 +424,13 @@ if __name__ == "__main__":
                          df["Weights"][okinds],
                          ax, lab="%.2f" % mass_bins[i],
                          color=None, bins=z_bins, ls='-')
+        popt, pcov = curve_fit(fit, df["Redshift"][okinds],
+                               df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
+                               p0=(1, 0.5),
+                               sigma=df["Weights"][okinds])
+        print(mass_bins[i], popt, pcov)
+        xs = np.linspace(5, 10, 1000)
+        ax.plot(xs, fit(xs, popt[0], popt[1]), linestyle="--")
 
     ax.set_ylabel("sSFR [Gyr$^{-1}$]")
     ax.set_xlabel("$z$")
