@@ -155,7 +155,7 @@ def load_flares_public(z_arr, filters,
                     zList.extend(np.full(len(Mstar), z))
                     weights_out.extend(np.full(len(Mstar), weights[j]))
                     for i in range(len(grp_ids)):
-                        ids.append(str(j) + "-" + str(grp_ids[i]) + "-" + str(subgrp_ids[i]))
+                        ids.append(str(j) + "_" + str(grp_ids[i]) + "_" + str(subgrp_ids[i]))
                             
                 listDict[jwstFilter.replace("F", "f")].extend(flux)
                         
@@ -314,24 +314,63 @@ if __name__ == "__main__":
             results[z] = (flares_data["ID"], beta, M_UV, SFR, flares_data["mass"], sSFR,
                           flares_data["weights"])
 
+        print(morp_data['regions'])
+        print(morp_data['redshifts'])
+        print(morp_data['group_numbers'])
+        print(morp_data['disc_fractions'])
+        print(morp_data['subgroup_numbers'])
+
+        # Load the morphology dictionary.
+        morp_data = np.load(
+            '/cosma7/data/dp004/dc-irod1/FLARES/morph_data_JWST.npy',
+            allow_pickle=True,
+        )
+        morp_data = morp_data.item()
+
         # Convert dictionary to a set of arrays
         zs = []
         ms = []
         ssfrs = []
         ws = []
-        ids = []
+        regions = []
+        grps = []
+        subgrps = []
+        dts = []
         for key in results:
             zs.extend(np.full(len(results[key][1]), key))
             ms.extend(results[key][4])
             ssfrs.extend(results[key][5])
             ws.extend(results[key][6])
-            ids.extend(results[key][0])
+            okinds = morp_data['redshifts'] == key
+            disc_fracs = morp_data['disc_fractions'][okinds]xs
+            morph_regs = morp_data['regions'][okinds]
+            morph_grps = morp_data['group_numbers'][okinds]
+            morph_subgrps = morp_data['subgroup_numbers'][okinds]
+            for i in range(len(results[key][0])):
+                split_id = [int(j) for j in results[key][0][i].split("_")]
+                regions.append(split_id[0])
+                grps.append(split_id[1])
+                subgrps.append(split_id[2])
+                print(morph_regs[0], split_id[0])
+                dt_okinds = np.logical_and(morph_regs == split_id[0],
+                                           morph_grps == split_id[1])
+                dt_okinds = np.logical_and(dt_okinds,
+                                           morph_subgrps == split_id[2])
+                dt = disc_fracs[dt_okinds]
+                if len(dt) == 0:
+                    dts.append(np.nan)
+                else:
+                    print("Found DT:", dt)
+                    dts.append(dt)
 
         # And make ANOTHER dictionary to make a dataframe from
-        csv_dict = {"IDs": ids, "Redshift": zs,
+        csv_dict = {"Regions": regions, "GroupNumber": grps,
+                    "SubGroupNumber": subgrps,xs
+                    "Redshift": zs,
                     "Stellar_Mass (Msun)": ms,
                     "sSFR (M_sun / Gyr)": ssfrs,
-                    "Weights": ws}
+                    "Weights": ws,
+                    "Disc_Fractions": dts}
 
         # Make the dataframe
         df = pd.DataFrame.from_dict(csv_dict)
