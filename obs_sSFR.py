@@ -342,7 +342,7 @@ if __name__ == "__main__":
             ssfrs.extend(results[key][5])
             ws.extend(results[key][6])
             okinds = morp_data['redshifts'] == key
-            disc_fracs = morp_data['disc_fractions'][okinds]xs
+            disc_fracs = morp_data['disc_fractions'][okinds]
             morph_regs = morp_data['regions'][okinds]
             morph_grps = morp_data['group_numbers'][okinds]
             morph_subgrps = morp_data['subgroup_numbers'][okinds]
