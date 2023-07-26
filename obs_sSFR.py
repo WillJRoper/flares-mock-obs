@@ -463,7 +463,7 @@ if __name__ == "__main__":
     ax.semilogy()
     ax.grid(True)
 
-    xs = np.linspace(5, 10, 1000)
+    xs = np.linspace(5, 8, 1000)
     
     legend_elements2 = []
 
