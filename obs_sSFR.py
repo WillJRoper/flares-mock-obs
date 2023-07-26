@@ -509,7 +509,7 @@ if __name__ == "__main__":
                                   label="Spheriod",
                                   linestyle="--")]
 
-    ax.legend(handles=legend_elements1)
+    ax.legend(handles=legend_elements1, loc='upper left', fancybox=True, ncol=1)
     ax.legend(handles=legend_elements2,
               loc='upper center',
               bbox_to_anchor=(0.5, -0.15),
