@@ -475,17 +475,16 @@ if __name__ == "__main__":
         ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="-",
                 label="$(D/T)_\mathrm{thresh}=%.1f$" % dt_thresh[i])
 
+        okinds = np.logical_and(df["Disc_Fractions"] < dt_thresh[i],
+                                ~np.isnan(df["Disc_Fractions"]))
         popt, pcov = curve_fit(
             fit,
-            df["Redshift"][np.logical_and(~okinds,
-                                          ~np.isnan(df["Disc_Fractions"]))],
-            df["sSFR (M_sun / Gyr)"][np.logical_and(~okinds,
-                                                    ~np.isnan(df["Disc_Fractions"]))] * 10 ** 9,
+            df["Redshift"][okinds],
+            df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
             p0=(1, 0.5),
-            sigma=df["Weights"][np.logical_and(~okinds,
-                                               ~np.isnan(df["Disc_Fractions"]))])
+            sigma=df["Weights"][okinds])
         print("D/T <", dt_thresh[i], popt, pcov,
-              "count = ", len(df["Redshift"][~okinds]))
+              "count = ", len(df["Redshift"][okinds]))
         ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="--")
 
     ax.set_ylabel("sSFR [Gyr$^{-1}$]")
