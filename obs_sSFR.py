@@ -319,7 +319,7 @@ if __name__ == "__main__":
         for i in range(len(morph_zs)):
             dt = disc_fracs[i]
             z = morph_zs[i]
-            reg = morph_regs[i]
+            reg = int(morph_regs[i])
             grp = morph_grps[i]
             subgrp = morph_subgrps[i]
             dt_okinds = np.logical_and(regions == reg,
