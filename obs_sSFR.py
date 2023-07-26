@@ -314,12 +314,6 @@ if __name__ == "__main__":
             results[z] = (flares_data["ID"], beta, M_UV, SFR, flares_data["mass"], sSFR,
                           flares_data["weights"])
 
-        print(morp_data['regions'])
-        print(morp_data['redshifts'])
-        print(morp_data['group_numbers'])
-        print(morp_data['disc_fractions'])
-        print(morp_data['subgroup_numbers'])
-
         # Load the morphology dictionary.
         morp_data = np.load(
             '/cosma7/data/dp004/dc-irod1/FLARES/morph_data_JWST.npy',
