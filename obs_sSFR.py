@@ -18,6 +18,7 @@ import h5py
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.optimize import curve_fit
+from matplotlib.lines import Line2D
 
 
 def weighted_quantile(values, quantiles, sample_weight=None,
@@ -434,17 +435,19 @@ if __name__ == "__main__":
         print(mass_bins[i], popt, pcov, "count = ", len(df["Redshift"][okinds]))
         xs = np.linspace(5, 10, 1000)
         if mass_bins[i + 1] != np.inf:
-            label = "$10^{%.2f} \leq M_\star / M_\odot < %.2f$" % (mass_bins[i],
-                                                                   mass_bins[i + 1])
+            label = "$%.1f \leq \log_{10}(M_\star / M_\odot) < %.1f$" % (mass_bins[i],
+                                                                         mass_bins[i + 1])
         else:
-            label = "$10^{%.2f} \leq M_\star / M_\odot$" % mass_bins[i]
+            label = "$%.1f \leq \log_{10}(M_\star / M_\odot)$" % mass_bins[i]
         ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="-",
                 label=label)
 
     ax.set_ylabel("sSFR [Gyr$^{-1}$]")
     ax.set_xlabel("$z$")
 
-    ax.legend()
+    ax.legend(loc='upper center',
+              bbox_to_anchor=(0.5, -0.3),
+              fancybox=True, ncol=2)
     fig.savefig("sSFR_evo_massbinned.png", dpi=100, bbox_inches="tight")
 
     # Define the binning
@@ -459,6 +462,8 @@ if __name__ == "__main__":
     ax.grid(True)
 
     xs = np.linspace(5, 10, 1000)
+    
+    legend_elements2 = []
 
     for i in range(len(dt_thresh)):
 
@@ -472,8 +477,13 @@ if __name__ == "__main__":
                                sigma=df["Weights"][okinds])
         print("D/T >=", dt_thresh[i], popt, pcov,
               "count = ", len(df["Redshift"][okinds]))
-        ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="-",
-                label="$(D/T)_\mathrm{thresh}=%.1f$" % dt_thresh[i])
+        ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="-")
+
+        legend_elements2.append(
+            Line2D([0], [0], color=c,
+                   label="$(D/T)_\mathrm{thresh}=%.1f$" % dt_thresh[i],
+                   linestyle="-")
+        )
 
         okinds = np.logical_and(df["Disc_Fractions"] < dt_thresh[i],
                                 ~np.isnan(df["Disc_Fractions"]))
@@ -489,6 +499,17 @@ if __name__ == "__main__":
 
     ax.set_ylabel("sSFR [Gyr$^{-1}$]")
     ax.set_xlabel("$z$")
+    
+    legend_elements1 = [Line2D([0], [0], color='k',
+                                  label="Disk",
+                                  linestyle="-"),
+                        Line2D([0], [0], color='k',
+                                  label="Spheriod",
+                                  linestyle="--")]
 
-    ax.legend()
+    ax.legend(handles=legend_elements1)
+    ax.legend(handles=legend_elements2,
+              loc='upper center',
+              bbox_to_anchor=(0.5, -0.3),
+              fancybox=True, ncol=2)
     fig.savefig("sSFR_evo_DTthresh.png", dpi=100, bbox_inches="tight")
