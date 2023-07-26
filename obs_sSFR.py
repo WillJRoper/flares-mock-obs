@@ -289,7 +289,7 @@ def sSFR_from_phot(bands, obs_flux, z, mass, rest_UV_wav_lims = [1250., 3000.] *
     return beta, M_UV, SFR, np.array([SFR[i] / mass[i] if SFR[i] != -99. else -99. for i in range(len(mass))])
 
 def fit(z, a, m):
-    return a * (1 + z) ** (-m) 
+    return a * (1 + z) ** (m) 
 
 if __name__ == "__main__":
 
@@ -422,11 +422,11 @@ if __name__ == "__main__":
             np.log10(df["Stellar_Mass (Msun)"]) >= mass_bins[i],
             np.log10(df["Stellar_Mass (Msun)"]) < mass_bins[i + 1]
         )
-        plot_meidan_stat(df["Redshift"][okinds],
-                         df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
-                         df["Weights"][okinds],
-                         ax, lab="%.2f" % mass_bins[i],
-                         color=c, bins=z_bins, ls='-')
+        # plot_meidan_stat(df["Redshift"][okinds],
+        #                  df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
+        #                  df["Weights"][okinds],
+        #                  ax, lab="%.2f" % mass_bins[i],
+        #                  color=c, bins=z_bins, ls='-')
         popt, pcov = curve_fit(fit, df["Redshift"][okinds],
                                df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
                                p0=(1, 0.5),
@@ -440,3 +440,44 @@ if __name__ == "__main__":
 
     ax.legend()
     fig.savefig("sSFR_evo_massbinned.png", dpi=100, bbox_inches="tight")
+
+    # Define the binning
+    dt_thresh = [0.5, 0.6, 0.7, 0.8]
+    z_bins = np.array([4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5])
+    colors = ["r", "g", "b", "m"]
+
+    # Set up plot
+    fig = plt.figure()
+    ax = fig.add_subplot(111)
+    ax.semilogy()
+    ax.grid(True)
+
+    xs = np.linspace(5, 10, 1000)
+
+    for i in range(len(dt_thresh)):
+
+        c = colors[i]
+
+        okinds = np.logical_and(df["Disc_Fractions"] >= dt_thresh[i],
+                                ~np.isnan(df["Disc_Fractions"]))
+        popt, pcov = curve_fit(fit, df["Redshift"][okinds],
+                               df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
+                               p0=(1, 0.5),
+                               sigma=df["Weights"][okinds])
+        print("D/T >=", dt_thresh[i], popt, pcov)
+        print("D/T <", dt_thresh[i], popt, pcov)
+        ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="-",
+                label="$(D/T)_\mathrm{thresh}=%.1f$" % dt_thresh[i])
+
+        popt, pcov = curve_fit(fit, df["Redshift"][~okinds],
+                               df["sSFR (M_sun / Gyr)"][~okinds] * 10 ** 9,
+                               p0=(1, 0.5),
+                               sigma=df["Weights"][~okinds])
+        print("D/T <", dt_thresh[i], popt, pcov)
+        ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="--")
+
+    ax.set_ylabel("sSFR [Gyr$^{-1}$]")
+    ax.set_xlabel("$z$")
+
+    ax.legend()
+    fig.savefig("sSFR_evo_DTthresh.png", dpi=100, bbox_inches="tight")
