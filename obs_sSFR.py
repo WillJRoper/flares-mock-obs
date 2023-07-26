@@ -406,6 +406,7 @@ if __name__ == "__main__":
     # Define the binning
     mass_bins = [8.5, 9.0, 9.5, 10.0, 10.5, np.inf]
     z_bins = np.array([4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5])
+    colors = ["r", "g", "b", "m", "y"]
 
     # Set up plot
     fig = plt.figure()
@@ -415,6 +416,8 @@ if __name__ == "__main__":
 
     for i in range(len(mass_bins) - 1):
 
+        c = colors[i]
+
         okinds = np.logical_and(
             np.log10(df["Stellar_Mass (Msun)"]) >= mass_bins[i],
             np.log10(df["Stellar_Mass (Msun)"]) < mass_bins[i + 1]
@@ -423,14 +426,14 @@ if __name__ == "__main__":
                          df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
                          df["Weights"][okinds],
                          ax, lab="%.2f" % mass_bins[i],
-                         color=None, bins=z_bins, ls='-')
+                         color=c, bins=z_bins, ls='-')
         popt, pcov = curve_fit(fit, df["Redshift"][okinds],
                                df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
                                p0=(1, 0.5),
                                sigma=df["Weights"][okinds])
         print(mass_bins[i], popt, pcov)
         xs = np.linspace(5, 10, 1000)
-        ax.plot(xs, fit(xs, popt[0], popt[1]), linestyle="--")
+        ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="--")
 
     ax.set_ylabel("sSFR [Gyr$^{-1}$]")
     ax.set_xlabel("$z$")
