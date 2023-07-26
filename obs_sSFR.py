@@ -509,9 +509,10 @@ if __name__ == "__main__":
                                   label="Spheriod",
                                   linestyle="--")]
 
-    ax.legend(handles=legend_elements2,
-              loc='upper center',
-              bbox_to_anchor=(0.5, -0.15),
-              fancybox=True, ncol=2)
+    legend1 = ax.legend(handles=legend_elements2,
+                        loc='upper center',
+                        bbox_to_anchor=(0.5, -0.15),
+                        fancybox=True, ncol=2)
     ax.legend(handles=legend_elements1, loc='upper left', fancybox=True, ncol=1)
+    ax.add_artist(legend1)
     fig.savefig("sSFR_evo_DTthresh.png", dpi=300, bbox_inches="tight")
