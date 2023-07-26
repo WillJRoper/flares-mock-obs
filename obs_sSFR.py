@@ -122,7 +122,9 @@ def load_flares_public(z_arr, filters,
     weights_out = []
     ids = []
     z_labels = {5: '010_z005p000', 6: '009_z006p000', 7: '008_z007p000',
-                8: '007_z008p000', 9: '006_z009p000', 10: '005_z010p000'}
+                8: '007_z008p000', 9: '006_z009p000', 10: '005_z010p000',
+                11: '004_z011p000', 12: '003_z012p000', 13: '002_z013p000',
+                14: '001_z014p000', 15: '000_z015p000'}
        
     for z, tag in zip(z_arr, [z_labels[redshift] for redshift in z_arr]):
         
@@ -294,7 +296,7 @@ def fit(z, a, m):
 
 if __name__ == "__main__":
 
-    zs = [5, 6, 7, 8, 9, 10]
+    zs = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
     if os.path.exists("mass_ssfr_FLARES.csv"):
         
@@ -446,7 +448,7 @@ if __name__ == "__main__":
     ax.set_xlabel("$z$")
 
     ax.legend(loc='upper center',
-              bbox_to_anchor=(0.5, -0.3),
+              bbox_to_anchor=(0.5, -0.15),
               fancybox=True, ncol=2)
     fig.savefig("sSFR_evo_massbinned.png", dpi=100, bbox_inches="tight")
 
@@ -510,6 +512,6 @@ if __name__ == "__main__":
     ax.legend(handles=legend_elements1)
     ax.legend(handles=legend_elements2,
               loc='upper center',
-              bbox_to_anchor=(0.5, -0.3),
+              bbox_to_anchor=(0.5, -0.15),
               fancybox=True, ncol=2)
     fig.savefig("sSFR_evo_DTthresh.png", dpi=100, bbox_inches="tight")
