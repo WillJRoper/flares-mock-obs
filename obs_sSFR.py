@@ -475,10 +475,10 @@ if __name__ == "__main__":
         ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="-",
                 label="$(D/T)_\mathrm{thresh}=%.1f$" % dt_thresh[i])
 
-        popt, pcov = curve_fit(fit, df["Redshift"][~okinds],
-                               df["sSFR (M_sun / Gyr)"][~okinds] * 10 ** 9,
+        popt, pcov = curve_fit(fit, df["Redshift"][np.logical_and(~okinds, ~np.isnan)],
+                               df["sSFR (M_sun / Gyr)"][np.logical_and(~okinds, ~np.isnan)] * 10 ** 9,
                                p0=(1, 0.5),
-                               sigma=df["Weights"][~okinds])
+                               sigma=df["Weights"][np.logical_and(~okinds, ~np.isnan)])
         print("D/T <", dt_thresh[i], popt, pcov,
               "count = ", len(df["Redshift"][~okinds]))
         ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="--")
