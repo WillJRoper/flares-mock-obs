@@ -310,30 +310,29 @@ if __name__ == "__main__":
         regions = df["Regions"]
         grps = df["GroupNumber"]
         subgrps = df["SubGroupNumber"]
-        dts = []
+        dts = np.full(len(df["SubGroupNumber"]), np.nan)
         disc_fracs = morp_data['disc_fractions']
         morph_zs = morp_data['redshifts']
         morph_regs = morp_data['regions']
         morph_grps = morp_data['group_numbers']
         morph_subgrps = morp_data['subgroup_numbers']
-        for i in range(len(zs)):
-            z = zs[i]
-            reg = regions[i]
-            grp = grps[i]
-            subgrp = subgrps[i]
-            print(reg, z, grp, subgrps)
-            dt_okinds = np.logical_and(morph_regs == reg,
-                                       morph_grps == grp)
+        for i in range(len(morph_zs)):
+            dt = disc_fracs[i]
+            z = morph_zs[i]
+            reg = morph_regs[i]
+            grp = morph_grps[i]
+            subgrp = morph_subgrps[i]
+            dt_okinds = np.logical_and(regions == reg,
+                                       grps == grp)
             dt_okinds = np.logical_and(dt_okinds,
-                                       morph_subgrps == subgrp)
+                                       subgrps == subgrp)
             dt_okinds = np.logical_and(dt_okinds,
-                                       morph_zs == z)
-            dt = disc_fracs[dt_okinds]
-            if len(dt) == 0:
-                dts.append(np.nan)
+                                       zs == z)
+            if len(zs[dt_okinds]) == 0:
+                print(z, reg, grp, subgrp, "No match")
             else:
                 print("Found DT:", dt)
-                dts.append(dt)
+                dts[dt_okinds] = dt
 
         # And make ANOTHER dictionary to make a dataframe from
         csv_dict = {"Regions": regions, "GroupNumber": grps,
