@@ -433,7 +433,13 @@ if __name__ == "__main__":
                                sigma=df["Weights"][okinds])
         print(mass_bins[i], popt, pcov, "count = ", len(df["Redshift"][okinds]))
         xs = np.linspace(5, 10, 1000)
-        ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="--")
+        if mass_bins[i + 1] != np.inf:
+            label = "$10^{%.2f} \leq M_\star / M_\odot < %.2f$" % (mass_bins[i],
+                                                                   mass_bins[i + 1])
+        else:
+            label = "$10^{%.2f} \leq M_\star / M_\odot$" % mass_bins[i]
+        ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="-",
+                label=label)
 
     ax.set_ylabel("sSFR [Gyr$^{-1}$]")
     ax.set_xlabel("$z$")
