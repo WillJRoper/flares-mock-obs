@@ -450,7 +450,7 @@ if __name__ == "__main__":
     ax.legend(loc='upper center',
               bbox_to_anchor=(0.5, -0.15),
               fancybox=True, ncol=2)
-    fig.savefig("sSFR_evo_massbinned.png", dpi=100, bbox_inches="tight")
+    fig.savefig("sSFR_evo_massbinned.png", dpi=300, bbox_inches="tight")
 
     # Define the binning
     dt_thresh = [0.5, 0.6, 0.7, 0.8]
@@ -509,9 +509,9 @@ if __name__ == "__main__":
                                   label="Spheriod",
                                   linestyle="--")]
 
-    ax.legend(handles=legend_elements1, loc='upper left', fancybox=True, ncol=1)
     ax.legend(handles=legend_elements2,
               loc='upper center',
               bbox_to_anchor=(0.5, -0.15),
               fancybox=True, ncol=2)
-    fig.savefig("sSFR_evo_DTthresh.png", dpi=100, bbox_inches="tight")
+    ax.legend(handles=legend_elements1, loc='upper left', fancybox=True, ncol=1)
+    fig.savefig("sSFR_evo_DTthresh.png", dpi=300, bbox_inches="tight")
