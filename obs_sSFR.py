@@ -416,7 +416,6 @@ if __name__ == "__main__":
     # Set up plot
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.semilogy()
     ax.grid(True)
 
     # Plot each mass bin
@@ -463,7 +462,6 @@ if __name__ == "__main__":
     # Set up plot
     fig = plt.figure()
     ax = fig.add_subplot(111)
-    ax.semilogy()
     ax.grid(True)
 
     # xs for plotting
@@ -489,7 +487,7 @@ if __name__ == "__main__":
 
         legend_elements2.append(
             Line2D([0], [0], color=c,
-                   label="$(D/T)_\mathrm{thresh}=%.1f$" % dt_thresh[i],
+                   label="$(D/T)_\mathrm{thresh}=%.2f$" % dt_thresh[i],
                    linestyle="-")
         )
 
