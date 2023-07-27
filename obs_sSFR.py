@@ -298,10 +298,12 @@ if __name__ == "__main__":
 
     zs = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
 
+    # Does the file exist? Avoid remaking it
     if os.path.exists("mass_ssfr_FLARES.csv"):
         
         df = pd.read_csv("mass_ssfr_FLARES.csv")
 
+        # Has the morphology data been linked in?
         if "Disc_Fractions" not in df.columns:
 
             # Load the morphology dictionary.
@@ -417,19 +419,18 @@ if __name__ == "__main__":
     ax.semilogy()
     ax.grid(True)
 
+    # Plot each mass bin
     for i in range(len(mass_bins) - 1):
 
         c = colors[i]
 
+        # Get mask for this bin
         okinds = np.logical_and(
             np.log10(df["Stellar_Mass (Msun)"]) >= mass_bins[i],
             np.log10(df["Stellar_Mass (Msun)"]) < mass_bins[i + 1]
         )
-        # plot_meidan_stat(df["Redshift"][okinds],
-        #                  df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
-        #                  df["Weights"][okinds],
-        #                  ax, lab="%.2f" % mass_bins[i],
-        #                  color=c, bins=z_bins, ls='-')
+        
+        # Fit this mass bin
         popt, pcov = curve_fit(fit, df["Redshift"][okinds],
                                df["sSFR (M_sun / Gyr)"][okinds] * 10 ** 9,
                                p0=(1, 0.5),
@@ -441,6 +442,7 @@ if __name__ == "__main__":
                                                                          mass_bins[i + 1])
         else:
             label = "$%.1f \leq \log_{10}(M_\star / M_\odot)$" % mass_bins[i]
+            
         ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="-",
                 label=label)
 
@@ -450,12 +452,13 @@ if __name__ == "__main__":
     ax.legend(loc='upper center',
               bbox_to_anchor=(0.5, -0.15),
               fancybox=True, ncol=2)
+    
     fig.savefig("sSFR_evo_massbinned.png", dpi=300, bbox_inches="tight")
 
     # Define the binning
-    dt_thresh = [0.5, 0.6, 0.7, 0.8]
+    dt_thresh = [0.2, 0.25, 0.3]
     z_bins = np.array([4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5])
-    colors = ["r", "g", "b", "m"]
+    colors = ["r", "g", "b"]
 
     # Set up plot
     fig = plt.figure()
@@ -463,14 +466,17 @@ if __name__ == "__main__":
     ax.semilogy()
     ax.grid(True)
 
+    # xs for plotting
     xs = np.linspace(5, 8, 1000)
     
     legend_elements2 = []
 
+    # Loop over thresholds
     for i in range(len(dt_thresh)):
 
         c = colors[i]
 
+        # Fit and plot disks
         okinds = np.logical_and(df["Disc_Fractions"] >= dt_thresh[i],
                                 ~np.isnan(df["Disc_Fractions"]))
         popt, pcov = curve_fit(fit, df["Redshift"][okinds],
@@ -487,6 +493,7 @@ if __name__ == "__main__":
                    linestyle="-")
         )
 
+        # Fit and plot not disks
         okinds = np.logical_and(df["Disc_Fractions"] < dt_thresh[i],
                                 ~np.isnan(df["Disc_Fractions"]))
         popt, pcov = curve_fit(
@@ -501,7 +508,8 @@ if __name__ == "__main__":
 
     ax.set_ylabel("sSFR [Gyr$^{-1}$]")
     ax.set_xlabel("$z$")
-    
+
+    # Set up both legends
     legend_elements1 = [Line2D([0], [0], color='k',
                                   label="Disk",
                                   linestyle="-"),
@@ -515,4 +523,6 @@ if __name__ == "__main__":
                         fancybox=True, ncol=2)
     ax.legend(handles=legend_elements1, loc='upper left', fancybox=True, ncol=1)
     ax.add_artist(legend1)
+
+    
     fig.savefig("sSFR_evo_DTthresh.png", dpi=300, bbox_inches="tight")
