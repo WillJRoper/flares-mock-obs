@@ -416,6 +416,7 @@ if __name__ == "__main__":
     # Set up plot
     fig = plt.figure()
     ax = fig.add_subplot(111)
+    ax.semilogy()
     ax.grid(True)
 
     # Plot each mass bin
@@ -455,9 +456,9 @@ if __name__ == "__main__":
     fig.savefig("sSFR_evo_massbinned.png", dpi=300, bbox_inches="tight")
 
     # Define the binning
-    dt_thresh = [0.2, 0.25, 0.3]
+    dt_thresh = [0.25,]
     z_bins = np.array([4.5, 5.5, 6.5, 7.5, 8.5, 9.5, 10.5])
-    colors = ["r", "g", "b"]
+    colors = ["k",]
 
     # Set up plot
     fig = plt.figure()
@@ -466,8 +467,6 @@ if __name__ == "__main__":
 
     # xs for plotting
     xs = np.linspace(5, 8, 1000)
-    
-    legend_elements2 = []
 
     # Loop over thresholds
     for i in range(len(dt_thresh)):
@@ -483,13 +482,7 @@ if __name__ == "__main__":
                                sigma=df["Weights"][okinds])
         print("D/T >=", dt_thresh[i], popt, pcov,
               "count = ", len(df["Redshift"][okinds]))
-        ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="-")
-
-        legend_elements2.append(
-            Line2D([0], [0], color=c,
-                   label="$(D/T)_\mathrm{thresh}=%.2f$" % dt_thresh[i],
-                   linestyle="-")
-        )
+        ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="-", label="Disk")
 
         # Fit and plot not disks
         okinds = np.logical_and(df["Disc_Fractions"] < dt_thresh[i],
@@ -502,25 +495,12 @@ if __name__ == "__main__":
             sigma=df["Weights"][okinds])
         print("D/T <", dt_thresh[i], popt, pcov,
               "count = ", len(df["Redshift"][okinds]))
-        ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="--")
+        ax.plot(xs, fit(xs, popt[0], popt[1]), color=c, linestyle="--", label="Spheriod")
 
     ax.set_ylabel("sSFR [Gyr$^{-1}$]")
     ax.set_xlabel("$z$")
 
-    # Set up both legends
-    legend_elements1 = [Line2D([0], [0], color='k',
-                                  label="Disk",
-                                  linestyle="-"),
-                        Line2D([0], [0], color='k',
-                                  label="Spheriod",
-                                  linestyle="--")]
-
-    legend1 = ax.legend(handles=legend_elements2,
-                        loc='upper center',
-                        bbox_to_anchor=(0.5, -0.15),
-                        fancybox=True, ncol=2)
-    ax.legend(handles=legend_elements1, loc='upper left', fancybox=True, ncol=1)
-    ax.add_artist(legend1)
-
+    # Set up legend
+    ax.legend()
     
     fig.savefig("sSFR_evo_DTthresh.png", dpi=300, bbox_inches="tight")
