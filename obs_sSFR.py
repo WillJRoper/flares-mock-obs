@@ -687,6 +687,9 @@ if __name__ == "__main__":
     ax = fig.add_subplot(111)
     ax.grid(True)
 
+    # Define line weights
+    line_weights = [1, 2, 3, 4]
+
     # xs for plotting
     xs = np.linspace(5, 8, 1000)
 
